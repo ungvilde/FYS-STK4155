@@ -122,11 +122,8 @@ class OLS(Regression):
 
         # x and y might not be the same length
         # we find the longest which will be the n dimention of the design matrix X
-        if len(x) >= len(y):
-            N = len(x)
-        else:
-            N = len(y)
-        
+        N = max(len(x), len(y))
+
         # initializes the designmatrix with order 0
         X = np.ones((N, triangular_number(self._order+1)))
 
