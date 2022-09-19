@@ -135,7 +135,7 @@ class OLS(Regression):
             for ii in range(i+1):
                 X[:, place] = x**ii * y**(i-ii)
                 place += 1
-        
+
         self._design = X
     
     def calc_beta(self, output=False):
