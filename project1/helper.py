@@ -3,10 +3,7 @@
 
 def triangular_number(n):
     '''this is to figure out how many permutations we have with x and y given the maximum order of the polynomial fit'''
-
-    for i in range(n):
-        n += i
-    return n
+    return int(n*(n+1)/2)
 
 def show_me_the_money(x, y, z, figsize = None):
     '''plot surface given x, y, and z (meshgrids already)
@@ -24,7 +21,7 @@ def show_me_the_money(x, y, z, figsize = None):
         fig = plt.figure()
 
     ax = fig.gca(projection='3d')
-    
+
     # Plot the surface.
     surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
 
