@@ -5,7 +5,7 @@ from Ridge import Ridge
 from Errors import Errors
 from helper import *
 
-class Regression(OLS, LASSO, Ridge, Errors):
+class Method(OLS, LASSO, Ridge, Errors):
     '''
     Superclass for the regression methods, the idea is to gather the most common methods here so they're easily accessible from the subclasses.
     MSE and R2 and estimators are unique for each regression method though plotting is common.
@@ -57,15 +57,45 @@ class Regression(OLS, LASSO, Ridge, Errors):
 
         return self._fit_ols, self._fit_ridge, self._fit_lasso
     
-    def predict(self, x, y, beta = None):
+    def predict(self, x, y, z, beta = None):
         '''
-        fit with chosen beta.
+        Tests the model with new (test) x and y and compares it with a different (test) z.
         '''
         self._x = x
         self._y = y
         self.design()
-        pass
-    
+        N = len(x[:, 0])
+
+        if type(beta) == np.ndarray:
+            own = self._design @ beta
+            own = np.reshape(own (N, N))
+        
+        if type(self._beta_ols) == np.ndarray:
+            self._fit_ols = self._design @ self._beta_ols
+            self._fit_ols = np.reshape(self._fit_ols, (N, N))
+
+        if type(self._beta_ridge) == np.ndarray:
+            self._fit_ridge = self._design @ self._beta_ridge
+            self._fit_ridge = np.reshape(self._fit_ridge, (N, N))
+
+        if type(self._beta_lasso) == np.ndarray:
+            self._fit_lasso = self._design @ self._beta_lasso
+            self._fit_lasso = np.reshape(self._fit_lasso, (N, N))
+
+        self.set_known(z)
+
+        if type(beta) == np.ndarray:
+            own = self._design @ beta
+            own = np.reshape(own (N, N))
+            out_mse = self.mse(own)
+            out_r2 = self.r2(own)
+        else:
+            out_mse = self.mse()
+            out_r2 = self.r2()
+
+        # return self._fit_ols, self._fit_ridge, self._fit_lasso, own
+        return out_mse, out_r2
+
     def design(self):
         '''with the x and y parameters as well as the maximum order of the fit computes a designmatrix that takes in all the permutations of x and y up the chosen order'''
 
@@ -108,35 +138,45 @@ class Regression(OLS, LASSO, Ridge, Errors):
     
     # VARIANCE AND SUCH
 
-    def mse(self):
+    def mse(self, own=None):
         '''takes in the solution and the approximation and calculates the mean squared error of the fit'''
 
-        out = np.zeros(3)
+        if type(own) == np.ndarray:
+            out = np.zeros(4)
+            self.set_fit(own)
+            out[-1] = super().mse()
+        else:
+            out = np.zeros(3)
 
-        if self._fit_ols != None:
+        if type(self._fit_ols) == np.ndarray:
             self.set_fit(self._fit_ols)
             out[0] = super().mse()
-        if self._fit_ridge != None:
+        if type(self._fit_ridge) == np.ndarray:
             self.set_fit(self._fit_ridge)
             out[1] = super().mse()
-        if self._fit_lasso != None:
+        if type(self._fit_lasso) == np.ndarray:
             self.set_fit(self._fit_lasso)
             out[2] = super().mse()
         
         return out
 
-    def r2(self):
+    def r2(self, own=None):
         '''takes in the solution and the approximation and calculates the R2 score of the fit'''
-        
-        out = np.zeros(3)
+    
+        if type(own) == np.ndarray:
+            out = np.zeros(4)
+            self.set_fit(own)
+            out[-1] = super().r2()
+        else:
+            out = np.zeros(3)
 
-        if self._fit_ols != None:
+        if type(self._fit_ols) == np.ndarray:
             self.set_fit(self._fit_ols)
             out[0] = super().r2()
-        if self._fit_ridge != None:
+        if type(self._fit_ridge) == np.ndarray:
             self.set_fit(self._fit_ridge)
             out[1] = super().r2()
-        if self._fit_lasso != None:
+        if type(self._fit_lasso) == np.ndarray:
             self.set_fit(self._fit_lasso)
             out[2] = super().r2()
         

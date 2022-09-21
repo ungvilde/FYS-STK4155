@@ -3,6 +3,10 @@ import numpy as np
 class Errors():
     _fit = None
     _known = None
+
+    def __init__(self, fit, known):
+        self._fit = fit
+        self._known = known
     
     def set_fit(self, fit):
         self._fit = fit
