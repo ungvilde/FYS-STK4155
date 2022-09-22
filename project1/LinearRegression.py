@@ -6,7 +6,7 @@ from Errors import Errors
 from Outofbounds import OutOfBounds
 from helper import *
 
-class Method(OLS, LASSO, Ridge):
+class LinearRegression(OLS, LASSO, Ridge):
     '''
     Superclass for the regression methods, the idea is to gather the most common methods here so they're easily accessible from the subclasses.
     MSE and R2 and estimators are unique for each regression method though plotting is common.

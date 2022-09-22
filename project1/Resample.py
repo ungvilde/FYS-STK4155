@@ -1,5 +1,6 @@
 import numpy as np
 from Errors import Errors
+from LinearRegression import LinearRegression
 
 class Resample():
 
