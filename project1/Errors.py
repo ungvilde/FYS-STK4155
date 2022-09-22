@@ -4,7 +4,7 @@ class Errors():
     _fit = None
     _known = None
 
-    def __init__(self,known, fit=None):
+    def __init__(self, known, fit=None):
         self._fit = fit
         self._known = known
     
@@ -29,7 +29,7 @@ class Errors():
         fit = np.ravel(self._fit)
 
         return 1 - np.sum((exact - fit)**2)/np.sum((exact - np.mean(exact))**2)
-    
+
     def var_beta_ols(self, beta, design):
         '''returns the variance of the estimator in the shape of the estimator.
         If you want it to return the variance of beta fill output=True'''
