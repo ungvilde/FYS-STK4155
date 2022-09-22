@@ -4,7 +4,7 @@ class Errors():
     _fit = None
     _known = None
 
-    def __init__(self, fit, known):
+    def __init__(self,known, fit=None):
         self._fit = fit
         self._known = known
     
@@ -30,8 +30,15 @@ class Errors():
 
         return 1 - np.sum((exact - fit)**2)/np.sum((exact - np.mean(exact))**2)
     
-    def var_beta(self, X):
+    def var_beta_ols(self, beta, design):
         '''returns the variance of the estimator in the shape of the estimator.
         If you want it to return the variance of beta fill output=True'''
 
-        return self.mse() * np.linalg.pinv(X.T @ X)
+        variance = np.zeros(len(beta))
+        temp_mse = self.mse()
+
+        for i in range(len(beta)):
+            temp_inv = np.linalg.pinv(design.T @ design)
+            variance[i] = temp_mse * temp_inv[i, i]
+
+        return variance

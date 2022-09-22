@@ -3,9 +3,10 @@ from OLS import OLS
 from LASSO import LASSO
 from Ridge import Ridge
 from Errors import Errors
+from Outofbounds import OutOfBounds
 from helper import *
 
-class Method(OLS, LASSO, Ridge, Errors):
+class Method(OLS, LASSO, Ridge):
     '''
     Superclass for the regression methods, the idea is to gather the most common methods here so they're easily accessible from the subclasses.
     MSE and R2 and estimators are unique for each regression method though plotting is common.
@@ -15,47 +16,40 @@ class Method(OLS, LASSO, Ridge, Errors):
     '''
 
     # the 'private' variables for the superclass
-    _beta_ols = None
-    _beta_ridge = None
-    _beta_lasso = None
+    _beta = None
+    _method = None
     _design = None
     _order = None
     _x = None
     _y = None
+    _z = None
     _N = None
-    _fit_ols = None
-    _fit_ridge = None
-    _fit_lasso = None
+    _fit = None
 
-    def __init__(self, order, x, y, known):
-        '''Creates a regression object that will make a linear regression of a chosen order.'''
+    def __init__(self, order, x, y, z, method=1):
+        '''Creates a regression object that will make a linear regression of a chosen order.  Methods are OLS: 1, Ridge: 2 and LASSO: 3'''
         self._order = order
-        self._known = known
+        self._z = z
         self._x = x
         self._y = y
         self._N = len(self._x[:, 0])
 
+        if method not in [1, 2, 3]:
+            raise OutOfBounds()
+
+        self._method = method
+
         self.design()
 
-    def __call__(self, ols=True, ridge=True, lasso=True):
-        '''Makes a fit of chosen order.
-        Returns ols_fit, ridge_fit, lasso_fit
-        The parameteres that were False are 0'''
-        self.beta(ols, ridge, lasso)
+    def __call__(self):
+        '''Makes a fit of chosen order.'''
 
-        if ols:
-            self._fit_ols = self._design @ self._beta_ols
-            self._fit_ols = np.reshape(self._fit_ols, (self._N, self._N))
+        self.beta()
 
-        if ridge:
-            self._fit_ridge = self._design @ self._beta_ridge
-            self._fit_ridge = np.reshape(self._fit_ridge, (self._N, self._N))
+        self._fit = self._design @ self._beta
+        self._fit = np.reshape(self._fit, (self._N, self._N))
 
-        if lasso:
-            self._fit_lasso = self._design @ self._beta_lasso
-            self._fit_lasso = np.reshape(self._fit_lasso, (self._N, self._N))
-
-        return self._fit_ols, self._fit_ridge, self._fit_lasso
+        return self._fit
     
     def predict(self, x, y, z, beta = None):
         '''
@@ -63,37 +57,27 @@ class Method(OLS, LASSO, Ridge, Errors):
         '''
         self._x = x
         self._y = y
+        temp = self._z
+        self._z = z
         self.design()
         N = len(x[:, 0])
 
         if type(beta) == np.ndarray:
             own = self._design @ beta
-            own = np.reshape(own (N, N))
-        
-        if type(self._beta_ols) == np.ndarray:
-            self._fit_ols = self._design @ self._beta_ols
-            self._fit_ols = np.reshape(self._fit_ols, (N, N))
+            own = np.reshape(own, (N, N))
 
-        if type(self._beta_ridge) == np.ndarray:
-            self._fit_ridge = self._design @ self._beta_ridge
-            self._fit_ridge = np.reshape(self._fit_ridge, (N, N))
+            out_mse = self.mse(own=own)
+            out_r2 = self.r2(own=own)
 
-        if type(self._beta_lasso) == np.ndarray:
-            self._fit_lasso = self._design @ self._beta_lasso
-            self._fit_lasso = np.reshape(self._fit_lasso, (N, N))
-
-        self.set_known(z)
-
-        if type(beta) == np.ndarray:
-            own = self._design @ beta
-            own = np.reshape(own (N, N))
-            out_mse = self.mse(own)
-            out_r2 = self.r2(own)
         else:
+            self._fit = self._design @ self._beta
+            self._fit = np.reshape(self._fit, (N, N))
+
             out_mse = self.mse()
             out_r2 = self.r2()
+        
+        self._z = temp
 
-        # return self._fit_ols, self._fit_ridge, self._fit_lasso, own
         return out_mse, out_r2
 
     def design(self):
@@ -122,70 +106,63 @@ class Method(OLS, LASSO, Ridge, Errors):
 
         self._design = X
     
-    def beta(self, ols=True, ridge=True, lasso=True):
+    def beta(self):
 
-        if ols == True:
-            self._beta_ols = self.beta_ols(self._design, self._known)
-        if ridge == True:
-            self._beta_ridge = self.beta_ridge()
-        if lasso == True:
-            self._beta_lasso = self.beta_lasso()
-    
-    def get_beta(self):
-
-        return self._beta_ols, self._beta_ridge, self._beta_lasso
-
+        if self._method == 1:
+            self._beta = self.beta_ols(self._design, self._z)
+        elif self._method == 2:
+            self._beta = self.beta_ridge()
+        else:
+            self._beta = self.beta_lasso()
     
     # VARIANCE AND SUCH
 
     def mse(self, own=None):
         '''takes in the solution and the approximation and calculates the mean squared error of the fit'''
 
-        if type(own) == np.ndarray:
-            out = np.zeros(4)
-            self.set_fit(own)
-            out[-1] = super().mse()
-        else:
-            out = np.zeros(3)
+        error = Errors(self._z)
 
-        if type(self._fit_ols) == np.ndarray:
-            self.set_fit(self._fit_ols)
-            out[0] = super().mse()
-        if type(self._fit_ridge) == np.ndarray:
-            self.set_fit(self._fit_ridge)
-            out[1] = super().mse()
-        if type(self._fit_lasso) == np.ndarray:
-            self.set_fit(self._fit_lasso)
-            out[2] = super().mse()
-        
-        return out
+        if type(own) == np.ndarray:
+            error.set_fit(own)
+            return error.mse()
+        else:
+            error.set_fit(self._fit)
+            return error.mse()
 
     def r2(self, own=None):
         '''takes in the solution and the approximation and calculates the R2 score of the fit'''
+
+        error = Errors(self._z)
     
         if type(own) == np.ndarray:
-            out = np.zeros(4)
-            self.set_fit(own)
-            out[-1] = super().r2()
+            error.set_fit(own)
+            return error.r2()
         else:
-            out = np.zeros(3)
-
-        if type(self._fit_ols) == np.ndarray:
-            self.set_fit(self._fit_ols)
-            out[0] = super().r2()
-        if type(self._fit_ridge) == np.ndarray:
-            self.set_fit(self._fit_ridge)
-            out[1] = super().r2()
-        if type(self._fit_lasso) == np.ndarray:
-            self.set_fit(self._fit_lasso)
-            out[2] = super().r2()
-        
-        return out
-    
+            error.set_fit(self._fit)
+            return error.r2()
+   
     def var_beta(self):
-        '''returns the variance of the estimator in the shape of the estimator.
-        If you want it to return the variance of beta fill output=True'''
+        '''can only get var of ols estimator here'''
 
-        # I don't really know what var beta has as a shape    
+        if self._method != 1:
+            raise OutOfBounds(var_beta=True)
+        
+        else:
+            variance_ols = Errors(self._z, self._fit)
 
-        pass
+            return variance_ols.var_beta_ols(self._beta, self._design)
+
+# GET and SET
+
+    def set_order(self, order):
+        self._order = order
+
+    def get_beta(self):
+
+        return self._beta
+
+    def get_design(self):
+        return self._design
+    
+    def get_known(self):
+        return self._z
