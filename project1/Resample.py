@@ -7,6 +7,7 @@ class Resample():
     _reg = None
     _betas = None
     _fits = None
+    _kfolds = None
 
     def __init__(self, regression):
         self._reg = regression
@@ -19,7 +20,19 @@ class Resample():
 
     def cross_validation(self, k):
         "does cross validation with k folds"
-        pass
+    
+    def k_folds(self):
+        '''splits available data into chosen number of folds for cross validation. Folds are made from the design matrix!
+        The design matrix is taken and the indices are shuffled and given as a an arrya of indeices so we have correspondence between the test and train data results.'''
+        
+        # we start by shuffling
+        design = self._reg.get_design()
+        z = self._reg.get_known()
+        new_ind = np.random.permutation(len(design))
+        mix_design = design[new_ind]
+        mix_z = z[new_ind]
+
+        # now we need to split into folds and store these
 
     def var_beta(self):
         "finds the variance of beta set"
@@ -32,7 +45,6 @@ class Resample():
         '''Calculates the variance of the model once the resampling has been done. Returns a number!'''
 
         return np.var(self._fits, axis=1)
-
 
     def bias(self):
         '''Calculates the bias once the resampling has been done. Returns a number!'''
