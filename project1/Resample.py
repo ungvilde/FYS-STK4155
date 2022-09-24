@@ -51,12 +51,6 @@ class Resample():
 
         
 
-        
-
-
-
-        pass
-
     def cross_validation(self, k):
         "does cross validation with k folds"
         pass
