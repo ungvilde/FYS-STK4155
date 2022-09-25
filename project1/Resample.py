@@ -15,8 +15,42 @@ class Resample():
     # The resampling methods have to store the beta to then find the bias and the variance
 
     def bootstrap(self, N):
-        "does bootstrap"
-        pass
+        import helper
+        from sklearn.utils import resample
+        
+        
+        """
+        does bootstrap sampling on the training data for N samples and returns bias, variance and the mean of R2 and mse 
+        """
+        
+        #Fetch design matrix (design) and known  (known) values from LinearRegression object and X_train, X_test, y_train, y_test from helper our_tt_split
+        X_train,X_test,y_train,y_test = helper.train_test_split(self._reg.get_design(),self._reg.get_known(),test_size=0.2)
+
+        #Create empty arrays to store predictions, R2 score and mse
+
+        predictions = np.zeros((N,len(y_test)))
+        R2 = np.zeros(N)
+        mse = np.zeros(N)
+
+        #Loop over N samples
+        for i in range(N):
+            #resample using sklearn.utils.resample
+            X_resampled, y_resampled = resample(X_train, y_train)
+            #Evaluate model on test data
+            self._reg.fit(X_resampled,y_resampled)
+            predictions[i,:] = self._reg.predict(X_test)
+            R2[i] = self._reg.r2()
+            mse[i] = self._reg.mse()
+        
+        #Calculate bias and variance
+        bias = np.mean((y_test-np.mean(predictions,axis=0))**2)
+        variance = np.mean(np.var(predictions,axis=0))
+
+        # return mean of R2 and mse, bias and variance
+        return np.mean(R2), np.mean(mse), bias, variance
+
+
+        
 
     def cross_validation(self, k):
         "does cross validation with k folds"
