@@ -7,7 +7,6 @@ class Resample():
     _reg = None
     _betas = None
     _fits = None
-    _kfolds = None
 
     def __init__(self, regression):
         self._reg = regression
@@ -45,8 +44,8 @@ class Resample():
             mse[i] = self._reg.mse()
         
         #Calculate bias and variance
-        bias = np.mean((y_test-np.mean(predictions,axis=0))**2)
-        variance = np.mean(np.var(predictions,axis=0))
+        bias = np.mean((y_test-np.mean(predictions,axis=0, keepdims=True))**2)
+        variance = np.mean(np.var(predictions,axis=0, keepdims=True))
 
         # return mean of R2 and mse, bias and variance
         return np.mean(R2), np.mean(mse), bias, variance
@@ -56,8 +55,38 @@ class Resample():
 
     def cross_validation(self, k):
         "does cross validation with k folds"
+
+        design_fold, z_fold = self.folds(k)
+
+        predictions = []
+        R2 = np.zeros(k)
+        mse = np.zeros(k)
+
+        for i in range(k):
+            temp_design = design_fold
+            temp_z = z_fold
+
+            test_design = temp_design.pop(i)
+            test_z = temp_z.pop(i)
+
+            temp_design = np.concatenate(temp_design)
+            temp_z = np.concatenate(temp_z)
+
+            predictions.append(self._reg.predict_resample(temp_design, temp_z, test_design))
+            self._reg.set_known(test_z)
+            R2[i] = self._reg.r2()
+            mse[i] = self._reg.mse()
+        
+        #Calculate bias and variance
+        predictions = np.concatenate(predictions)
+
+        bias = np.mean((test_z - np.mean(predictions,axis=0, keepdims=True))**2)
+        variance = np.mean(np.var(predictions,axis=0, keepdims=True))
+
+        # return mean of R2 and mse, bias and variance
+        return np.mean(R2), np.mean(mse), bias, variance
     
-    def k_folds(self):
+    def k_folds(self, k):
         '''splits available data into chosen number of folds for cross validation. Folds are made from the design matrix!
         The design matrix is taken and the indices are shuffled and given as a an arrya of indeices so we have correspondence between the test and train data results.'''
         
@@ -69,6 +98,23 @@ class Resample():
         mix_z = z[new_ind]
 
         # now we need to split into folds and store these
+        fold_design = []
+        fold_z = []
+        start = 0
+        step = np.floor(len(z)/k)
+
+        for i in range(k-1):
+            fold = np.asarray(mix_design[start:start+step])
+            fold_design.append(fold)
+            fold = np.asarray(mix_z[start:start+step])
+            fold_z.append(fold)
+            start += step
+        
+        fold_design.append(np.asarray(mix_design[start::]))
+        fold_z.append(np.asarray(mix_z[start::]))
+
+        return fold_design, fold_z
+        
 
     def var_beta(self):
         "finds the variance of beta set"
