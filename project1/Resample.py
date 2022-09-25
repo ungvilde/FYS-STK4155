@@ -52,7 +52,7 @@ class Resample():
         return np.mean(R2), np.mean(mse), bias, variance
 
 
-        
+
 
     def cross_validation(self, k):
         "does cross validation with k folds"
@@ -95,3 +95,50 @@ class Resample():
         '''Calculates the mean of the different fits from the betas. Returns an array.'''
 
         return np.mean(self._fits, axis=1)
+
+
+
+'''
+        Here is some code to test the results the bootstrap method gives:
+
+        from LinearRegression import LinearRegression
+        from Resample import Resample
+        from helper import *
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        N = 100
+
+        x = np.sort(np.random.rand(N)).reshape((-1, 1))
+        y = np.sort(np.random.rand(N)).reshape((-1, 1))
+        x, y = np.meshgrid(x, y)
+
+        z = franke(x, y)# + np.random.rand(N, N)
+
+        stop = 20
+        start = 1
+
+        r2 = np.zeros(stop - start)
+        mse = np.zeros(stop - start)
+        bias = np.zeros(stop - start)
+        var = np.zeros(stop - start)
+        orders = np.linspace(1, stop-1, stop-1)
+
+        for i in range(start, stop):
+            ols = LinearRegression(i, x, y, z)
+            resampler = Resample(ols)
+            r2[i-1], mse[i-1], bias[i-1], var[i-1] = resampler.bootstrap(N)
+
+        plt.plot(orders, mse)
+        plt.title("MSE")
+        plt.show()
+
+        plt.plot(orders, r2)
+        plt.title("R2")
+        plt.show()
+
+        plt.plot(orders, bias)
+        plt.plot(orders, var)
+        plt.title("B-V")
+        plt.show()
+        '''
