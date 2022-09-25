@@ -51,6 +51,16 @@ class LinearRegression(OLS, LASSO, Ridge):
 
         return self._fit
     
+    def predict_resample(self, design_train, z_train, design_test):
+        self._design = design_train
+        self._z = z_train
+        self.beta()
+
+        self._fit = design_test @ self._beta
+
+        return self._fit
+
+
     def predict(self, x, y, z, beta = None):
         '''
         Tests the model with new (test) x and y and compares it with a different (test) z.
@@ -154,6 +164,15 @@ class LinearRegression(OLS, LASSO, Ridge):
 
 # GET and SET
 
+    def set_beta(self, design, z):
+        '''Sets a design matrix and calculates beta.'''
+        self._design = design
+        self._z = z
+        self.beta()
+
+    def set_known(self, z):
+        self._z = z
+
     def set_order(self, order):
         self._order = order
 
@@ -166,3 +185,9 @@ class LinearRegression(OLS, LASSO, Ridge):
     
     def get_known(self):
         return self._z
+    
+    def get_x(self):
+        return self._x
+    
+    def get_y(self):
+        return self._y

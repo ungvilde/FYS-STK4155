@@ -24,7 +24,7 @@ class Resample():
         """
         
         #Fetch design matrix (design) and known  (known) values from LinearRegression object and X_train, X_test, y_train, y_test from helper our_tt_split
-        X_train,X_test,y_train,y_test = helper.train_test_split(self._reg.get_design(),self._reg.get_known(),test_size=0.2)
+        X_train, X_test, y_train, y_test = helper.our_tt_split(self._reg.get_design(), self._reg.get_known(), test_size=0.2)
 
         #Create empty arrays to store predictions, R2 score and mse
 
@@ -36,9 +36,11 @@ class Resample():
         for i in range(N):
             #resample using sklearn.utils.resample
             X_resampled, y_resampled = resample(X_train, y_train)
+
             #Evaluate model on test data
-            self._reg.fit(X_resampled,y_resampled)
-            predictions[i,:] = self._reg.predict(X_test)
+            # self._reg.set_design(X_resampled,y_resampled)
+            predictions[i,:] = self._reg.predict_resample(X_resampled, y_resampled, X_test)
+            self._reg.set_known(y_test)
             R2[i] = self._reg.r2()
             mse[i] = self._reg.mse()
         
