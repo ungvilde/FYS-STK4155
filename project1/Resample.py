@@ -57,9 +57,10 @@ class Resample():
     def cross_validation(self, k):
         "does cross validation with k folds"
     
-    def k_folds(self):
+    def k_folds(self, k=5):
         '''splits available data into chosen number of folds for cross validation. Folds are made from the design matrix!
-        The design matrix is taken and the indices are shuffled and given as a an arrya of indeices so we have correspondence between the test and train data results.'''
+        The design matrix is taken and the indices are shuffled and given as a an arrya of indeices so we have correspondence between the test and train data results.
+        k=5 is the default of sklearn so we will use it as default aswell.'''
         
         # we start by shuffling
         design = self._reg.get_design()
@@ -69,6 +70,17 @@ class Resample():
         mix_z = z[new_ind]
 
         # now we need to split into folds and store these
+        folds_design = np.array_split(mix_design, k)
+        folds_z = np.array_split(mix_z, k)
+        
+        # now give the train and test folds just like in https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html?highlight=kfolds
+        X_test = folds_design[-1]
+        X_train = np.array(folds_design[:-1]).reshape(-1,np.shape(X_test)[-1])
+    
+        z_test = folds_z[-1]
+        z_train = np.array(folds_z[:-1]).reshape(-1,np.shape(folds_z)[-1])
+
+        return X_train, X_test, z_train, z_test
 
     def var_beta(self):
         "finds the variance of beta set"
