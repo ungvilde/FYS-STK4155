@@ -129,6 +129,18 @@ class Resample():
             resampler = Resample(ols)
             r2[i-1], mse[i-1], bias[i-1], var[i-1] = resampler.bootstrap(N)
 
+        # For Ridge
+        # for i in range(start, stop):
+        #     ols = LinearRegression(i, x, y, z, 2, 0.1)
+        #     resampler = Resample(ols)
+        #     r2[i-1], mse[i-1], bias[i-1], var[i-1] = resampler.bootstrap(N)
+
+        # For Lasso
+        # for i in range(start, stop):
+        #     ols = LinearRegression(i, x, y, z, 3, 0.01)
+        #     resampler = Resample(ols)
+        #     r2[i-1], mse[i-1], bias[i-1], var[i-1] = resampler.bootstrap(N)
+
         plt.plot(orders, mse)
         plt.title("MSE")
         plt.show()
