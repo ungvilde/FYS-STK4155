@@ -51,12 +51,6 @@ class Resample():
         # return mean of R2 and mse, bias and variance
         return np.mean(R2), np.mean(mse), bias, variance
 
-
-
-
-    def cross_validation(self, k):
-        "does cross validation with k folds"
-    
     def k_folds(self, k=5):
         '''splits available data into chosen number of folds for cross validation. Folds are made from the design matrix!
         The design matrix is taken and the indices are shuffled and given as a an arrya of indeices so we have correspondence between the test and train data results.
@@ -64,7 +58,11 @@ class Resample():
         
         # we start by shuffling
         design = self._reg.get_design()
+        print('shape design',np.shape(design))
+
         z = self._reg.get_known()
+        print('shape z',np.shape(z))
+
         new_ind = np.random.permutation(len(design))
         mix_design = design[new_ind]
         mix_z = z[new_ind]
@@ -72,15 +70,37 @@ class Resample():
         # now we need to split into folds and store these
         folds_design = np.array_split(mix_design, k)
         folds_z = np.array_split(mix_z, k)
-        
-        # now give the train and test folds just like in https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html?highlight=kfolds
-        X_test = folds_design[-1]
-        X_train = np.array(folds_design[:-1]).reshape(-1,np.shape(X_test)[-1])
-    
-        z_test = folds_z[-1]
-        z_train = np.array(folds_z[:-1]).reshape(-1,np.shape(folds_z)[-1])
 
-        return X_train, X_test, z_train, z_test
+        return folds_design, folds_z
+
+    def cross_validation(self, k):
+        "does cross validation with k folds"
+
+        folds_design, folds_z = self.k_folds(k)
+
+        predictions = np.zeros((k, len(folds_z[0])))
+        R2 = np.zeros(k)
+        mse = np.zeros(k)
+
+        for i in range(k):
+            X_test = folds_design[i]
+            X_train = np.delete(folds_design, i, 0)
+            X_train = np.array(X_train).reshape(-1,np.shape(X_test)[-1])
+
+            z_test = folds_z[i]
+            z_train = np.delete(folds_z, i, 0) 
+            z_train = np.array(z_train).reshape(-1, np.shape(folds_z)[-1])
+        
+            predictions[i,:] = self._reg.predict_resample(X_train, z_train, X_test)
+            self._reg.set_known(z_test)
+            R2[i] = self._reg.r2()
+            mse[i] = self._reg.mse()
+        
+        #Calculate bias and variance
+        bias = np.mean((z_test - np.mean(predictions, axis=0))**2)
+        variance = np.mean(np.var(predictions, axis=0))
+
+        return np.mean(R2), np.mean(mse), bias, variance
 
     def var_beta(self):
         "finds the variance of beta set"
