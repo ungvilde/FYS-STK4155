@@ -106,15 +106,13 @@ class Resample():
             R2[i] = self._reg.r2()
             mse[i] = self._reg.mse()
         
-        #Calculate bias and variance
-        bias = np.mean((z_test - np.mean(predictions, axis=0))**2)
-        variance = np.mean(np.var(predictions, axis=0))
+        # we cannot calculate bias-variance trade-off with cross validation as the test sample changes every time
 
         # restores to the orginal to be able to do other resampling methodds in a fair way
         self._reg.set_design(original_X)
         self._reg.set_known(original_z)
 
-        return np.mean(R2), np.mean(mse), bias, variance
+        return np.mean(R2), np.mean(mse)
 
     def var_beta(self):
         "finds the variance of beta set"
@@ -204,29 +202,27 @@ class Resample():
 
         Extra code for testing the full functionality of the hierarchy:
 
-        from LinearRegression import LinearRegression
+from LinearRegression import LinearRegression
 from Resample import Resample
 from helper import *
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set_theme()
-
-N = 100
+np.random.seed(123)
+N = 20
 
 x = np.sort(np.random.rand(N)).reshape((-1, 1))
 y = np.sort(np.random.rand(N)).reshape((-1, 1))
 x, y = np.meshgrid(x, y)
 
-z = franke(x, y) + np.random.rand(N, N)
+z = franke(x, y) + np.random.rand(N, N)*0.25
 
-stop = 20
+stop = 12
 start = 1
 
 r2_cross = np.zeros(stop - start)
 mse_cross = np.zeros(stop - start)
-bias_cross = np.zeros(stop - start)
-var_cross = np.zeros(stop - start)
 
 r2_boot = np.zeros(stop - start)
 mse_boot = np.zeros(stop - start)
@@ -243,11 +239,9 @@ for i in orders:
     ols = LinearRegression(i, x, y, z)
     resampler = Resample(ols)
 
-    r2, mse, bias, var = resampler.cross_validation()
+    r2, mse = resampler.cross_validation()
     r2_cross[i-1] = r2
     mse_cross[i-1] = mse
-    bias_cross[i-1] = bias
-    var_cross[i-1] = var
 
     r2, mse, bias, var = resampler.bootstrap(50)
 
@@ -277,9 +271,7 @@ plt.show()
 
 
 plt.figure(figsize=(15, 10))
-plt.plot(orders, bias_cross, label="Bias - Cross-val")
 plt.plot(orders, bias_boot, label="Bias - Bootstrap")
-plt.plot(orders, var_cross, label="Variantion - Cross-val")
 plt.plot(orders, var_boot, label="Variantion - Bootstrap")
 plt.title("Bias-Variance tradeoff of both methods.", fontsize=16)
 plt.xlabel("Polynomial complexity", fontsize=16)
