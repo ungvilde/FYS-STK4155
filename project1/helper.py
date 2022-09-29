@@ -55,9 +55,9 @@ def franke(x, y):
     one = (3/4) * np.exp(-(9*x - 2)**2/4 - (9*y - 2)**2/4)
     two = (3/4) * np.exp(-(9*x + 1)**2/49 - (9*y + 1)/10)
     three = (1/2) * np.exp(-(9*x - 7)**2/4 - (9*y - 3)**2/4)
-    four = -(1/2) * np.exp(-(9*x - 4)**2 - (9*y - 7)**2)
+    four = -(1/5) * np.exp(-(9*x - 4)**2 - (9*y - 7)**2)
 
-    return one + two + three - four
+    return one + two + three + four
 
 def our_tt_split(X, y, test_size=0.33, train_size = None, random_state=None):
     y = np.ravel(y)
