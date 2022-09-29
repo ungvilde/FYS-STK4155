@@ -57,9 +57,10 @@ def franke(x, y):
     three = (1/2) * np.exp(-(9*x - 7)**2/4 - (9*y - 3)**2/4)
     four = -(1/2) * np.exp(-(9*x - 4)**2 - (9*y - 7)**2)
 
-    return one + two + three + four
+    return one + two + three - four
 
 def our_tt_split(X, y, test_size=0.33, train_size = None, random_state=None):
+    y = np.ravel(y)
     assert len(X) == len(y)
     np.random.seed(random_state)
 
@@ -78,9 +79,14 @@ def our_tt_split(X, y, test_size=0.33, train_size = None, random_state=None):
     X_shuffled, y_shuffled =  [list(x) for x in zip(*zipped)]
 
     X_train = X_shuffled[:int(len(y)*train_size)]
-    X_test = X_shuffled[int(len(y)*train_size):]
+    X_test = X_shuffled[int(len(y)*test_size):]
     y_train = y_shuffled[:int(len(y)*train_size)]
-    y_test = y_shuffled[int(len(y)*train_size):]
+    y_test = y_shuffled[int(len(y)*test_size):]
+    
+    X_train = np.asarray(X_train)
+    X_test = np.asarray(X_test)
+    y_train = np.asarray(y_train)
+    y_test = np.asarray(y_test)
 
     return X_train, X_test, y_train, y_test
 
