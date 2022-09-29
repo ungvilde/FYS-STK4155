@@ -25,14 +25,17 @@ class LinearRegression(OLS, LASSO, Ridge):
     _z = None
     _N = None
     _fit = None
+    _lambda = None
 
-    def __init__(self, order, x, y, z, method=1):
+
+    def __init__(self, order, x, y, z, method=1, lmbd=None):
         '''Creates a regression object that will make a linear regression of a chosen order.  Methods are OLS: 1, Ridge: 2 and LASSO: 3'''
         self._order = order
         self._z = z
         self._x = x
         self._y = y
         self._N = len(self._x[:, 0])
+        self._lambda = lmbd
 
         if method not in [1, 2, 3]:
             raise OutOfBounds()
@@ -121,9 +124,9 @@ class LinearRegression(OLS, LASSO, Ridge):
         if self._method == 1:
             self._beta = self.beta_ols(self._design, self._z)
         elif self._method == 2:
-            self._beta = self.beta_ridge()
+            self._beta = self.beta_ridge(self._design, self._z, self._lambda)
         else:
-            self._beta = self.beta_lasso()
+            self._beta = self.beta_lasso(self._design, self._z, self._lambda)
     
     # VARIANCE AND SUCH
 

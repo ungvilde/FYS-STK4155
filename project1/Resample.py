@@ -50,71 +50,56 @@ class Resample():
         # return mean of R2 and mse, bias and variance
         return np.mean(R2), np.mean(mse), bias, variance
 
-
-
-
-    def cross_validation(self, k):
-        "does cross validation with k folds"
-
-        design_fold, z_fold = self.folds(k)
-
-        predictions = []
-        R2 = np.zeros(k)
-        mse = np.zeros(k)
-
-        for i in range(k):
-            temp_design = design_fold
-            temp_z = z_fold
-
-            test_design = temp_design.pop(i)
-            test_z = temp_z.pop(i)
-
-            temp_design = np.concatenate(temp_design)
-            temp_z = np.concatenate(temp_z)
-
-            predictions.append(self._reg.predict_resample(temp_design, temp_z, test_design))
-            self._reg.set_known(test_z)
-            R2[i] = self._reg.r2()
-            mse[i] = self._reg.mse()
-        
-        #Calculate bias and variance
-        predictions = np.concatenate(predictions)
-
-        bias = np.mean((test_z - np.mean(predictions,axis=0, keepdims=True))**2)
-        variance = np.mean(np.var(predictions,axis=0, keepdims=True))
-
-        # return mean of R2 and mse, bias and variance
-        return np.mean(R2), np.mean(mse), bias, variance
-    
-    def k_folds(self, k):
+    def k_folds(self, k=5):
         '''splits available data into chosen number of folds for cross validation. Folds are made from the design matrix!
-        The design matrix is taken and the indices are shuffled and given as a an arrya of indeices so we have correspondence between the test and train data results.'''
+        The design matrix is taken and the indices are shuffled and given as a an arrya of indeices so we have correspondence between the test and train data results.
+        k=5 is the default of sklearn so we will use it as default aswell.'''
         
         # we start by shuffling
         design = self._reg.get_design()
+        print('shape design',np.shape(design))
+
         z = self._reg.get_known()
+        print('shape z',np.shape(z))
+
         new_ind = np.random.permutation(len(design))
         mix_design = design[new_ind]
         mix_z = z[new_ind]
 
         # now we need to split into folds and store these
-        fold_design = []
-        fold_z = []
-        start = 0
-        step = np.floor(len(z)/k)
+        folds_design = np.array_split(mix_design, k)
+        folds_z = np.array_split(mix_z, k)
 
-        for i in range(k-1):
-            fold = np.asarray(mix_design[start:start+step])
-            fold_design.append(fold)
-            fold = np.asarray(mix_z[start:start+step])
-            fold_z.append(fold)
-            start += step
-        
-        fold_design.append(np.asarray(mix_design[start::]))
-        fold_z.append(np.asarray(mix_z[start::]))
+        return folds_design, folds_z
 
-        return fold_design, fold_z
+    def cross_validation(self, k):
+        "does cross validation with k folds"
+
+        folds_design, folds_z = self.k_folds(k)
+
+        predictions = np.zeros((k, len(folds_z[0])))
+        R2 = np.zeros(k)
+        mse = np.zeros(k)
+
+        for i in range(k):
+            X_test = folds_design[i]
+            X_train = np.delete(folds_design, i, 0)
+            X_train = np.array(X_train).reshape(-1,np.shape(X_test)[-1])
+
+            z_test = folds_z[i]
+            z_train = np.delete(folds_z, i, 0) 
+            z_train = np.array(z_train).reshape(-1, np.shape(folds_z)[-1])
         
+            predictions[i,:] = self._reg.predict_resample(X_train, z_train, X_test)
+            self._reg.set_known(z_test)
+            R2[i] = self._reg.r2()
+            mse[i] = self._reg.mse()
+        
+        #Calculate bias and variance
+        bias = np.mean((z_test - np.mean(predictions, axis=0))**2)
+        variance = np.mean(np.var(predictions, axis=0))
+
+        return np.mean(R2), np.mean(mse), bias, variance
 
     def var_beta(self):
         "finds the variance of beta set"
@@ -174,6 +159,18 @@ class Resample():
             ols = LinearRegression(i, x, y, z)
             resampler = Resample(ols)
             r2[i-1], mse[i-1], bias[i-1], var[i-1] = resampler.bootstrap(N)
+
+        # For Ridge
+        # for i in range(start, stop):
+        #     ols = LinearRegression(i, x, y, z, 2, 0.1)
+        #     resampler = Resample(ols)
+        #     r2[i-1], mse[i-1], bias[i-1], var[i-1] = resampler.bootstrap(N)
+
+        # For Lasso
+        # for i in range(start, stop):
+        #     ols = LinearRegression(i, x, y, z, 3, 0.01)
+        #     resampler = Resample(ols)
+        #     r2[i-1], mse[i-1], bias[i-1], var[i-1] = resampler.bootstrap(N)
 
         plt.plot(orders, mse)
         plt.title("MSE")
