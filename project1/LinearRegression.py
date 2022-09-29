@@ -8,11 +8,13 @@ from helper import *
 
 class LinearRegression(OLS, LASSO, Ridge):
     '''
-    Superclass for the regression methods, the idea is to gather the most common methods here so they're easily accessible from the subclasses.
+    Superclass for the regression methods, the idea is to gather the most common methods 
+    here so they're easily accessible from the subclasses.
     MSE and R2 and estimators are unique for each regression method though plotting is common.
     This can be developped as we go along, splitting and scaling can be done in this superclass for instance :)
 
-    The names of the fits for each subclass is no _fit, it might be smart to change that to _fitOLS, _fit_Ridge and _fitLASSO so they can be distinguished and used in the superclass.
+    The names of the fits for each subclass is no _fit, it might be smart to change that 
+    to _fitOLS, _fit_Ridge and _fitLASSO so they can be distinguished and used in the superclass.
     '''
 
     # the 'private' variables for the superclass
@@ -94,7 +96,8 @@ class LinearRegression(OLS, LASSO, Ridge):
         return out_mse, out_r2
 
     def design(self):
-        '''with the x and y parameters as well as the maximum order of the fit computes a designmatrix that takes in all the permutations of x and y up the chosen order'''
+        '''with the x and y parameters as well as the maximum order of the fit computes a 
+        designmatrix that takes in all the permutations of x and y up the chosen order'''
 
         # for the franke function we see that x and y are part of a meshgrid
         # to work with this we need to ravel them
@@ -127,7 +130,8 @@ class LinearRegression(OLS, LASSO, Ridge):
             self._beta = self.beta_ridge(self._design, self._z, self._lambda)
         else:
             self._beta = self.beta_lasso(self._design, self._z, self._lambda)
-    
+        return self._beta
+
     # VARIANCE AND SUCH
 
     def mse(self, own=None):
@@ -164,6 +168,17 @@ class LinearRegression(OLS, LASSO, Ridge):
             variance_ols = Errors(self._z, self._fit)
 
             return variance_ols.var_beta_ols(self._beta, self._design)
+
+    def conf_int(self):
+        '''can only get var of ols estimator here'''
+
+        if self._method != 1:
+            raise OutOfBounds(conf_int=True)
+        
+        else:
+            conf_intervals = Errors(self._z, self._fit)
+
+            return conf_intervals.conf_int(self._beta, self._design)
 
 # GET and SET
 
