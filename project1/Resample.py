@@ -19,8 +19,12 @@ class Resample():
         
         
         """
-        does bootstrap sampling on the training data for N samples and returns bias, variance and the mean of R2 and mse 
+        does bootstrap sampling on the training data for N samples and returns bias, variance and the mean of R2 and mse.
+        Also stores the orginial stuff.
         """
+
+        original_X = self._reg.get_design()
+        original_z = self._reg.get_known()
         
         #Fetch design matrix (design) and known  (known) values from LinearRegression object and X_train, X_test, y_train, y_test from helper our_tt_split
         X_train, X_test, y_train, y_test = helper.our_tt_split(self._reg.get_design(), self._reg.get_known(), test_size=0.2)
@@ -47,6 +51,10 @@ class Resample():
         bias = np.mean((y_test-np.mean(predictions,axis=0, keepdims=True))**2)
         variance = np.mean(np.var(predictions,axis=0, keepdims=True))
 
+        # restores to the orginal to be able to do other resampling methodds in a fair way
+        self._reg.set_design(original_X)
+        self._reg.set_known(original_z)
+
         # return mean of R2 and mse, bias and variance
         return np.mean(R2), np.mean(mse), bias, variance
 
@@ -57,10 +65,11 @@ class Resample():
         
         # we start by shuffling
         design = self._reg.get_design()
-        print('shape design',np.shape(design))
+        # print('shape design',np.shape(design))
 
         z = self._reg.get_known()
-        print('shape z',np.shape(z))
+        z = np.ravel(z)
+        # print('shape z',np.shape(z))
 
         new_ind = np.random.permutation(len(design))
         mix_design = design[new_ind]
@@ -72,8 +81,10 @@ class Resample():
 
         return folds_design, folds_z
 
-    def cross_validation(self, k):
-        "does cross validation with k folds"
+    def cross_validation(self, k=5):
+        "does cross validation with k folds, stores original X and z."
+        original_X = self._reg.get_design()
+        original_z = self._reg.get_known()
 
         folds_design, folds_z = self.k_folds(k)
 
@@ -98,6 +109,10 @@ class Resample():
         #Calculate bias and variance
         bias = np.mean((z_test - np.mean(predictions, axis=0))**2)
         variance = np.mean(np.var(predictions, axis=0))
+
+        # restores to the orginal to be able to do other resampling methodds in a fair way
+        self._reg.set_design(original_X)
+        self._reg.set_known(original_z)
 
         return np.mean(R2), np.mean(mse), bias, variance
 
@@ -184,4 +199,91 @@ class Resample():
         plt.plot(orders, var)
         plt.title("B-V")
         plt.show()
+
+        ###################################################################################
+
+        Extra code for testing the full functionality of the hierarchy:
+
+        from LinearRegression import LinearRegression
+from Resample import Resample
+from helper import *
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_theme()
+
+N = 100
+
+x = np.sort(np.random.rand(N)).reshape((-1, 1))
+y = np.sort(np.random.rand(N)).reshape((-1, 1))
+x, y = np.meshgrid(x, y)
+
+z = franke(x, y) + np.random.rand(N, N)
+
+stop = 20
+start = 1
+
+r2_cross = np.zeros(stop - start)
+mse_cross = np.zeros(stop - start)
+bias_cross = np.zeros(stop - start)
+var_cross = np.zeros(stop - start)
+
+r2_boot = np.zeros(stop - start)
+mse_boot = np.zeros(stop - start)
+bias_boot = np.zeros(stop - start)
+var_boot = np.zeros(stop - start)
+
+orders = np.linspace(1, stop-1, stop-1)
+
+for i in orders:
+    print("At order: %d" %i, end='\r')
+
+    i = int(i)  # gee okay
+
+    ols = LinearRegression(i, x, y, z)
+    resampler = Resample(ols)
+
+    r2, mse, bias, var = resampler.cross_validation()
+    r2_cross[i-1] = r2
+    mse_cross[i-1] = mse
+    bias_cross[i-1] = bias
+    var_cross[i-1] = var
+
+    r2, mse, bias, var = resampler.bootstrap(50)
+
+    r2_boot[i-1] = r2
+    mse_boot[i-1] = mse
+    bias_boot[i-1] = bias
+    var_boot[i-1] = var
+
+plt.figure(figsize=(15, 10))
+plt.plot(orders, mse_cross, label="Cross-val")
+plt.plot(orders, mse_boot, label="Bootstrap")
+plt.title("MSE of both resampling methods.", fontsize=16)
+plt.xlabel("Polynomial complexity", fontsize=16)
+plt.ylabel("MSE", fontsize=16)
+plt.legend()
+plt.show()
+
+
+plt.figure(figsize=(15, 10))
+plt.plot(orders, r2_cross, label="Cross-val")
+plt.plot(orders, r2_boot, label="Bootstrap")
+plt.title("R2 score of both resampling methods", fontsize=16)
+plt.xlabel("Polynomial complexity", fontsize=16)
+plt.ylabel("R2", fontsize=16)
+plt.legend()
+plt.show()
+
+
+plt.figure(figsize=(15, 10))
+plt.plot(orders, bias_cross, label="Bias - Cross-val")
+plt.plot(orders, bias_boot, label="Bias - Bootstrap")
+plt.plot(orders, var_cross, label="Variantion - Cross-val")
+plt.plot(orders, var_boot, label="Variantion - Bootstrap")
+plt.title("Bias-Variance tradeoff of both methods.", fontsize=16)
+plt.xlabel("Polynomial complexity", fontsize=16)
+plt.ylabel("Bias-Variance", fontsize=16)
+plt.legend()
+plt.show()
         '''

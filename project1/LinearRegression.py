@@ -178,6 +178,9 @@ class LinearRegression(OLS, LASSO, Ridge):
 
     def set_order(self, order):
         self._order = order
+    
+    def set_design(self, design):
+        self._design = design
 
     def get_beta(self):
 
