@@ -25,7 +25,7 @@ class LinearRegression(OLS, LASSO, Ridge):
     _x = None
     _y = None
     _z = None
-    _N = None
+    _shape = None
     _fit = None
     _lambda = None
 
@@ -36,7 +36,7 @@ class LinearRegression(OLS, LASSO, Ridge):
         self._z = z
         self._x = x
         self._y = y
-        self._N = len(self._x[:, 0])
+        self._shape = np.shape(z)
         self._lambda = lmbd
 
         if method not in [1, 2, 3]:
@@ -45,14 +45,13 @@ class LinearRegression(OLS, LASSO, Ridge):
         self._method = method
 
         self.design()
-        self.beta()
+
     def __call__(self):
         '''Makes a fit of chosen order.'''
-
-        
+        self.beta()
 
         self._fit = self._design @ self._beta
-        self._fit = np.reshape(self._fit, (self._N, self._N))
+        self._fit = np.reshape(self._fit, self._shape)
 
         return self._fit
     
@@ -65,8 +64,24 @@ class LinearRegression(OLS, LASSO, Ridge):
 
         return self._fit
 
+    def predict(self, design_test, z_test):
+        temp = self._z
 
-    def predict(self, x, y, z, beta = None):
+        self._z = z_test
+        self._design = design_test
+        shape = np.shape(z_test)
+
+        self._fit = self._design @ self._beta
+        self._fit = np.reshape(self._fit, shape)
+
+        out_mse = self.mse()
+        out_r2 = self.r2()
+        
+        self._z = temp
+
+        return out_mse, out_r2
+
+    def predict_xy(self, x, y, z, beta = None):
         '''
         Tests the model with new (test) x and y and compares it with a different (test) z.
         '''
@@ -75,7 +90,7 @@ class LinearRegression(OLS, LASSO, Ridge):
         temp = self._z
         self._z = z
         self.design()
-        N = len(x[:, 0])
+        N = len(x[0, :])
 
         if type(beta) == np.ndarray:
             own = self._design @ beta
@@ -179,6 +194,18 @@ class LinearRegression(OLS, LASSO, Ridge):
             conf_intervals = Errors(self._z, self._fit)
 
             return conf_intervals.conf_int(self._beta, self._design)
+
+    def split(self, test_size=0.2, fit=False):
+        X_train, X_test, z_train, z_test = our_tt_split(self._design, self._z, test_size=test_size)
+
+        self._design = X_train
+        self._z = z_train
+        self.beta()
+
+        if fit:
+            return self.predict(X_test, z_test)
+        else:
+            return X_test, z_test
 
 # GET and SET
 
