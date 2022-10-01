@@ -45,11 +45,11 @@ class LinearRegression(OLS, LASSO, Ridge):
         self._method = method
 
         self.design()
-
+        self.beta()
     def __call__(self):
         '''Makes a fit of chosen order.'''
 
-        self.beta()
+        
 
         self._fit = self._design @ self._beta
         self._fit = np.reshape(self._fit, (self._N, self._N))
