@@ -1,5 +1,5 @@
 from sklearn import linear_model
-
+import numpy as np
 
 class LASSO():
 
@@ -10,7 +10,7 @@ class LASSO():
         '''
 
         clf = linear_model.Lasso(alpha=lmbd, fit_intercept=False) # fit_intercept is False because the data is centered already
-        clf.fit(design, known)
+        clf.fit(design, np.ravel(known))
 
         beta = clf.coef_
 
