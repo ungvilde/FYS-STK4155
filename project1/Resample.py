@@ -58,6 +58,44 @@ class Resample():
         # return mean of R2 and mse, bias and variance
         return np.mean(R2), np.mean(mse), bias, variance
 
+
+    def daniel_bootstrap(self, N, original_X, original_z, X_train, X_test, z_train, z_test):
+        from sklearn.utils import resample
+        
+        """
+        does bootstrap sampling on the training data for N samples and returns bias, variance and the mean of R2 and mse.
+        Also stores the orginial stuff.
+        """
+
+        #Create empty arrays to store predictions, R2 score and mse
+
+        predictions = np.zeros((N,len(z_test)))
+        R2 = np.zeros(N)
+        mse = np.zeros(N)
+
+        #Loop over N samples
+        for i in range(N):
+            #resample using sklearn.utils.resample
+            X_resampled, y_resampled = resample(X_train, z_train)
+
+            #Evaluate model on test data
+            # self._reg.set_design(X_resampled,y_resampled)
+            predictions[i,:] = self._reg.predict_resample(X_resampled, y_resampled, X_test)
+            self._reg.set_known(z_test)
+            R2[i] = self._reg.r2()
+            mse[i] = self._reg.mse()
+
+        #Calculate bias and variance
+        bias = np.mean((z_test-np.mean(predictions,axis=0, keepdims=True))**2)
+        variance = np.mean(np.var(predictions,axis=0, keepdims=True))
+
+        # restores to the orginal to be able to do other resampling methodds in a fair way
+        self._reg.set_design(original_X)
+        self._reg.set_known(original_z)
+
+        # return mean of R2 and mse, bias and variance
+        return np.mean(R2), np.mean(mse), bias, variance
+
     def k_folds(self, k=5):
         '''splits available data into chosen number of folds for cross validation. Folds are made from the design matrix!
         The design matrix is taken and the indices are shuffled and given as a an arrya of indeices so we have correspondence between the test and train data results.
