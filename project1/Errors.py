@@ -33,7 +33,7 @@ class Errors():
     def var_beta_ols(self, beta, design):
         '''returns the variance of the estimator in the shape of the estimator.
         If you want it to return the variance of beta fill output=True'''
-
+        
         variance = np.zeros(len(beta))
         temp_mse = self.mse()
 
@@ -42,3 +42,20 @@ class Errors():
             variance[i] = temp_mse * temp_inv[i, i]
 
         return variance
+
+    def conf_int(self, beta, design):
+        '''returns the confidence intervals for the betas'''
+        
+        n, p = np.shape(design)
+        lower = np.zeros(len(beta))
+        upper = np.zeros(len(beta))
+
+        temp_mse = self.mse() / (n - p) # unbiased estimator of sigma
+
+        for i in range(len(beta)):
+            temp_inv = np.linalg.pinv(design.T @ design)
+            StdErr = np.sqrt(temp_mse * temp_inv[i, i])
+            lower[i] = beta[i] - 1.96*StdErr
+            upper[i] = beta[i] + 1.96*StdErr
+
+        return lower, upper
