@@ -59,7 +59,7 @@ class LinearRegression(OLS, LASSO, Ridge):
     
     def predict_resample(self, design_train, z_train, design_test):
         self._design = design_train
-        self._z = z_train
+        self._z = z_train ### IS THIS CORRECT??? SHOULD IT NOT BE self._z = z_test????
         self.beta()
 
         self._fit = design_test @ self._beta
@@ -195,21 +195,36 @@ class LinearRegression(OLS, LASSO, Ridge):
 
             return conf_intervals.conf_int(self._beta, self._design)
 
-    def split(self, test_size=0.2, fit=False):
-        self._design = normalize(self._design)
-        X_train, X_test, z_train, z_test = our_tt_split(self._design, self._z, test_size=test_size)
+    def split_predict_eval(self, test_size=0.2, fit=False, train=False, random_state=None, scale=False):
+        """
+        The default is to use the mse from the test, but if train is true, the calculated mse is from train!
+        """
+        if scale:
+            self._design = normalize(self._design)
+
+        X_train, X_test, z_train, z_test = our_tt_split(self._design, self._z, test_size=test_size, random_state=random_state)
 
         self._design = X_train
         self._z = z_train
         self._beta = self.beta()
 
         if fit:
-            self._predict = self.predict(X_test, z_test)
-            return self.predict(X_test, z_test)
+            if train:
+                self._predict = self.predict(X_test, z_test)
+                # this returns mse and r2
+                return self.predict(X_train, z_train)
+            else:
+                # then it should gibe the test data metrics
+                self._predict = self.predict(X_test, z_test)
+                # this returns mse and r2
+                return self.predict(X_test, z_test)
         else:
             return X_test, z_test
-    
+
     def split_xy(self, t_size=0.2):
+        """
+        !!! is this necessary????
+        """
         x = np.ravel(self._x)
         y = np.ravel(self._y)
         z = np.ravel(self._z)

@@ -8,7 +8,7 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 sns.set_theme()
 
-project_section = input('Which part of project 1 you want to plot? (b,c,d,e)')
+project_section = input('Which part of project 1 you want to plot? (b, c, d, e, f)')
 
 
 
@@ -19,43 +19,33 @@ def part_b_request1(show_betas=False):
     Evaluate the mean Squared error (MSE) and the R2 score function.
 
     Notice this uses the test data to plot and that is why the mse starts to go up.
-    NOTICE THIS HAS SCALING!
+    NOTICE THIS HAS SCALING ALREADY!
     """
     np.random.seed(42)
-    N = 13
+
+    N = 12 ## number of points will be N x N
 
     x = np.sort(np.random.rand(N)).reshape((-1, 1))
     y = np.sort(np.random.rand(N)).reshape((-1, 1))
     x, y = np.meshgrid(x, y)
 
-    z = franke(x, y) + 0.3* np.random.rand(N, N)
-    stop = 6
-    start = 0
-
-    ## create design matrix using biggest poly_degree
-    Linreg = LinearRegression(stop, x, y, z)
-    design = Linreg.get_design()
-
-    # We need here to scale/ center the data
-    design = normalize(design)
-
-    # now we need to do the train test split OUTSIDE THE LOOP
-    X_train, X_test, z_train, z_test = train_test_split(design, np.ravel(z), test_size = 0.2, random_state=42)
+    z = franke(x, y) + 0.1 * np.random.randn(N, N)
+    max_degree = 6
 
     mse_list = []
     r2_list = []
-    orders=np.linspace(1, stop, stop)
+    orders=np.linspace(1, max_degree, max_degree)
     for i in orders:
-        i = int(i)
-        slice = int((i+1)*(i+2)/2)
+        print("At order: %d" %i, end='\r')
 
-        Linreg.set_beta(X_train[:, :slice], z_train)
-        mse, r2 = Linreg.predict(X_test[:, :slice], z_test)
+        i = int(i)
+        ols = LinearRegression(i, x, y, z)
+        mse, r2 = ols.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42, scale=True)
         mse_list.append(mse)
         r2_list.append(r2)
 
         if show_betas == True:
-            beta = Linreg.get_beta()
+            beta = ols.get_beta()
             plt.plot(i,beta[0],'or',label=r'$\beta_0$'+f' d={i}')
             plt.plot(i,beta[1],'ob',label=r'$\beta_1$'+f' d={i}')
             plt.plot(i,beta[2],'og',label=r'$\beta_2$'+f' d={i}')
@@ -81,92 +71,80 @@ def part_b_request1(show_betas=False):
 
     plt.plot(orders, mse_list)
     plt.title("MSE x Model Complexity")
-    plt.xlabel('MSE', fontsize=12)
-    plt.ylabel('Polynomial Degree', fontsize=12)
+    plt.xlabel('Polynomial Degree', fontsize=12)
+    plt.ylabel('MSE', fontsize=12)
     plt.show()
 
     plt.plot(orders, r2_list)
     plt.title("R2 x Model Complexity")
-    plt.xlabel('R2', fontsize=12)
-    plt.ylabel('Polynomial Degree', fontsize=12)
+    plt.xlabel('Polynomial Degree', fontsize=12)
+    plt.ylabel('R2', fontsize=12)
     plt.show()
-
 
 
 def part_b_request1_extra():
     """
-    Here I plot the same thing as previously but with the test data as well and with a degree larger than 5
+    Here I plot the same thing as previously but with the test data as well AND with a degree larger than 5
     """
     np.random.seed(42)
-    N = 11
+
+    N = 12 ## number of points will be N x N
 
     x = np.sort(np.random.rand(N)).reshape((-1, 1))
     y = np.sort(np.random.rand(N)).reshape((-1, 1))
     x, y = np.meshgrid(x, y)
 
-    z = franke(x, y) + 0.2* np.random.rand(N, N)
-    stop = 15
-    start = 0
-
-    ## create design matrix using biggest poly_degree
-    Linreg = LinearRegression(stop, x, y, z)
-    design = Linreg.get_design()
-
-    # We need here to scale/ center the data
-    design = normalize(design)
-
-    # now we need to do the train test split OUTSIDE THE LOOP
-    X_train, X_test, z_train, z_test = train_test_split(design, np.ravel(z), test_size = 0.2, random_state=42)
+    z = franke(x, y) + 0.1 * np.random.randn(N, N)
+    max_degree = 15
 
     mse_list = []
     r2_list = []
-    orders=np.linspace(1, stop, stop)
+    orders=np.linspace(1, max_degree, max_degree)
     for i in orders:
-        i = int(i)
-        slice = int((i+1)*(i+2)/2)
+        print("At order: %d" %i, end='\r')
 
-        Linreg.set_beta(X_train[:, :slice], z_train)
-        mse, r2 = Linreg.predict(X_test[:, :slice], z_test)
+        i = int(i)
+        ols = LinearRegression(i, x, y, z)
+        mse, r2 = ols.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42, scale=True)
         mse_list.append(mse)
         r2_list.append(r2)
 
 
     plt.plot(orders, mse_list)
     plt.title("MSE x Model Complexity - TEST")
-    plt.xlabel('MSE', fontsize=12)
-    plt.ylabel('Polynomial Degree', fontsize=12)
+    plt.xlabel('Polynomial Degree', fontsize=12)
+    plt.ylabel('MSE', fontsize=12)
     plt.show()
 
     plt.plot(orders, r2_list)
     plt.title("R2 x Model Complexity - TEST")
-    plt.xlabel('R2', fontsize=12)
-    plt.ylabel('Polynomial Degree', fontsize=12)
+    plt.xlabel('Polynomial Degree', fontsize=12)
+    plt.ylabel('R2', fontsize=12)
     plt.show()
-
 
     mse_list = []
     r2_list = []
-    orders=np.linspace(1, stop, stop)
+    ## The only difference is that this is the TRAIN plot of mse
     for i in orders:
-        i = int(i)
-        slice = int((i+1)*(i+2)/2)
+        print("At order: %d" %i, end='\r')
 
-        Linreg.set_beta(X_train[:, :slice], z_train)
-        mse, r2 = Linreg.predict(X_train[:, :slice], z_train)
+        i = int(i)
+        ols = LinearRegression(i, x, y, z)
+        mse, r2 = ols.split_predict_eval(test_size=0.2, fit=True, train=True, random_state=42, scale=True)
         mse_list.append(mse)
         r2_list.append(r2)
 
 
     plt.plot(orders, mse_list)
     plt.title("MSE x Model Complexity - TRAIN")
-    plt.xlabel('MSE', fontsize=12)
-    plt.ylabel('Polynomial Degree', fontsize=12)
+    plt.xlabel('Polynomial Degree', fontsize=12)
+    plt.ylabel('MSE', fontsize=12)
     plt.show()
 
     plt.plot(orders, r2_list)
     plt.title("R2 x Model Complexity - TRAIN")
-    plt.xlabel('R2', fontsize=12)
-    plt.ylabel('Polynomial Degree', fontsize=12)
+    plt.xlabel('Polynomial Degree', fontsize=12)
+    plt.ylabel('R2', fontsize=12)
     plt.show()
 
 
@@ -183,43 +161,31 @@ def part_c_request1():
     This is super similar to the part b request 1 extra plot, but now showing together the train and test and also
     NOTICE: this is without bootstrap!!!
     """
-    np.random.seed(42)
-    N = 11
+    np.random.seed(41)
+
+    N = 15 ## number of points will be N x N
 
     x = np.sort(np.random.rand(N)).reshape((-1, 1))
     y = np.sort(np.random.rand(N)).reshape((-1, 1))
     x, y = np.meshgrid(x, y)
 
-    z = franke(x, y) + 0.15* np.random.rand(N, N)
-    stop = 15
-
-    ## create design matrix using biggest poly_degree
-    Linreg = LinearRegression(stop, x, y, z)
-
-    design = Linreg.get_design()
-
-    # We need here to scale/ center the data
-    design = normalize(design)
-
-    # now we need to do the train test split OUTSIDE THE LOOP
-    X_train, X_test, z_train, z_test = train_test_split(design, np.ravel(z), test_size = 0.2, random_state=42)
+    z = franke(x, y) +  0.15*np.random.randn(N, N)
+    max_degree = 12
 
     mse_list_train = []
     mse_list_test = []
-    orders=np.linspace(1, stop, stop)
+    orders=np.linspace(1, max_degree, max_degree)
     for i in orders:
+        print("At order: %d" %i, end='\r')
+
         i = int(i)
-        slice = int((i+1)*(i+2)/2)
+        ols = LinearRegression(i, x, y, z)
+        mse_test, r2_test = ols.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42, scale=True)
+        ols = LinearRegression(i, x, y, z)
+        mse_train, r2_train = ols.split_predict_eval(test_size=0.2, fit=True, train=True, random_state=42, scale=True)
 
-        Linreg.set_beta(X_train[:, :slice], z_train)
-
-        mse_train, r2 = Linreg.predict(X_train[:, :slice], z_train)
-        mse_test, r2 = Linreg.predict(X_test[:, :slice], z_test)
-
-        mse_list_train.append(mse_test)
-        mse_list_test.append(mse_train)
-
-
+        mse_list_train.append(mse_train)
+        mse_list_test.append(mse_test)
 
     plt.plot(orders, mse_list_train)
     plt.plot(orders, mse_list_test)
@@ -230,74 +196,109 @@ def part_c_request1():
     plt.show()
 
 
-def part_c_request1_with_bootstrap():
+def part_c_request2():
     """
-    This is super similar to the part b request 1 extra plot, but now showing together the train and test and also
-    NOTICE: this is with boostrap!!!
+    This is super similar to the part c request 1 but now using bootstrap and showing the bv tradeoff
+    SHOULD WE USE THE SCALING HERE? IF YES, IT SHOULD BE ADDED TO THE LinearRegression as an option
     """
-    np.random.seed(42)
-    N = 11
+    np.random.seed(41)
+
+    N = 40 ## number of points will be N x N
 
     x = np.sort(np.random.rand(N)).reshape((-1, 1))
     y = np.sort(np.random.rand(N)).reshape((-1, 1))
     x, y = np.meshgrid(x, y)
 
-    z = franke(x, y) + 0.15* np.random.rand(N, N)
-    stop = 7
+    z = franke(x, y) +  0.15*np.random.randn(N, N)
+    stop = 15
+    start = 1
 
-    ## create design matrix using biggest poly_degree
-    Linreg = LinearRegression(stop, x, y, z)
+    r2 = np.zeros(stop - start)
+    mse = np.zeros(stop - start)
+    bias = np.zeros(stop - start)
+    var = np.zeros(stop - start)
+    orders = np.linspace(1, stop-1, stop-1)
 
-    design = Linreg.get_design()
+    for i in range(start, stop):
+        ols = LinearRegression(i, x, y, z)
+        resampler = Resample(ols)
+        r2[i-1], mse[i-1], bias[i-1], var[i-1] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
 
-    # We need here to scale/ center the data
-    design = normalize(design)
+    plt.plot(orders, mse, label="MSE")
 
-    # now we need to do the train test split OUTSIDE THE LOOP
-    X_train, X_test, z_train, z_test = train_test_split(design, np.ravel(z), test_size = 0.2, random_state=42)
+    plt.plot(orders, bias, label="Bias")
+    plt.plot(orders, var, label="Variance")
+    plt.legend()
 
-    # now we use the bootstrap
-    resampler = Resample(Linreg)
-
-    mse_list = []
-    r2_list = []
-    orders=np.linspace(1, stop, stop)
-    for i in orders:
-        i = int(i)
-        slice = int((i+1)*(i+2)/2)
-
-        Linreg.set_beta(X_train[:, :slice], z_train)
-
-        r2, mse, bias, var = resampler.daniel_bootstrap(30, original_X=design[:, :slice], original_z=z, X_train=X_train[:, :slice], X_test=X_test[:, :slice], z_train=z_train, z_test=z_test)
-
-        mse_list.append(mse)
-        r2_list.append(r2)
-
-
-    plt.plot(orders, mse_list)
-    plt.plot(orders, r2_list)
-
-    plt.title("Fig 11 of Hastie DANIEL boostrap")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('prediction Error', fontsize=12)
+    plt.title("B-V Tradeoff with Bootstrap")
     plt.show()
 
+########## PART D ####################
 
+def part_d_request1():
+    """
+    Here the request is simple: compare the MSE from boostrap to the MSE from cross-validation with k from 5 to 10.
+    Notice we will assess only for test MSE.
+
+    SHOULD WE USE THE SCALING HERE? IF YES, IT SHOULD BE ADDED TO THE LinearRegression as an option
+    """
+    np.random.seed(41)
+
+    N = 40 ## number of points will be N x N
+
+    x = np.sort(np.random.rand(N)).reshape((-1, 1))
+    y = np.sort(np.random.rand(N)).reshape((-1, 1))
+    x, y = np.meshgrid(x, y)
+
+    z = franke(x, y) +  0.15*np.random.randn(N, N)
+    stop = 15
+    start = 1
+    for folds in np.arange(7, 11):
+        print("FOLDS", folds)
+        crossval_folds = folds
+
+        r2_boostrap = np.zeros(stop - start)
+        mse_boostrap = np.zeros(stop - start)
+        bias_boostrap = np.zeros(stop - start)
+        var_boostrap = np.zeros(stop - start)
+        orders = np.linspace(1, stop-1, stop-1)
+
+        r2_crossval = np.zeros(stop - start)
+        mse_crossval = np.zeros(stop - start)
+
+        for i in range(start, stop):
+            ols = LinearRegression(i, x, y, z)
+            resampler = Resample(ols)
+            r2_boostrap[i-1], mse_boostrap[i-1], bias_boostrap[i-1], var_boostrap[i-1] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
+            ols = LinearRegression(i, x, y, z)
+
+            resampler = Resample(ols)
+            r2_crossval[i-1] , mse_crossval[i-1] = resampler.cross_validation(k=crossval_folds)
+
+        plt.plot(orders, mse_boostrap, label="MSE Boostrap")
+        plt.plot(orders, mse_crossval, label="MSE Crossvalidation")
+        plt.legend()
+
+        plt.title(f"MSE for Boostrap and Crossvalidation K= {crossval_folds}")
+        plt.show()
+
+############################################
 
 
 if project_section == "b":
     part_b_request1()
+
     part_b_request1_extra()
     part_b_request2()
 
 
 if project_section == "c":
     part_c_request1()
+    part_c_request2()
 
-    ## this next part is super wrong and I don't know why. Notice we have to correct the boostrap Adam Did here
-    ## in the same manner we had to correct the previous evaluations 
-    part_c_request1_with_bootstrap()
 
+if project_section == "d":
+    part_d_request1()
 
 
 
