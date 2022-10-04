@@ -5,14 +5,18 @@ from Ridge import Ridge
 from Errors import Errors
 from Outofbounds import OutOfBounds
 from helper import *
+from sklearn.preprocessing import normalize
+from sklearn.model_selection import train_test_split
 
 class LinearRegression(OLS, LASSO, Ridge):
     '''
-    Superclass for the regression methods, the idea is to gather the most common methods here so they're easily accessible from the subclasses.
+    Superclass for the regression methods, the idea is to gather the most common methods 
+    here so they're easily accessible from the subclasses.
     MSE and R2 and estimators are unique for each regression method though plotting is common.
     This can be developped as we go along, splitting and scaling can be done in this superclass for instance :)
 
-    The names of the fits for each subclass is no _fit, it might be smart to change that to _fitOLS, _fit_Ridge and _fitLASSO so they can be distinguished and used in the superclass.
+    The names of the fits for each subclass is no _fit, it might be smart to change that 
+    to _fitOLS, _fit_Ridge and _fitLASSO so they can be distinguished and used in the superclass.
     '''
 
     # the 'private' variables for the superclass
@@ -23,7 +27,7 @@ class LinearRegression(OLS, LASSO, Ridge):
     _x = None
     _y = None
     _z = None
-    _N = None
+    _shape = None
     _fit = None
     _lambda = None
 
@@ -34,7 +38,7 @@ class LinearRegression(OLS, LASSO, Ridge):
         self._z = z
         self._x = x
         self._y = y
-        self._N = len(self._x[:, 0])
+        self._shape = np.shape(z)
         self._lambda = lmbd
 
         if method not in [1, 2, 3]:
@@ -46,25 +50,38 @@ class LinearRegression(OLS, LASSO, Ridge):
 
     def __call__(self):
         '''Makes a fit of chosen order.'''
-
         self.beta()
 
         self._fit = self._design @ self._beta
-        self._fit = np.reshape(self._fit, (self._N, self._N))
+        self._fit = np.reshape(self._fit, self._shape)
 
         return self._fit
     
     def predict_resample(self, design_train, z_train, design_test):
         self._design = design_train
-        self._z = z_train
+        self._z = z_train ### IS THIS CORRECT??? SHOULD IT NOT BE self._z = z_test????
         self.beta()
 
         self._fit = design_test @ self._beta
 
         return self._fit
 
+    def predict(self, design_test, z_test):
+        temp = self._z
 
-    def predict(self, x, y, z, beta = None):
+        self._z = z_test
+        self._design = design_test
+        shape = np.shape(z_test)
+        self._fit = self._design @ self._beta
+        self._fit = np.reshape(self._fit, shape)
+        out_mse = self.mse()
+        out_r2 = self.r2()
+        
+        self._z = temp
+
+        return out_mse, out_r2
+
+    def predict_xy(self, x, y, z, beta = None):
         '''
         Tests the model with new (test) x and y and compares it with a different (test) z.
         '''
@@ -73,7 +90,7 @@ class LinearRegression(OLS, LASSO, Ridge):
         temp = self._z
         self._z = z
         self.design()
-        N = len(x[:, 0])
+        N = len(x[0, :])
 
         if type(beta) == np.ndarray:
             own = self._design @ beta
@@ -94,7 +111,8 @@ class LinearRegression(OLS, LASSO, Ridge):
         return out_mse, out_r2
 
     def design(self):
-        '''with the x and y parameters as well as the maximum order of the fit computes a designmatrix that takes in all the permutations of x and y up the chosen order'''
+        '''with the x and y parameters as well as the maximum order of the fit computes a 
+        designmatrix that takes in all the permutations of x and y up the chosen order'''
 
         # for the franke function we see that x and y are part of a meshgrid
         # to work with this we need to ravel them
@@ -127,7 +145,8 @@ class LinearRegression(OLS, LASSO, Ridge):
             self._beta = self.beta_ridge(self._design, self._z, self._lambda)
         else:
             self._beta = self.beta_lasso(self._design, self._z, self._lambda)
-    
+        return self._beta
+
     # VARIANCE AND SUCH
 
     def mse(self, own=None):
@@ -164,6 +183,53 @@ class LinearRegression(OLS, LASSO, Ridge):
             variance_ols = Errors(self._z, self._fit)
 
             return variance_ols.var_beta_ols(self._beta, self._design)
+
+    def conf_int(self):
+        '''can only get var of ols estimator here'''
+
+        if self._method != 1:
+            raise OutOfBounds(conf_int=True)
+        
+        else:
+            conf_intervals = Errors(self._z, self._fit)
+
+            return conf_intervals.conf_int(self._beta, self._design)
+
+    def split_predict_eval(self, test_size=0.2, fit=False, train=False, random_state=None, scale=False):
+        """
+        The default is to use the mse from the test, but if train is true, the calculated mse is from train!
+        """
+        if scale:
+            self._design = normalize(self._design)
+
+        X_train, X_test, z_train, z_test = our_tt_split(self._design, self._z, test_size=test_size, random_state=random_state)
+
+        self._design = X_train
+        self._z = z_train
+        self._beta = self.beta()
+
+        if fit:
+            if train:
+                self._predict = self.predict(X_test, z_test)
+                # this returns mse and r2
+                return self.predict(X_train, z_train)
+            else:
+                # then it should gibe the test data metrics
+                self._predict = self.predict(X_test, z_test)
+                # this returns mse and r2
+                return self.predict(X_test, z_test)
+        else:
+            return X_test, z_test
+
+    def split_xy(self, t_size=0.2):
+        """
+        !!! is this necessary????
+        """
+        x = np.ravel(self._x)
+        y = np.ravel(self._y)
+        z = np.ravel(self._z)
+
+        return train_test_split(x, y, z, test_size=t_size)
 
 # GET and SET
 

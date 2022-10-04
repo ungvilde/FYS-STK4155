@@ -1,6 +1,8 @@
 import numpy as np
 from Errors import Errors
 from LinearRegression import LinearRegression
+from sklearn.preprocessing import normalize
+
 
 class Resample():
 
@@ -13,10 +15,9 @@ class Resample():
 
     # The resampling methods have to store the beta to then find the bias and the variance
 
-    def bootstrap(self, N):
+    def bootstrap(self, N, random_state=None):
         import helper
         from sklearn.utils import resample
-        
         
         """
         does bootstrap sampling on the training data for N samples and returns bias, variance and the mean of R2 and mse.
@@ -25,30 +26,30 @@ class Resample():
 
         original_X = self._reg.get_design()
         original_z = self._reg.get_known()
-        
-        #Fetch design matrix (design) and known  (known) values from LinearRegression object and X_train, X_test, y_train, y_test from helper our_tt_split
-        X_train, X_test, y_train, y_test = helper.our_tt_split(self._reg.get_design(), self._reg.get_known(), test_size=0.2)
+
+        #Fetch design matrix (design) and known  (known) values from LinearRegression object and X_train, X_test, z_train, z_test from helper our_tt_split
+        X_train, X_test, z_train, z_test = helper.our_tt_split(self._reg.get_design(), self._reg.get_known(), test_size=0.2, random_state=random_state)
 
         #Create empty arrays to store predictions, R2 score and mse
 
-        predictions = np.zeros((N,len(y_test)))
+        predictions = np.zeros((N,len(z_test)))
         R2 = np.zeros(N)
         mse = np.zeros(N)
 
         #Loop over N samples
         for i in range(N):
             #resample using sklearn.utils.resample
-            X_resampled, y_resampled = resample(X_train, y_train)
+            X_resampled, y_resampled = resample(X_train, z_train)
 
             #Evaluate model on test data
             # self._reg.set_design(X_resampled,y_resampled)
             predictions[i,:] = self._reg.predict_resample(X_resampled, y_resampled, X_test)
-            self._reg.set_known(y_test)
+            self._reg.set_known(z_test)
             R2[i] = self._reg.r2()
             mse[i] = self._reg.mse()
         
         #Calculate bias and variance
-        bias = np.mean((y_test-np.mean(predictions,axis=0, keepdims=True))**2)
+        bias = np.mean((z_test-np.mean(predictions,axis=0, keepdims=True))**2)
         variance = np.mean(np.var(predictions,axis=0, keepdims=True))
 
         # restores to the orginal to be able to do other resampling methodds in a fair way
@@ -58,10 +59,13 @@ class Resample():
         # return mean of R2 and mse, bias and variance
         return np.mean(R2), np.mean(mse), bias, variance
 
-    def k_folds(self, k=5):
+
+    def k_folds(self, k):
         '''splits available data into chosen number of folds for cross validation. Folds are made from the design matrix!
         The design matrix is taken and the indices are shuffled and given as a an arrya of indeices so we have correspondence between the test and train data results.
-        k=5 is the default of sklearn so we will use it as default aswell.'''
+        k=5 is the default of sklearn so we will use it as default aswell.
+        NOTICE THERE IS NO TRAIN TEST SPLIT
+        '''
         
         # we start by shuffling
         design = self._reg.get_design()
@@ -94,13 +98,15 @@ class Resample():
 
         for i in range(k):
             X_test = folds_design[i]
+            #print("np.shape(X_test)", np.shape(X_test))
             X_train = np.delete(folds_design, i, 0)
+            #print("np.shape(X_train)", np.shape(X_train))
             X_train = np.array(X_train).reshape(-1,np.shape(X_test)[-1])
 
             z_test = folds_z[i]
             z_train = np.delete(folds_z, i, 0) 
             z_train = np.array(z_train).reshape(-1, np.shape(folds_z)[-1])
-        
+
             predictions[i,:] = self._reg.predict_resample(X_train, z_train, X_test)
             self._reg.set_known(z_test)
             R2[i] = self._reg.r2()
