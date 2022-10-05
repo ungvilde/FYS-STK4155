@@ -358,7 +358,7 @@ def part_e_request1():
     stop = 15
     start = 1
 
-    n_lambdas = 50
+    n_lambdas = 25
     lambdas = np.logspace(-5, 4, n_lambdas)
     orders = np.linspace(1, stop-1, stop-1)
 
@@ -375,12 +375,13 @@ def part_e_request1():
             r2[i-1,j], mse[i-1,j], bias[i-1,j], var[i-1,j] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
 
     mse_min = np.min(mse)
-
+    print("BOOTS MIN MSE", mse_min)
     i_min, j_min = np.where(mse == mse_min)
     lambdas = np.log10(lambdas)
     lambdas, orders = np.meshgrid(lambdas, orders)
 
     plt.contourf(lambdas, orders, mse)
+    print("BOOTS MIN", lambdas[j_min, i_min])
 
     plt.plot(lambdas[j_min, i_min], orders[i_min, j_min], '+', c='r')
     plt.colorbar()
@@ -408,12 +409,14 @@ def part_e_request1():
             r2[i-1,j], mse[i-1,j] = resampler.cross_validation(k=k) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
 
     mse_min = np.min(mse)
+    print("CV MIN MSE", mse_min)
+
     i_min, j_min = np.where(mse == mse_min)
     lambdas = np.log10(lambdas)
     lambdas, orders = np.meshgrid(lambdas, orders)
 
     plt.contourf(lambdas, orders, mse)
-
+    print("CV MIN", lambdas[j_min, i_min])
     plt.plot(lambdas[j_min, i_min], orders[i_min, j_min], '+', c='r')
     plt.colorbar()
 
