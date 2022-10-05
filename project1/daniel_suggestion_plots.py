@@ -14,7 +14,29 @@ sns.set_theme()
 project_data = input("Which data do you want to plot? (Franke or Terrain) ")
 project_section = input('Which part of project 1 you want to plot? (b, c, d, e, f)')
 
+def get_data_franke(N):
+    """
+    Get the data for the Franke function.
+    """
+    x = np.sort(np.random.uniform(0,1,N))
+    y = np.sort(np.random.uniform(0,1,N))
+    x, y = np.meshgrid(x,y)
+    z = franke_function(x,y)
 
+    return x, y, z
+
+def get_data_terrain(N):
+    """
+    Get the data for the terrain data.
+    """
+    terrain = imread('SRTM_data_Norway_1.tif')
+    terrain = terrain[0:N,0:N]
+    x = np.linspace(0,1,N)
+    y = np.linspace(0,1,N)
+    x, y = np.meshgrid(x,y)
+    z = terrain
+
+    return x, y, z
 
 
 ########## PART B ####################
@@ -28,27 +50,13 @@ def part_b_request1(show_betas=False):
     """
     np.random.seed(42)
 
-    if project_data == "Franke":
+    if project_data == "F":
         N = 12 ## number of points will be N x N
 
-        x = np.sort(np.random.rand(N)).reshape((-1, 1))
-        y = np.sort(np.random.rand(N)).reshape((-1, 1))
-        x, y = np.meshgrid(x, y)
-
-        z = franke(x, y) + 0.1 * np.random.randn(N, N)
-
-    if project_data == "Terrain":
-        # Load the terrain
-        terrain = imread('SRTM_data_Norway_1.tif')
-        print(np.shape(terrain))
-        N = 1000
-        terrain = terrain[:N,:N]
-        # Creates mesh of image pixels
-        x = np.linspace(0,1, np.shape(terrain)[0])
-        y = np.linspace(0,1, np.shape(terrain)[1])
-        x, y = np.meshgrid(x,y)
-
-        z = terrain
+        x, y, z = get_data_franke(N)
+    if project_data == "T":
+        N = 10
+        x, y, z = get_data_terrain(N)
 
     max_degree = 5
 
@@ -102,7 +110,7 @@ def part_b_request1(show_betas=False):
     ax2.set_ylabel('R2', color='r', fontsize=12)
     ax2.tick_params('y', colors='r')
 
-    plt.title("MSE and R2 x Model Complexity - TEST")
+    fig.tight_layout()
     plt.savefig(f'Figs/Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.pdf')
     plt.show()
 
@@ -139,12 +147,21 @@ def part_b_request1_extra():
         r2_list.append(r2)
 
 
-    plt.title("MSE and R2 x Model Complexity - TEST")
+    
+    # Plotting MSE and R2 in same figure with two y-axis
+    fig, ax1 = plt.subplots()
+    ax1.plot(orders, mse_list, 'b-')
+    ax1.set_xlabel('Polynomial Degree', fontsize=12)
+    ax1.set_ylabel('MSE', color='b', fontsize=12)
+    ax1.tick_params('y', colors='b')
+
+    ax2 = ax1.twinx()
+    ax2.plot(orders, r2_list, 'r-')
+    ax2.set_ylabel('R2', color='r', fontsize=12)
+    ax2.tick_params('y', colors='r')
+
+    fig.tight_layout()
     plt.savefig(f'Figs/Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.pdf')
-    plt.plot(orders, mse_list)
-    plt.title("MSE x Model Complexity - TEST")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('MSE', fontsize=12)
     plt.show()
 
 
@@ -164,12 +181,22 @@ def part_b_request1_extra():
 
 
 
-    plt.title("MSE and R2 x Model Complexity - TRAIN")
+    
+    
+    # Plotting MSE and R2 in same figure with two y-axis
+    fig, ax1 = plt.subplots()
+    ax1.plot(orders, mse_list, 'b-')
+    ax1.set_xlabel('Polynomial Degree', fontsize=12)
+    ax1.set_ylabel('MSE', color='b', fontsize=12)
+    ax1.tick_params('y', colors='b')
+
+    ax2 = ax1.twinx()
+    ax2.plot(orders, r2_list, 'r-')
+    ax2.set_ylabel('R2', color='r', fontsize=12)
+    ax2.tick_params('y', colors='r')
+
+    fig.tight_layout()
     plt.savefig('Figs/Errors_x_order_{max_degree}_TRAIN_'+str(project_data)+'.pdf')
-    plt.plot(orders, mse_list)
-    plt.title("MSE x Model Complexity - TRAIN")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('MSE', fontsize=12)
     plt.show()
 
 
@@ -215,8 +242,6 @@ def part_c_request1():
 
     plt.plot(orders, mse_list_train)
     plt.plot(orders, mse_list_test)
-
-    plt.title("Fig 11 of Hastie")
     plt.xlabel('Polynomial Degree', fontsize=12)
     plt.ylabel('prediction Error', fontsize=12)
     plt.legend()
@@ -260,7 +285,6 @@ def part_c_request2():
     plt.plot(orders, var, label="Variance")
     plt.legend()
 
-    plt.title("B-V Tradeoff with Bootstrap")
     plt.xlabel('Polynomial Degree', fontsize=12)
     plt.ylabel('prediction Error', fontsize=12)
     plt.savefig('B-V_Tradeoff_Bootstrap_'+str(project_data)+'.pdf')
@@ -312,7 +336,6 @@ def part_d_request1():
     plt.plot(orders, mse_boostrap, label="MSE Boostrap")
 
     plt.legend()
-    plt.title(f"MSE for Boostrap and Crossvalidation K= {k}")
     plt.show()
 
 ############################################
