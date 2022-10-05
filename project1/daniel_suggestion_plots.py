@@ -1,3 +1,5 @@
+from cProfile import label
+from re import L
 from imageio import imread
 from LinearRegression import LinearRegression
 from sklearn.preprocessing import normalize
@@ -104,17 +106,25 @@ def part_b_request1(show_betas=False):
         plt.show()
         exit(1)
 
-    plt.plot(orders, mse_list)
-    plt.title("MSE x Model Complexity")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('MSE', fontsize=12)
+    #(Adam) - Plotting Errors together and saving figs
+    # Plotting MSE and R2 in same figure with two y-axis
+    fig, ax1 = plt.subplots()
+    ax1.plot(orders, mse_list, 'b-')
+    ax1.set_xlabel('Polynomial Degree', fontsize=12)
+    ax1.set_ylabel('MSE', color='b', fontsize=12)
+    ax1.tick_params('y', colors='b')
+
+    ax2 = ax1.twinx()
+    ax2.plot(orders, r2_list, 'r-')
+    ax2.set_ylabel('R2', color='r', fontsize=12)
+    ax2.tick_params('y', colors='r')
+
+    fig.tight_layout()
+    plt.title("MSE and R2 x Model Complexity - TEST")
+    plt.savefig('Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.png')
     plt.show()
 
-    plt.plot(orders, r2_list)
-    plt.title("R2 x Model Complexity")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('R2', fontsize=12)
-    plt.show()
+
 
 
 def part_b_request1_extra():
@@ -146,18 +156,26 @@ def part_b_request1_extra():
         mse_list.append(mse)
         r2_list.append(r2)
 
+    #(Adam) - Plotting Errors together and saving figs
+    # Plotting MSE and R2 in same figure with two y-axis
+    fig, ax1 = plt.subplots()
+    ax1.plot(orders, mse_list, 'b-')
+    ax1.set_xlabel('Polynomial Degree', fontsize=12)
+    ax1.set_ylabel('MSE', color='b', fontsize=12)
+    ax1.tick_params('y', colors='b')
 
-    plt.plot(orders, mse_list)
-    plt.title("MSE x Model Complexity - TEST")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('MSE', fontsize=12)
+    ax2 = ax1.twinx()
+    ax2.plot(orders, r2_list, 'r-')
+    ax2.set_ylabel('R2', color='r', fontsize=12)
+    ax2.tick_params('y', colors='r')
+
+    fig.tight_layout()
+    plt.title("MSE and R2 x Model Complexity - TEST")
+    plt.savefig('Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.png')
     plt.show()
 
-    plt.plot(orders, r2_list)
-    plt.title("R2 x Model Complexity - TEST")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('R2', fontsize=12)
-    plt.show()
+
+
 
     mse_list = []
     r2_list = []
@@ -171,18 +189,24 @@ def part_b_request1_extra():
         mse_list.append(mse)
         r2_list.append(r2)
 
+    #(Adam) - Plotting Errors together and saving figs
+    # Plotting MSE and R2 in same figure with two y-axis
+    fig, ax1 = plt.subplots()
+    ax1.plot(orders, mse_list, 'b-')
+    ax1.set_xlabel('Polynomial Degree', fontsize=12)
+    ax1.set_ylabel('MSE', color='b', fontsize=12)
+    ax1.tick_params('y', colors='b')
 
-    plt.plot(orders, mse_list)
-    plt.title("MSE x Model Complexity - TRAIN")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('MSE', fontsize=12)
+    ax2 = ax1.twinx()
+    ax2.plot(orders, r2_list, 'r-')
+    ax2.set_ylabel('R2', color='r', fontsize=12)
+    ax2.tick_params('y', colors='r')
+
+    fig.tight_layout()
+    plt.title("MSE and R2 x Model Complexity - TRAIN")
+    plt.savefig('Errors_x_order_{max_degree}_TRAIN_'+str(project_data)+'.png')
     plt.show()
 
-    plt.plot(orders, r2_list)
-    plt.title("R2 x Model Complexity - TRAIN")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('R2', fontsize=12)
-    plt.show()
 
 
 def part_b_request2():
@@ -204,13 +228,15 @@ def part_c_request1():
 
     if project_data == "F":
         N = 15 ## number of points will be N x N
+        max_degree = 12
         x, y, z = get_data_franke(N)
 
     if project_data == "T":
         N=10
+        max_degree = 18
         x, y, z = get_data_terrain(N)
 
-    max_degree = 12
+    
 
     mse_list_train = []
     mse_list_test = []
@@ -228,12 +254,15 @@ def part_c_request1():
         mse_list_test.append(mse_test)
 
 
-    plt.plot(orders, mse_list_train)
-    plt.plot(orders, mse_list_test)
+    plt.plot(orders, mse_list_train, label='MSE Train')
+    plt.plot(orders, mse_list_test, label='MSE Test')
 
-    plt.title("Fig 11 of Hastie")
+    #(Adam) - Changed title
+    plt.title("Reproduction of Fig 2.11 of Hastie et al.")
     plt.xlabel('Polynomial Degree', fontsize=12)
     plt.ylabel('prediction Error', fontsize=12)
+    plt.legend()
+    plt.savefig('Fig_2_11_'+str(project_data)+'.png')
     plt.show()
 
 
@@ -266,7 +295,7 @@ def part_c_request2():
         resampler = Resample(ols)
         r2[i-1], mse[i-1], bias[i-1], var[i-1] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
 
-    print(f"Z avg:{np.mean(z)} ")
+    #print(f"Z avg:{np.mean(z)} ")
     plt.plot(orders, mse, label="MSE")
 
     plt.plot(orders, bias, label="Bias")
@@ -274,6 +303,9 @@ def part_c_request2():
     plt.legend()
 
     plt.title("B-V Tradeoff with Bootstrap")
+    plt.xlabel('Polynomial Degree', fontsize=12)
+    plt.ylabel('prediction Error', fontsize=12)
+    plt.savefig('B-V_Tradeoff_Bootstrap_'+str(project_data)+'.png')
     plt.show()
 
 ########## PART D ####################
