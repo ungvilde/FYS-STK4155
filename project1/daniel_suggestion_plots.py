@@ -1,3 +1,5 @@
+from cProfile import label
+from re import L
 from imageio import imread
 from LinearRegression import LinearRegression
 from sklearn.preprocessing import normalize
@@ -12,7 +14,29 @@ sns.set_theme()
 project_data = input("Which data do you want to plot? (Franke or Terrain) ")
 project_section = input('Which part of project 1 you want to plot? (b, c, d, e, f)')
 
+def get_data_franke(N,noise):
+    """
+    Get the data for the Franke function.
+    """
+    x = np.sort(np.random.uniform(0,1,N))
+    y = np.sort(np.random.uniform(0,1,N))
+    x, y = np.meshgrid(x,y)
+    z = franke(x,y) + noise*np.random.randn(N,N)
 
+    return x, y, z
+
+def get_data_terrain(N):
+    """
+    Get the data for the terrain data.
+    """
+    terrain = imread('SRTM_data_Norway_1.tif')
+    terrain = terrain[0:N,0:N]
+    x = np.linspace(0,1,N)
+    y = np.linspace(0,1,N)
+    x, y = np.meshgrid(x,y)
+    z = terrain
+
+    return x, y, z
 
 
 ########## PART B ####################
@@ -26,27 +50,13 @@ def part_b_request1(show_betas=False):
     """
     np.random.seed(42)
 
-    if project_data == "Franke":
+    if project_data == "F":
         N = 12 ## number of points will be N x N
 
-        x = np.sort(np.random.rand(N)).reshape((-1, 1))
-        y = np.sort(np.random.rand(N)).reshape((-1, 1))
-        x, y = np.meshgrid(x, y)
-
-        z = franke(x, y) + 0.1 * np.random.randn(N, N)
-
-    if project_data == "Terrain":
-        # Load the terrain
-        terrain = imread('SRTM_data_Norway_1.tif')
-        print(np.shape(terrain))
-        N = 100
-        terrain = terrain[:N,:N]
-        # Creates mesh of image pixels
-        x = np.linspace(0,N, np.shape(terrain)[0])
-        y = np.linspace(0,N, np.shape(terrain)[1])
-        x, y = np.meshgrid(x,y)
-
-        z = terrain
+        x, y, z = get_data_franke(N, noise=0.1)
+    if project_data == "T":
+        N = 10
+        x, y, z = get_data_terrain(N)
 
     max_degree = 5
 
@@ -57,7 +67,7 @@ def part_b_request1(show_betas=False):
         print("At order: %d" %i, end='\r')
 
         i = int(i)
-        ols = LinearRegression(i, x, y, z, scale=True)
+        ols = LinearRegression(i, x, y, z, scale=False)
         mse, r2 = ols.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42)
         mse_list.append(mse)
         r2_list.append(r2)
@@ -87,17 +97,25 @@ def part_b_request1(show_betas=False):
         plt.show()
         exit(1)
 
-    plt.plot(orders, mse_list)
-    plt.title("MSE x Model Complexity")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('MSE', fontsize=12)
+    #(Adam) - Plotting Errors together and saving figs
+    # Plotting MSE and R2 in same figure with two y-axis
+    print(f"Sum:{mse_list+r2_list} ")
+    fig, ax1 = plt.subplots()
+    ax1.plot(orders, mse_list, 'b-')
+    ax1.set_xlabel('Polynomial Degree', fontsize=12)
+    ax1.set_ylabel('MSE', color='b', fontsize=12)
+    ax1.tick_params('y', colors='b')
+
+    ax2 = ax1.twinx()
+    ax2.plot(orders, r2_list, 'r-')
+    ax2.set_ylabel('R2', color='r', fontsize=12)
+    ax2.tick_params('y', colors='r')
+
+    fig.tight_layout()
+    plt.savefig(f'Figs/Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.pdf')
     plt.show()
 
-    plt.plot(orders, r2_list)
-    plt.title("R2 x Model Complexity")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('R2', fontsize=12)
-    plt.show()
+
 
 
 def part_b_request1_extra():
@@ -106,14 +124,15 @@ def part_b_request1_extra():
     """
     np.random.seed(42)
 
-    if project_data == "Franke":
+    if project_data == "F":
         N = 12 ## number of points will be N x N
 
-        x = np.sort(np.random.rand(N)).reshape((-1, 1))
-        y = np.sort(np.random.rand(N)).reshape((-1, 1))
-        x, y = np.meshgrid(x, y)
+        x, y, z = get_data_franke(N,noise=0.1)
+    if project_data == "T":
+        N = 10
+        x, y, z = get_data_terrain(N)
 
-        z = franke(x, y) + 0.1 * np.random.randn(N, N)
+    
     max_degree = 15
 
     mse_list = []
@@ -129,17 +148,25 @@ def part_b_request1_extra():
         r2_list.append(r2)
 
 
-    plt.plot(orders, mse_list)
-    plt.title("MSE x Model Complexity - TEST")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('MSE', fontsize=12)
+    
+    # Plotting MSE and R2 in same figure with two y-axis
+    fig, ax1 = plt.subplots()
+    ax1.plot(orders, mse_list, 'b-')
+    ax1.set_xlabel('Polynomial Degree', fontsize=12)
+    ax1.set_ylabel('MSE', color='b', fontsize=12)
+    ax1.tick_params('y', colors='b')
+
+    ax2 = ax1.twinx()
+    ax2.plot(orders, r2_list, 'r-')
+    ax2.set_ylabel('R2', color='r', fontsize=12)
+    ax2.tick_params('y', colors='r')
+
+    fig.tight_layout()
+    plt.savefig(f'Figs/Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.pdf')
     plt.show()
 
-    plt.plot(orders, r2_list)
-    plt.title("R2 x Model Complexity - TEST")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('R2', fontsize=12)
-    plt.show()
+
+
 
     mse_list = []
     r2_list = []
@@ -154,17 +181,25 @@ def part_b_request1_extra():
         r2_list.append(r2)
 
 
-    plt.plot(orders, mse_list)
-    plt.title("MSE x Model Complexity - TRAIN")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('MSE', fontsize=12)
+
+    
+    
+    # Plotting MSE and R2 in same figure with two y-axis
+    fig, ax1 = plt.subplots()
+    ax1.plot(orders, mse_list, 'b-')
+    ax1.set_xlabel('Polynomial Degree', fontsize=12)
+    ax1.set_ylabel('MSE', color='b', fontsize=12)
+    ax1.tick_params('y', colors='b')
+
+    ax2 = ax1.twinx()
+    ax2.plot(orders, r2_list, 'r-')
+    ax2.set_ylabel('R2', color='r', fontsize=12)
+    ax2.tick_params('y', colors='r')
+
+    fig.tight_layout()
+    plt.savefig(f'Figs/Errors_x_order_{max_degree}_TRAIN_'+str(project_data)+'.pdf')
     plt.show()
 
-    plt.plot(orders, r2_list)
-    plt.title("R2 x Model Complexity - TRAIN")
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('R2', fontsize=12)
-    plt.show()
 
 
 def part_b_request2():
@@ -182,15 +217,16 @@ def part_c_request1():
     """
     np.random.seed(41)
 
-    N = 15 ## number of points will be N x N
-
-    x = np.sort(np.random.rand(N)).reshape((-1, 1))
-    y = np.sort(np.random.rand(N)).reshape((-1, 1))
-    x, y = np.meshgrid(x, y)
-
-    z = franke(x, y) +  0.15*np.random.randn(N, N)
     max_degree = 12
+    if project_data == "F":
+        N = 15 ## number of points will be N x N
 
+        x, y, z = get_data_franke(N,noise=0.15)
+    if project_data == "T":
+        N = 10
+        x, y, z = get_data_terrain(N)
+
+    
     mse_list_train = []
     mse_list_test = []
     orders=np.linspace(1, max_degree, max_degree)
@@ -206,12 +242,12 @@ def part_c_request1():
         mse_list_train.append(mse_train)
         mse_list_test.append(mse_test)
 
-    plt.plot(orders, mse_list_train)
-    plt.plot(orders, mse_list_test)
-
-    plt.title("Fig 11 of Hastie")
+    plt.plot(orders, mse_list_train,label='Train')
+    plt.plot(orders, mse_list_test,label='Test')
     plt.xlabel('Polynomial Degree', fontsize=12)
     plt.ylabel('prediction Error', fontsize=12)
+    plt.legend()
+    plt.savefig(f'Fig_2_11_'+str(project_data)+'.pdf')
     plt.show()
 
 
@@ -224,11 +260,12 @@ def part_c_request2():
 
     N = 40 ## number of points will be N x N
 
-    x = np.sort(np.random.rand(N)).reshape((-1, 1))
-    y = np.sort(np.random.rand(N)).reshape((-1, 1))
-    x, y = np.meshgrid(x, y)
+    if project_data == "F":
+        x, y, z = get_data_franke(N,noise=0.15)
+    if project_data == "T":
+        x, y, z = get_data_terrain(N)
 
-    z = franke(x, y) +  0.15*np.random.randn(N, N)
+    
     stop = 15
     start = 1
 
@@ -243,13 +280,16 @@ def part_c_request2():
         resampler = Resample(ols)
         r2[i-1], mse[i-1], bias[i-1], var[i-1] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
 
+    #print(f"Z avg:{np.mean(z)} ")
     plt.plot(orders, mse, label="MSE")
 
     plt.plot(orders, bias, label="Bias")
     plt.plot(orders, var, label="Variance")
     plt.legend()
 
-    plt.title("B-V Tradeoff with Bootstrap")
+    plt.xlabel('Polynomial Degree', fontsize=12)
+    plt.ylabel('prediction Error', fontsize=12)
+    plt.savefig('B-V_Tradeoff_Bootstrap_'+str(project_data)+'.pdf')
     plt.show()
 
 ########## PART D ####################
@@ -265,41 +305,42 @@ def part_d_request1():
 
     N = 40 ## number of points will be N x N
 
-    x = np.sort(np.random.rand(N)).reshape((-1, 1))
-    y = np.sort(np.random.rand(N)).reshape((-1, 1))
-    x, y = np.meshgrid(x, y)
+    if project_data == "F":
+        x, y, z = get_data_franke(N,noise=0.15)
+    if project_data == "T":
 
-    z = franke(x, y) +  0.15*np.random.randn(N, N)
-    stop = 15
+        x, y, z = get_data_terrain(N)
+    stop =20
     start = 1
-    for folds in np.arange(7, 11):
-        print("FOLDS", folds)
-        crossval_folds = folds
 
-        r2_boostrap = np.zeros(stop - start)
-        mse_boostrap = np.zeros(stop - start)
-        bias_boostrap = np.zeros(stop - start)
-        var_boostrap = np.zeros(stop - start)
-        orders = np.linspace(1, stop-1, stop-1)
+    k=10
+    r2_cross = np.zeros(stop - start)
+    mse_cross = np.zeros(stop - start)
 
-        r2_crossval = np.zeros(stop - start)
-        mse_crossval = np.zeros(stop - start)
+    orders = np.linspace(1, stop-1, stop-1)
 
-        for i in range(start, stop):
-            ols = LinearRegression(i, x, y, z)
-            resampler = Resample(ols)
-            r2_boostrap[i-1], mse_boostrap[i-1], bias_boostrap[i-1], var_boostrap[i-1] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
-            ols = LinearRegression(i, x, y, z)
+    r2_boostrap = np.zeros(stop - start)
+    mse_boostrap = np.zeros(stop - start)
+    bias_boostrap = np.zeros(stop - start)
+    var_boostrap = np.zeros(stop - start)
+    std_mse = np.zeros(stop - start)
 
-            resampler = Resample(ols)
-            r2_crossval[i-1] , mse_crossval[i-1] = resampler.cross_validation(k=crossval_folds)
 
-        plt.plot(orders, mse_boostrap, label="MSE Boostrap")
-        plt.plot(orders, mse_crossval, label="MSE Crossvalidation")
-        plt.legend()
+    for i in orders:
+        i = int(i)
+        ols = LinearRegression(i, x, y, z, scale=True)
+        resampler = Resample(ols)
+        r2_cross[i-1] , mse_cross[i-1] = resampler.cross_validation(k=k)
 
-        plt.title(f"MSE for Boostrap and Crossvalidation K= {crossval_folds}")
-        plt.show()
+        ols = LinearRegression(i, x, y, z, scale=True)
+        resampler = Resample(ols)
+        r2_boostrap[i-1], mse_boostrap[i-1], bias_boostrap[i-1], var_boostrap[i-1], std_mse[i-1] = resampler.bootstrap(10, random_state=42)
+
+    plt.plot(orders, mse_cross, label=f"MSE Crossvalidation k = {k}")
+    plt.plot(orders, mse_boostrap, label="MSE Boostrap")
+
+    plt.legend()
+    plt.show()
 
 ############################################
 

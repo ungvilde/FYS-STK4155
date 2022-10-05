@@ -64,7 +64,7 @@ class Resample():
         self._reg.set_known(original_z)
 
         # return mean of R2 and mse, bias and variance
-        return np.mean(R2), np.mean(mse), bias, variance
+        return np.mean(R2), np.mean(mse), bias, variance, np.std(mse)
 
 
     def k_folds(self, k):
@@ -86,14 +86,12 @@ class Resample():
 
         Important note: the folded z are not reshaped! They are 1D arrays
         '''
-        
+
         # we start by shuffling
         design = self._reg.get_design()
-        # print('shape design',np.shape(design))
 
         z = self._reg.get_known()
         z = np.ravel(z)
-        # print('shape z',np.shape(z))
 
         new_ind = np.random.permutation(len(design))
         mix_design = design[new_ind]
@@ -124,13 +122,11 @@ class Resample():
         for i in range(k):
             # takes out this round's testing data
             X_test = folds_design[i]
-            z_test = folds_z[i]
-            
-            # the rest is training data
             X_train = np.delete(folds_design, i, 0)
             X_train = np.array(X_train).reshape(-1,np.shape(X_test)[-1])
 
-            z_train = np.delete(folds_z, i, 0) 
+            z_test = folds_z[i]
+            z_train = np.delete(folds_z, i, 0)
             z_train = np.array(z_train).reshape(-1, np.shape(folds_z)[-1])
 
             # makes a model with the training data and tests it
