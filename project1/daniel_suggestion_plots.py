@@ -247,7 +247,7 @@ def part_c_request1():
     plt.xlabel('Polynomial Degree', fontsize=12)
     plt.ylabel('prediction Error', fontsize=12)
     plt.legend()
-    plt.savefig(f'Fig_2_11_'+str(project_data)+'.pdf')
+    plt.savefig(f'Figs/Fig_2_11_'+str(project_data)+'.pdf')
     plt.show()
 
 
@@ -289,7 +289,7 @@ def part_c_request2():
 
     plt.xlabel('Polynomial Degree', fontsize=12)
     plt.ylabel('prediction Error', fontsize=12)
-    plt.savefig('B-V_Tradeoff_Bootstrap_'+str(project_data)+'.pdf')
+    plt.savefig('Figs/B-V_Tradeoff_Bootstrap_'+str(project_data)+'.pdf')
     plt.show()
 
 ########## PART D ####################
