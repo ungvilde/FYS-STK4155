@@ -5,10 +5,24 @@ from sklearn.preprocessing import normalize
 
 
 class Resample():
+    '''
+    Class for the resampling methods that uses an instance of LinearRegression. Can perform bootstrap and Cross-Validation.
+
+    Methods
+    -------
+    bootstrap(N, random_state)\n
+    k_folds(k)\n
+    cross_validation(k)
+
+    Private variables
+    -----------------
+    LinearRegression object\n
+    Estimator of the model
+
+    '''
 
     _reg = None
     _betas = None
-    _fits = None
 
     def __init__(self, regression):
         '''
@@ -23,6 +37,23 @@ class Resample():
     # The resampling methods have to store the beta to then find the bias and the variance
 
     def bootstrap(self, N, random_state=None):
+        '''
+        Performs the bootstrap resampling method N times by randomly shuffling the data and checking it against a test data.
+
+        Parameters
+        ----------
+        N : int
+            Number of times it will perform the bootstrap.
+        
+        random_state : int
+            Default None\n
+            The seed for the randomness.
+        
+        Returns
+        -------
+        r2 (numpy array), mse (numpy array), bias (float), variance (float)
+            Final R2 score and MSE after bootstrap has been done. Bias and variance of the model are also given.
+        '''
         import helper
         from sklearn.utils import resample
         
@@ -66,7 +97,6 @@ class Resample():
         # return mean of R2 and mse, bias and variance
         return np.mean(R2), np.mean(mse), bias, variance, np.std(mse)
 
-
     def k_folds(self, k):
         '''
         Takes the design matrix and z from the LinearRegression object stored in the instance. Shuffles the indexes of these correspondingly and returns a set of k folds.
@@ -87,12 +117,12 @@ class Resample():
         Important note: the folded z are not reshaped! They are 1D arrays
         '''
 
-        # we start by shuffling
+        # we extract what we need
         design = self._reg.get_design()
-
         z = self._reg.get_known()
         z = np.ravel(z)
 
+        # we shuffle the indexes
         new_ind = np.random.permutation(len(design))
         mix_design = design[new_ind]
         mix_z = z[new_ind]
@@ -104,7 +134,19 @@ class Resample():
         return folds_design, folds_z
 
     def cross_validation(self, k=5):
-        "does cross validation with k folds, stores original X and z."
+        '''
+        Performs the Cross-validation with the chosen number of folds, default is 5. The folding is done in the k_folds() method. The original design matrix and z are the same as when the method was called as when it is done as they are stored before replaced and then they replace the temporary ones again before returning the desired values.
+
+        Parameters
+        ----------
+        k : int
+            number of folds to be made
+        
+        Returns
+        -------
+        mse, r2 : numpy array
+            the mse of the cross validation for each polynomial degree with k folds.
+        '''
 
         # stores the original desing matrix and z
         original_X = self._reg.get_design()
@@ -113,26 +155,30 @@ class Resample():
         # makes k number of folds
         folds_design, folds_z = self.k_folds(k)
 
-        # storage places for the predictions, MSE and R2 scores.
-        predictions = np.zeros((k, len(folds_z[0])))
+        # storage places for the MSE and R2 scores.
         R2 = np.zeros(k)
         mse = np.zeros(k)
+
+        # we make an array which will be usefull to loop through to set up the training design matrix and the training z
+        train_folds = np.linspace(0, k-1, k, dtype=int)
 
         # once for each fold we train the model
         for i in range(k):
             # takes out this round's testing data
             X_test = folds_design[i]
-            X_train = np.delete(folds_design, i, 0)
-            X_train = np.array(X_train).reshape(-1,np.shape(X_test)[-1])
-
             z_test = folds_z[i]
-            z_train = np.delete(folds_z, i, 0)
-            z_train = np.array(z_train).reshape(-1, np.shape(folds_z)[-1])
 
-            # makes a model with the training data and tests it
-            predictions[i,:] = self._reg.predict_resample(X_train, z_train, X_test)
+            # indices for where the training data is
+            temp_train_folds = np.delete(train_folds, i)
 
-            # evaluates the fit
+            # creates this round's training data by concatenating what is not the current test fold previously extracted
+            X_train = np.concatenate([folds_design[i] for i in temp_train_folds])
+            z_train = np.concatenate([folds_z[i] for i in temp_train_folds])
+
+            # makes a model with the training data and makes a prediction
+            self._reg.predict_resample(X_train, z_train, X_test)
+
+            # evaluates the fit and stores the MSE and R2 score
             self._reg.set_known(z_test)
             R2[i] = self._reg.r2()
             mse[i] = self._reg.mse()
@@ -144,52 +190,6 @@ class Resample():
         self._reg.set_known(original_z)
 
         return np.mean(R2), np.mean(mse)    # these are the mean MSE and R2 scores for the model degree with k folds
-    
-    def var_model(self):
-        '''
-        Calculates the variance of the model once the resampling has been done. Use only for bootstrap.
-
-        Needs
-        -----
-        To have done the resampling and stored the fits.
-
-        Returns
-        -------
-        The variation of the fits : float
-        '''
-        return np.var(self._fits, axis=1)
-
-    def bias(self):
-        '''
-        Calculates the bias of the model once the resampling has been done. Use only for bootstrap.
-
-        Needs
-        -----
-        To have done the resampling and stored the fits.
-
-        Returns
-        -------
-        The bias of the fits : float
-        '''
-
-        known = self._reg.get_known()
-        N = len(known)
-        mean = self.estimate_fit()
-
-        return np.sum((known - mean)**2) / N
-
-    def estimate_fit(self):
-        '''
-        Calculates the mean of the different fits from the betas.
-
-        Returns
-        -------
-        The mean of the fits : numpy array
-        '''
-
-        return np.mean(self._fits, axis=1)
-
-
 
 '''
         Here is some code to test the results the bootstrap method gives:

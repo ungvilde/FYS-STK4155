@@ -1,4 +1,7 @@
 class OutOfBounds(Exception):
+    '''
+    Our own error which we raise when the chosen method is wrong.
+    '''
     def __init__(self, var_beta=False, conf_int=False):
         if var_beta:
             message = "Can only give the variance of beta for the OLS method. If you want the wvariance of beta for the other methods you have to perform resampling methods."
