@@ -11,6 +11,13 @@ class Resample():
     _fits = None
 
     def __init__(self, regression):
+        '''
+        Initalizes the instance and stores a LinearRegression object from which it will do the resampling.
+
+        Parameters
+        ----------
+        regression : LinearRegression instance
+        '''
         self._reg = regression
 
     # The resampling methods have to store the beta to then find the bias and the variance
@@ -61,10 +68,23 @@ class Resample():
 
 
     def k_folds(self, k):
-        '''splits available data into chosen number of folds for cross validation. Folds are made from the design matrix!
-        The design matrix is taken and the indices are shuffled and given as a an arrya of indeices so we have correspondence between the test and train data results.
-        k=5 is the default of sklearn so we will use it as default aswell.
-        NOTICE THERE IS NO TRAIN TEST SPLIT
+        '''
+        Takes the design matrix and z from the LinearRegression object stored in the instance. Shuffles the indexes of these correspondingly and returns a set of k folds.
+
+        Needs
+        ------
+        the length of the design matrix HAS to be the amount of elements in z which is len(np.ravel(z)).
+
+        Parameters
+        ---------
+        k : int
+            The number of folds to be made of the data
+        
+        Returns
+        -------
+        folds_design, folds_z : numpy array, numpy array
+
+        Important note: the folded z are not reshaped! They are 1D arrays
         '''
 
         # we start by shuffling
@@ -85,16 +105,22 @@ class Resample():
 
     def cross_validation(self, k=5):
         "does cross validation with k folds, stores original X and z."
+
+        # stores the original desing matrix and z
         original_X = self._reg.get_design()
         original_z = self._reg.get_known()
 
+        # makes k number of folds
         folds_design, folds_z = self.k_folds(k)
 
+        # storage places for the predictions, MSE and R2 scores.
         predictions = np.zeros((k, len(folds_z[0])))
         R2 = np.zeros(k)
         mse = np.zeros(k)
 
+        # once for each fold we train the model
         for i in range(k):
+            # takes out this round's testing data
             X_test = folds_design[i]
             X_train = np.delete(folds_design, i, 0)
             X_train = np.array(X_train).reshape(-1,np.shape(X_test)[-1])
@@ -103,7 +129,10 @@ class Resample():
             z_train = np.delete(folds_z, i, 0)
             z_train = np.array(z_train).reshape(-1, np.shape(folds_z)[-1])
 
+            # makes a model with the training data and tests it
             predictions[i,:] = self._reg.predict_resample(X_train, z_train, X_test)
+
+            # evaluates the fit
             self._reg.set_known(z_test)
             R2[i] = self._reg.r2()
             mse[i] = self._reg.mse()
@@ -114,22 +143,34 @@ class Resample():
         self._reg.set_design(original_X)
         self._reg.set_known(original_z)
 
-        return np.mean(R2), np.mean(mse)
-
-    def var_beta(self):
-        "finds the variance of beta set"
-
-    def mse(self):
-        "returns the mse of the performed crossvalidation"
-
+        return np.mean(R2), np.mean(mse)    # these are the mean MSE and R2 scores for the model degree with k folds
     
     def var_model(self):
-        '''Calculates the variance of the model once the resampling has been done. Returns a number!'''
+        '''
+        Calculates the variance of the model once the resampling has been done. Use only for bootstrap.
 
+        Needs
+        -----
+        To have done the resampling and stored the fits.
+
+        Returns
+        -------
+        The variation of the fits : float
+        '''
         return np.var(self._fits, axis=1)
 
     def bias(self):
-        '''Calculates the bias once the resampling has been done. Returns a number!'''
+        '''
+        Calculates the bias of the model once the resampling has been done. Use only for bootstrap.
+
+        Needs
+        -----
+        To have done the resampling and stored the fits.
+
+        Returns
+        -------
+        The bias of the fits : float
+        '''
 
         known = self._reg.get_known()
         N = len(known)
@@ -138,7 +179,13 @@ class Resample():
         return np.sum((known - mean)**2) / N
 
     def estimate_fit(self):
-        '''Calculates the mean of the different fits from the betas. Returns an array.'''
+        '''
+        Calculates the mean of the different fits from the betas.
+
+        Returns
+        -------
+        The mean of the fits : numpy array
+        '''
 
         return np.mean(self._fits, axis=1)
 
