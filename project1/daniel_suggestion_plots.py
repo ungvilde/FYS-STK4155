@@ -308,7 +308,7 @@ def part_d_request1():
     x, y = np.meshgrid(x, y)
 
     z = franke(x, y) +  0.15*np.random.randn(N, N)
-    stop = 15
+    stop =20
     start = 1
 
     k=10
