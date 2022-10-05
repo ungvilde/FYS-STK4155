@@ -10,7 +10,6 @@ class Errors():
     set_known(known)\n
     mse()\n
     r2()\n
-    var_beta_ols(beta, design)\n
     conf_int(beta, design)
 
     Private variables
@@ -94,33 +93,6 @@ class Errors():
         fit = np.ravel(self._fit)
 
         return (1 - np.sum((exact - fit)**2))/np.sum((exact - np.mean(exact))**2)
-
-    def var_beta_ols(self, beta, design):
-        '''
-        Unsure if used!\n
-        Calculates the variance of the estimator for the OLS method.
-
-        Parameters
-        ----------
-        beta : numpy array (1D)
-            estimator of the model
-        
-        design : numpy array (matrix)
-            The design matrix used to calculate the estimator
-        
-        Returns
-        -------
-        The variance of the estimator as a numpy array of same shape as beta.
-        '''
-
-        variance = np.zeros(len(beta))
-        temp_mse = self.mse()
-
-        for i in range(len(beta)):
-            temp_inv = np.linalg.pinv(design.T @ design)
-            variance[i] = temp_mse * temp_inv[i, i]
-
-        return variance
 
     def conf_int(self, beta, design):
         '''
