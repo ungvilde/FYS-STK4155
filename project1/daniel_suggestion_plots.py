@@ -248,7 +248,7 @@ def part_c_request1():
     plt.xlabel('Polynomial Degree', fontsize=12)
     plt.ylabel('prediction Error', fontsize=12)
     plt.legend()
-    plt.savefig(f'Fig_2_11_'+str(project_data)+'.pdf')
+    plt.savefig(f'Figs/Fig_2_11_'+str(project_data)+'.pdf')
     plt.show()
 
 
@@ -289,7 +289,7 @@ def part_c_request2():
 
     plt.xlabel('Polynomial Degree', fontsize=12)
     plt.ylabel('prediction Error', fontsize=12)
-    plt.savefig('B-V_Tradeoff_Bootstrap_'+str(project_data)+'.pdf')
+    plt.savefig('Figs/B-V_Tradeoff_Bootstrap_'+str(project_data)+'.pdf')
     plt.show()
 
 ########## PART D ####################
@@ -323,6 +323,8 @@ def part_d_request1():
     mse_boostrap = np.zeros(stop - start)
     bias_boostrap = np.zeros(stop - start)
     var_boostrap = np.zeros(stop - start)
+    std_mse = np.zeros(stop - start)
+
 
     for i in orders:
         i = int(i)
@@ -332,7 +334,7 @@ def part_d_request1():
 
         ols = LinearRegression(i, x, y, z, scale=True)
         resampler = Resample(ols)
-        r2_boostrap[i-1], mse_boostrap[i-1], bias_boostrap[i-1], var_boostrap[i-1] = resampler.bootstrap(10, random_state=42)
+        r2_boostrap[i-1], mse_boostrap[i-1], bias_boostrap[i-1], var_boostrap[i-1], std_mse[i-1] = resampler.bootstrap(10, random_state=42)
 
     plt.plot(orders, mse_cross, label=f"MSE Crossvalidation k = {k}")
     plt.plot(orders, mse_boostrap, label="MSE Boostrap")
