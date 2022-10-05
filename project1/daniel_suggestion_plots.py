@@ -375,16 +375,14 @@ def part_e_request1():
             r2[i-1,j], mse[i-1,j], bias[i-1,j], var[i-1,j] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
 
     mse_min = np.min(mse)
-    print('++++++', mse_min)
 
     i_min, j_min = np.where(mse == mse_min)
-    print('++++++', i_min, j_min)
     lambdas = np.log10(lambdas)
-    plt.contourf(mse, extent=(lambdas[0], lambdas[-1], orders[0], orders[-1]))
+    lambdas, orders = np.meshgrid(lambdas, orders)
 
-    #orders, lambdas = np.meshgrid(orders, lambdas)
+    plt.contourf(lambdas, orders, mse)
 
-    plt.plot(lambdas[j_min], orders[i_min], 'o', c='r')
+    plt.plot(lambdas[j_min, i_min], orders[i_min, j_min], '+', c='r')
     plt.colorbar()
 
     #plt.plot(orders, bias, label="Bias")
