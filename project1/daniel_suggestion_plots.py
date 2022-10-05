@@ -119,9 +119,8 @@ def part_b_request1(show_betas=False):
     ax2.set_ylabel('R2', color='r', fontsize=12)
     ax2.tick_params('y', colors='r')
 
-    fig.tight_layout()
     plt.title("MSE and R2 x Model Complexity - TEST")
-    plt.savefig('Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.png')
+    plt.savefig(f'Figs/Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.pdf')
     plt.show()
 
 
@@ -169,9 +168,8 @@ def part_b_request1_extra():
     ax2.set_ylabel('R2', color='r', fontsize=12)
     ax2.tick_params('y', colors='r')
 
-    fig.tight_layout()
     plt.title("MSE and R2 x Model Complexity - TEST")
-    plt.savefig('Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.png')
+    plt.savefig(f'Figs/Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.pdf')
     plt.show()
 
 
@@ -202,9 +200,9 @@ def part_b_request1_extra():
     ax2.set_ylabel('R2', color='r', fontsize=12)
     ax2.tick_params('y', colors='r')
 
-    fig.tight_layout()
+
     plt.title("MSE and R2 x Model Complexity - TRAIN")
-    plt.savefig('Errors_x_order_{max_degree}_TRAIN_'+str(project_data)+'.png')
+    plt.savefig('Figs/Errors_x_order_{max_degree}_TRAIN_'+str(project_data)+'.pdf')
     plt.show()
 
 
@@ -262,7 +260,7 @@ def part_c_request1():
     plt.xlabel('Polynomial Degree', fontsize=12)
     plt.ylabel('prediction Error', fontsize=12)
     plt.legend()
-    plt.savefig('Fig_2_11_'+str(project_data)+'.png')
+    plt.savefig(f'Fig_2_11_'+str(project_data)+'.pdf')
     plt.show()
 
 
@@ -305,7 +303,7 @@ def part_c_request2():
     plt.title("B-V Tradeoff with Bootstrap")
     plt.xlabel('Polynomial Degree', fontsize=12)
     plt.ylabel('prediction Error', fontsize=12)
-    plt.savefig('B-V_Tradeoff_Bootstrap_'+str(project_data)+'.png')
+    plt.savefig('B-V_Tradeoff_Bootstrap_'+str(project_data)+'.pdf')
     plt.show()
 
 ########## PART D ####################
