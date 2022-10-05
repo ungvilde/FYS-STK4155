@@ -32,7 +32,7 @@ class LinearRegression(OLS, LASSO, Ridge):
     _lambda = None
 
 
-    def __init__(self, order, x, y, z, method=1, lmbd=None):
+    def __init__(self, order, x, y, z, method=1, lmbd=None, scale=False):
         '''Creates a regression object that will make a linear regression of a chosen order.  Methods are OLS: 1, Ridge: 2 and LASSO: 3'''
         self._order = order
         self._z = z
@@ -46,7 +46,7 @@ class LinearRegression(OLS, LASSO, Ridge):
 
         self._method = method
 
-        self.design()
+        self.design(scale=scale)
 
     def __call__(self):
         '''Makes a fit of chosen order.'''
@@ -110,7 +110,7 @@ class LinearRegression(OLS, LASSO, Ridge):
 
         return out_mse, out_r2
 
-    def design(self):
+    def design(self, scale=False):
         '''with the x and y parameters as well as the maximum order of the fit computes a 
         designmatrix that takes in all the permutations of x and y up the chosen order'''
 
@@ -136,6 +136,9 @@ class LinearRegression(OLS, LASSO, Ridge):
                 place += 1
 
         self._design = X
+
+        if scale:
+            self._design = normalize(self._design)
     
     def beta(self):
 
@@ -195,12 +198,10 @@ class LinearRegression(OLS, LASSO, Ridge):
 
             return conf_intervals.conf_int(self._beta, self._design)
 
-    def split_predict_eval(self, test_size=0.2, fit=False, train=False, random_state=None, scale=False):
+    def split_predict_eval(self, test_size=0.2, fit=False, train=False, random_state=None):
         """
         The default is to use the mse from the test, but if train is true, the calculated mse is from train!
         """
-        if scale:
-            self._design = normalize(self._design)
 
         X_train, X_test, z_train, z_test = our_tt_split(self._design, self._z, test_size=test_size, random_state=random_state)
 
