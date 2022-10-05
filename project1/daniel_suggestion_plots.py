@@ -389,7 +389,39 @@ def part_e_request1():
     plt.ylabel('Polynomial Degree', fontsize=12)
     plt.savefig('Figs/Optimizing_Ridge_Bootstrap_'+str(project_data)+'.pdf')
     plt.show()
-    ## NOW I WILL SELECT THE BEST ORDER AND MAKE BV TRADEOFF
+
+    ## NOW I WILL do the same thing but with crossval k= 10
+    k = 10
+    r2 = np.zeros((stop - start, n_lambdas))
+    mse = np.zeros((stop - start, n_lambdas))
+    bias = np.zeros((stop - start, n_lambdas))
+    var = np.zeros((stop - start, n_lambdas))
+
+    lambdas = np.logspace(-5, 4, n_lambdas)
+    orders = np.linspace(1, stop-1, stop-1)
+
+    for i in range(start, stop):
+        for j in range(n_lambdas):
+            lmbd = lambdas[j]
+            ridge = LinearRegression(i, x, y, z, method=2, lmbd=lmbd, scale=True)
+            resampler = Resample(ridge)
+            r2[i-1,j], mse[i-1,j] = resampler.cross_validation(k=k) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
+
+    mse_min = np.min(mse)
+    i_min, j_min = np.where(mse == mse_min)
+    lambdas = np.log10(lambdas)
+    lambdas, orders = np.meshgrid(lambdas, orders)
+
+    plt.contourf(lambdas, orders, mse)
+
+    plt.plot(lambdas[j_min, i_min], orders[i_min, j_min], '+', c='r')
+    plt.colorbar()
+
+    plt.xlabel('$Log_{10}(\lambda)$', fontsize=12)
+    plt.ylabel('Polynomial Degree', fontsize=12)
+    plt.savefig('Figs/Optimizing_Ridge_Croassvalk10'+str(project_data)+'.pdf')
+    plt.show()
+
 
 ############################################
 
