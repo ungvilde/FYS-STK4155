@@ -57,8 +57,8 @@ def part_b_request1(show_betas=False):
         print("At order: %d" %i, end='\r')
 
         i = int(i)
-        ols = LinearRegression(i, x, y, z)
-        mse, r2 = ols.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42, scale=True)
+        ols = LinearRegression(i, x, y, z, scale=True)
+        mse, r2 = ols.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42)
         mse_list.append(mse)
         r2_list.append(r2)
 
@@ -124,7 +124,7 @@ def part_b_request1_extra():
 
         i = int(i)
         ols = LinearRegression(i, x, y, z)
-        mse, r2 = ols.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42, scale=True)
+        mse, r2 = ols.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42)
         mse_list.append(mse)
         r2_list.append(r2)
 
@@ -148,8 +148,8 @@ def part_b_request1_extra():
         print("At order: %d" %i, end='\r')
 
         i = int(i)
-        ols = LinearRegression(i, x, y, z)
-        mse, r2 = ols.split_predict_eval(test_size=0.2, fit=True, train=True, random_state=42, scale=True)
+        ols = LinearRegression(i, x, y, z, scale=True)
+        mse, r2 = ols.split_predict_eval(test_size=0.2, fit=True, train=True, random_state=42)
         mse_list.append(mse)
         r2_list.append(r2)
 
@@ -198,10 +198,10 @@ def part_c_request1():
         print("At order: %d" %i, end='\r')
 
         i = int(i)
-        ols = LinearRegression(i, x, y, z)
-        mse_test, r2_test = ols.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42, scale=True)
-        ols = LinearRegression(i, x, y, z)
-        mse_train, r2_train = ols.split_predict_eval(test_size=0.2, fit=True, train=True, random_state=42, scale=True)
+        ols = LinearRegression(i, x, y, z, scale=True)
+        mse_test, r2_test = ols.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42)
+        ols = LinearRegression(i, x, y, z, scale=True)
+        mse_train, r2_train = ols.split_predict_eval(test_size=0.2, fit=True, train=True, random_state=42)
 
         mse_list_train.append(mse_train)
         mse_list_test.append(mse_test)
