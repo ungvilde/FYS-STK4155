@@ -1,3 +1,4 @@
+from imageio import imread
 from LinearRegression import LinearRegression
 from sklearn.preprocessing import normalize
 from Resample import Resample
@@ -8,7 +9,9 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 sns.set_theme()
 
+project_data = input("Which data do you want to plot? (Franke or Terrain) ")
 project_section = input('Which part of project 1 you want to plot? (b, c, d, e, f)')
+
 
 
 
@@ -23,13 +26,28 @@ def part_b_request1(show_betas=False):
     """
     np.random.seed(42)
 
-    N = 12 ## number of points will be N x N
+    if project_data == "Franke":
+        N = 12 ## number of points will be N x N
 
-    x = np.sort(np.random.rand(N)).reshape((-1, 1))
-    y = np.sort(np.random.rand(N)).reshape((-1, 1))
-    x, y = np.meshgrid(x, y)
+        x = np.sort(np.random.rand(N)).reshape((-1, 1))
+        y = np.sort(np.random.rand(N)).reshape((-1, 1))
+        x, y = np.meshgrid(x, y)
 
-    z = franke(x, y) + 0.1 * np.random.randn(N, N)
+        z = franke(x, y) + 0.1 * np.random.randn(N, N)
+
+    if project_data == "Terrain":
+        # Load the terrain
+        terrain = imread('SRTM_data_Norway_1.tif')
+        print(np.shape(terrain))
+        N = 1000
+        terrain = terrain[:N,:N]
+        # Creates mesh of image pixels
+        x = np.linspace(0,1, np.shape(terrain)[0])
+        y = np.linspace(0,1, np.shape(terrain)[1])
+        x, y = np.meshgrid(x,y)
+
+        z = terrain
+
     max_degree = 6
 
     mse_list = []
@@ -88,13 +106,14 @@ def part_b_request1_extra():
     """
     np.random.seed(42)
 
-    N = 12 ## number of points will be N x N
+    if project_data == "Franke":
+        N = 12 ## number of points will be N x N
 
-    x = np.sort(np.random.rand(N)).reshape((-1, 1))
-    y = np.sort(np.random.rand(N)).reshape((-1, 1))
-    x, y = np.meshgrid(x, y)
+        x = np.sort(np.random.rand(N)).reshape((-1, 1))
+        y = np.sort(np.random.rand(N)).reshape((-1, 1))
+        x, y = np.meshgrid(x, y)
 
-    z = franke(x, y) + 0.1 * np.random.randn(N, N)
+        z = franke(x, y) + 0.1 * np.random.randn(N, N)
     max_degree = 15
 
     mse_list = []

@@ -22,7 +22,9 @@ z = terrain
 # Show the terrain
 plt.figure()
 plt.title('Terrain over Norway 1')
-plt.imshow(terrain, cmap='gray')
+#plt.imshow(terrain, cmap='gray')
+plt.contourf(x_mesh, y_mesh, z, cmap='gray')
+plt.colorbar()
 plt.xlabel('X')
 plt.ylabel('Y')
 plt.show()
