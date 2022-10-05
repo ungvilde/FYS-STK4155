@@ -18,3 +18,11 @@ y = np.linspace(0,1, np.shape(terrain)[1])
 x_mesh, y_mesh = np.meshgrid(x,y)
 
 z = terrain
+
+# Show the terrain
+plt.figure()
+plt.title('Terrain over Norway 1')
+plt.imshow(terrain, cmap='gray')
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.show()
