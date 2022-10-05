@@ -15,35 +15,6 @@ project_data = input("Which data do you want to plot? (Franke or Terrain) ")
 project_section = input('Which part of project 1 you want to plot? (b, c, d, e, f)')
 
 
-def get_data_franke(N):
-    """
-    Get the franke data
-    """
-    np.random.seed(42)
-
-    x = np.sort(np.random.rand(N)).reshape((-1, 1))
-    y = np.sort(np.random.rand(N)).reshape((-1, 1))
-    x, y = np.meshgrid(x, y)
-
-    z = franke(x, y) + 0.1 * np.random.randn(N, N)
-
-    return x, y, z
-
-def get_data_terrain(N):
-    """
-    Get the terrain data
-    """
-    # Load the terrain
-    terrain = imread('SRTM_data_Norway_1.tif')
-    print(np.shape(terrain))
-    terrain = terrain[:N,:N]
-    # Creates mesh of image pixels
-    x = np.linspace(0,1, np.shape(terrain)[0])
-    y = np.linspace(0,1, np.shape(terrain)[1])
-    x, y = np.meshgrid(x,y)
-
-    z = terrain
-    return x, y, z
 
 
 ########## PART B ####################
@@ -57,16 +28,28 @@ def part_b_request1(show_betas=False):
     """
     np.random.seed(42)
 
-    if project_data == "F":
+    if project_data == "Franke":
+        N = 12 ## number of points will be N x N
 
-        x, y, z = get_data_franke(N=12)
+        x = np.sort(np.random.rand(N)).reshape((-1, 1))
+        y = np.sort(np.random.rand(N)).reshape((-1, 1))
+        x, y = np.meshgrid(x, y)
 
-    if project_data == "T":
+        z = franke(x, y) + 0.1 * np.random.randn(N, N)
 
+    if project_data == "Terrain":
+        # Load the terrain
+        terrain = imread('SRTM_data_Norway_1.tif')
+        print(np.shape(terrain))
+        N = 1000
+        terrain = terrain[:N,:N]
+        # Creates mesh of image pixels
+        x = np.linspace(0,1, np.shape(terrain)[0])
+        y = np.linspace(0,1, np.shape(terrain)[1])
+        x, y = np.meshgrid(x,y)
 
-        x, y, z = get_data_terrain(N=10)
+        z = terrain
 
-    
     max_degree = 5
 
     mse_list = []
@@ -155,21 +138,13 @@ def part_b_request1_extra():
         mse_list.append(mse)
         r2_list.append(r2)
 
-    #(Adam) - Plotting Errors together and saving figs
-    # Plotting MSE and R2 in same figure with two y-axis
-    fig, ax1 = plt.subplots()
-    ax1.plot(orders, mse_list, 'b-')
-    ax1.set_xlabel('Polynomial Degree', fontsize=12)
-    ax1.set_ylabel('MSE', color='b', fontsize=12)
-    ax1.tick_params('y', colors='b')
-
-    ax2 = ax1.twinx()
-    ax2.plot(orders, r2_list, 'r-')
-    ax2.set_ylabel('R2', color='r', fontsize=12)
-    ax2.tick_params('y', colors='r')
 
     plt.title("MSE and R2 x Model Complexity - TEST")
     plt.savefig(f'Figs/Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.pdf')
+    plt.plot(orders, mse_list)
+    plt.title("MSE x Model Complexity - TEST")
+    plt.xlabel('Polynomial Degree', fontsize=12)
+    plt.ylabel('MSE', fontsize=12)
     plt.show()
 
 
@@ -187,22 +162,14 @@ def part_b_request1_extra():
         mse_list.append(mse)
         r2_list.append(r2)
 
-    #(Adam) - Plotting Errors together and saving figs
-    # Plotting MSE and R2 in same figure with two y-axis
-    fig, ax1 = plt.subplots()
-    ax1.plot(orders, mse_list, 'b-')
-    ax1.set_xlabel('Polynomial Degree', fontsize=12)
-    ax1.set_ylabel('MSE', color='b', fontsize=12)
-    ax1.tick_params('y', colors='b')
-
-    ax2 = ax1.twinx()
-    ax2.plot(orders, r2_list, 'r-')
-    ax2.set_ylabel('R2', color='r', fontsize=12)
-    ax2.tick_params('y', colors='r')
 
 
     plt.title("MSE and R2 x Model Complexity - TRAIN")
     plt.savefig('Figs/Errors_x_order_{max_degree}_TRAIN_'+str(project_data)+'.pdf')
+    plt.plot(orders, mse_list)
+    plt.title("MSE x Model Complexity - TRAIN")
+    plt.xlabel('Polynomial Degree', fontsize=12)
+    plt.ylabel('MSE', fontsize=12)
     plt.show()
 
 
@@ -222,19 +189,14 @@ def part_c_request1():
     """
     np.random.seed(41)
 
-    
+    N = 15 ## number of points will be N x N
 
-    if project_data == "F":
-        N = 15 ## number of points will be N x N
-        max_degree = 12
-        x, y, z = get_data_franke(N)
+    x = np.sort(np.random.rand(N)).reshape((-1, 1))
+    y = np.sort(np.random.rand(N)).reshape((-1, 1))
+    x, y = np.meshgrid(x, y)
 
-    if project_data == "T":
-        N=10
-        max_degree = 18
-        x, y, z = get_data_terrain(N)
-
-    
+    z = franke(x, y) +  0.15*np.random.randn(N, N)
+    max_degree = 12
 
     mse_list_train = []
     mse_list_test = []
@@ -251,12 +213,10 @@ def part_c_request1():
         mse_list_train.append(mse_train)
         mse_list_test.append(mse_test)
 
+    plt.plot(orders, mse_list_train)
+    plt.plot(orders, mse_list_test)
 
-    plt.plot(orders, mse_list_train, label='MSE Train')
-    plt.plot(orders, mse_list_test, label='MSE Test')
-
-    #(Adam) - Changed title
-    plt.title("Reproduction of Fig 2.11 of Hastie et al.")
+    plt.title("Fig 11 of Hastie")
     plt.xlabel('Polynomial Degree', fontsize=12)
     plt.ylabel('prediction Error', fontsize=12)
     plt.legend()
@@ -319,41 +279,41 @@ def part_d_request1():
 
     N = 40 ## number of points will be N x N
 
-    if project_data == "F":
-        x, y, z = get_data_franke(N)
-    if project_data == "T":
-        x, y, z = get_data_terrain(N)
-    
+    x = np.sort(np.random.rand(N)).reshape((-1, 1))
+    y = np.sort(np.random.rand(N)).reshape((-1, 1))
+    x, y = np.meshgrid(x, y)
+
+    z = franke(x, y) +  0.15*np.random.randn(N, N)
     stop = 15
     start = 1
-    for folds in np.arange(7, 11):
-        print("FOLDS", folds)
-        crossval_folds = folds
 
-        r2_boostrap = np.zeros(stop - start)
-        mse_boostrap = np.zeros(stop - start)
-        bias_boostrap = np.zeros(stop - start)
-        var_boostrap = np.zeros(stop - start)
-        orders = np.linspace(1, stop-1, stop-1)
+    k=10
+    r2_cross = np.zeros(stop - start)
+    mse_cross = np.zeros(stop - start)
 
-        r2_crossval = np.zeros(stop - start)
-        mse_crossval = np.zeros(stop - start)
+    orders = np.linspace(1, stop-1, stop-1)
 
-        for i in range(start, stop):
-            ols = LinearRegression(i, x, y, z)
-            resampler = Resample(ols)
-            r2_boostrap[i-1], mse_boostrap[i-1], bias_boostrap[i-1], var_boostrap[i-1] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
-            ols = LinearRegression(i, x, y, z)
+    r2_boostrap = np.zeros(stop - start)
+    mse_boostrap = np.zeros(stop - start)
+    bias_boostrap = np.zeros(stop - start)
+    var_boostrap = np.zeros(stop - start)
 
-            resampler = Resample(ols)
-            r2_crossval[i-1] , mse_crossval[i-1] = resampler.cross_validation(k=crossval_folds)
+    for i in orders:
+        i = int(i)
+        ols = LinearRegression(i, x, y, z, scale=True)
+        resampler = Resample(ols)
+        r2_cross[i-1] , mse_cross[i-1] = resampler.cross_validation(k=k)
 
-        plt.plot(orders, mse_boostrap, label="MSE Boostrap")
-        plt.plot(orders, mse_crossval, label="MSE Crossvalidation")
-        plt.legend()
+        ols = LinearRegression(i, x, y, z, scale=True)
+        resampler = Resample(ols)
+        r2_boostrap[i-1], mse_boostrap[i-1], bias_boostrap[i-1], var_boostrap[i-1] = resampler.bootstrap(10, random_state=42)
 
-        plt.title(f"MSE for Boostrap and Crossvalidation K= {crossval_folds}")
-        plt.show()
+    plt.plot(orders, mse_cross, label=f"MSE Crossvalidation k = {k}")
+    plt.plot(orders, mse_boostrap, label="MSE Boostrap")
+
+    plt.legend()
+    plt.title(f"MSE for Boostrap and Crossvalidation K= {k}")
+    plt.show()
 
 ############################################
 

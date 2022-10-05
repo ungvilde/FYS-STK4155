@@ -66,14 +66,12 @@ class Resample():
         k=5 is the default of sklearn so we will use it as default aswell.
         NOTICE THERE IS NO TRAIN TEST SPLIT
         '''
-        
+
         # we start by shuffling
         design = self._reg.get_design()
-        # print('shape design',np.shape(design))
 
         z = self._reg.get_known()
         z = np.ravel(z)
-        # print('shape z',np.shape(z))
 
         new_ind = np.random.permutation(len(design))
         mix_design = design[new_ind]
@@ -98,13 +96,11 @@ class Resample():
 
         for i in range(k):
             X_test = folds_design[i]
-            #print("np.shape(X_test)", np.shape(X_test))
             X_train = np.delete(folds_design, i, 0)
-            #print("np.shape(X_train)", np.shape(X_train))
             X_train = np.array(X_train).reshape(-1,np.shape(X_test)[-1])
 
             z_test = folds_z[i]
-            z_train = np.delete(folds_z, i, 0) 
+            z_train = np.delete(folds_z, i, 0)
             z_train = np.array(z_train).reshape(-1, np.shape(folds_z)[-1])
 
             predictions[i,:] = self._reg.predict_resample(X_train, z_train, X_test)

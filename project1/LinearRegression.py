@@ -185,7 +185,7 @@ class LinearRegression(OLS, LASSO, Ridge):
 
         if scale:
             self._design = normalize(self._design)
-    
+
     def beta(self):
         '''
         Calculates the estimator with the chosen method. Calls upon the inherited beta calculator from the OLS, Ridge or LASSO classes. Returns the beta though that might not be necessary with a get_beta() method.
