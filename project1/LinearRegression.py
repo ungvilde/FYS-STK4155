@@ -139,7 +139,7 @@ class LinearRegression(OLS, LASSO, Ridge):
 
         if scale:
             self._design = normalize(self._design)
-    
+
     def beta(self):
 
         if self._method == 1:

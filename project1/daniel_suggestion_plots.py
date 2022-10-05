@@ -26,7 +26,7 @@ def part_b_request1(show_betas=False):
     """
     np.random.seed(42)
 
-    if project_data == "Franke":
+    if project_data == "F":
         N = 12 ## number of points will be N x N
 
         x = np.sort(np.random.rand(N)).reshape((-1, 1))
@@ -35,7 +35,7 @@ def part_b_request1(show_betas=False):
 
         z = franke(x, y) + 0.1 * np.random.randn(N, N)
 
-    if project_data == "Terrain":
+    if project_data == "T":
         # Load the terrain
         terrain = imread('SRTM_data_Norway_1.tif')
         print(np.shape(terrain))
@@ -106,7 +106,7 @@ def part_b_request1_extra():
     """
     np.random.seed(42)
 
-    if project_data == "Franke":
+    if project_data == "F":
         N = 12 ## number of points will be N x N
 
         x = np.sort(np.random.rand(N)).reshape((-1, 1))
@@ -269,37 +269,38 @@ def part_d_request1():
     y = np.sort(np.random.rand(N)).reshape((-1, 1))
     x, y = np.meshgrid(x, y)
 
-    z = franke(x, y) +  0.15*np.random.randn(N, N)
-    stop = 15
+    z = franke(x, y) +  0.15 * np.random.randn(N, N)
+
+    stop = 20
     start = 1
-    for folds in np.arange(7, 11):
-        print("FOLDS", folds)
-        crossval_folds = folds
 
-        r2_boostrap = np.zeros(stop - start)
-        mse_boostrap = np.zeros(stop - start)
-        bias_boostrap = np.zeros(stop - start)
-        var_boostrap = np.zeros(stop - start)
-        orders = np.linspace(1, stop-1, stop-1)
+    k=10
+    r2_cross = np.zeros(stop - start)
+    mse_cross = np.zeros(stop - start)
 
-        r2_crossval = np.zeros(stop - start)
-        mse_crossval = np.zeros(stop - start)
+    orders = np.linspace(1, stop-1, stop-1)
 
-        for i in range(start, stop):
-            ols = LinearRegression(i, x, y, z)
-            resampler = Resample(ols)
-            r2_boostrap[i-1], mse_boostrap[i-1], bias_boostrap[i-1], var_boostrap[i-1] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
-            ols = LinearRegression(i, x, y, z)
+    r2_boostrap = np.zeros(stop - start)
+    mse_boostrap = np.zeros(stop - start)
+    bias_boostrap = np.zeros(stop - start)
+    var_boostrap = np.zeros(stop - start)
 
-            resampler = Resample(ols)
-            r2_crossval[i-1] , mse_crossval[i-1] = resampler.cross_validation(k=crossval_folds)
+    for i in orders:
+        i = int(i)
+        ols = LinearRegression(i, x, y, z, scale=True)
+        resampler = Resample(ols)
+        r2_cross[i-1] , mse_cross[i-1] = resampler.cross_validation(k=k)
 
-        plt.plot(orders, mse_boostrap, label="MSE Boostrap")
-        plt.plot(orders, mse_crossval, label="MSE Crossvalidation")
-        plt.legend()
+        ols = LinearRegression(i, x, y, z, scale=True)
+        resampler = Resample(ols)
+        r2_boostrap[i-1], mse_boostrap[i-1], bias_boostrap[i-1], var_boostrap[i-1] = resampler.bootstrap(10, random_state=42)
 
-        plt.title(f"MSE for Boostrap and Crossvalidation K= {crossval_folds}")
-        plt.show()
+    plt.plot(orders, mse_cross, label=f"MSE Crossvalidation k = {k}")
+    plt.plot(orders, mse_boostrap, label="MSE Boostrap")
+
+    plt.legend()
+    plt.title(f"MSE for Boostrap and Crossvalidation K= {k}")
+    plt.show()
 
 ############################################
 
