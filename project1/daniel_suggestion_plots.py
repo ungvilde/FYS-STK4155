@@ -14,14 +14,14 @@ sns.set_theme()
 project_data = input("Which data do you want to plot? (Franke or Terrain) ")
 project_section = input('Which part of project 1 you want to plot? (b, c, d, e, f)')
 
-def get_data_franke(N):
+def get_data_franke(N,noise):
     """
     Get the data for the Franke function.
     """
     x = np.sort(np.random.uniform(0,1,N))
     y = np.sort(np.random.uniform(0,1,N))
     x, y = np.meshgrid(x,y)
-    z = franke_function(x,y)
+    z = franke(x,y) + noise*np.random.randn(N,N)
 
     return x, y, z
 
@@ -53,7 +53,7 @@ def part_b_request1(show_betas=False):
     if project_data == "F":
         N = 12 ## number of points will be N x N
 
-        x, y, z = get_data_franke(N)
+        x, y, z = get_data_franke(N, noise=0.1)
     if project_data == "T":
         N = 10
         x, y, z = get_data_terrain(N)
@@ -99,6 +99,7 @@ def part_b_request1(show_betas=False):
 
     #(Adam) - Plotting Errors together and saving figs
     # Plotting MSE and R2 in same figure with two y-axis
+    print(f"Sum:{mse_list+r2_list} ")
     fig, ax1 = plt.subplots()
     ax1.plot(orders, mse_list, 'b-')
     ax1.set_xlabel('Polynomial Degree', fontsize=12)
@@ -126,7 +127,7 @@ def part_b_request1_extra():
     if project_data == "F":
         N = 12 ## number of points will be N x N
 
-        x, y, z = get_data_franke(N)
+        x, y, z = get_data_franke(N,noise=0.1)
     if project_data == "T":
         N = 10
         x, y, z = get_data_terrain(N)
@@ -196,7 +197,7 @@ def part_b_request1_extra():
     ax2.tick_params('y', colors='r')
 
     fig.tight_layout()
-    plt.savefig('Figs/Errors_x_order_{max_degree}_TRAIN_'+str(project_data)+'.pdf')
+    plt.savefig(f'Figs/Errors_x_order_{max_degree}_TRAIN_'+str(project_data)+'.pdf')
     plt.show()
 
 
@@ -216,15 +217,16 @@ def part_c_request1():
     """
     np.random.seed(41)
 
-    N = 15 ## number of points will be N x N
-
-    x = np.sort(np.random.rand(N)).reshape((-1, 1))
-    y = np.sort(np.random.rand(N)).reshape((-1, 1))
-    x, y = np.meshgrid(x, y)
-
-    z = franke(x, y) +  0.15*np.random.randn(N, N)
     max_degree = 12
+    if project_data == "F":
+        N = 15 ## number of points will be N x N
 
+        x, y, z = get_data_franke(N,noise=0.15)
+    if project_data == "T":
+        N = 10
+        x, y, z = get_data_terrain(N)
+
+    
     mse_list_train = []
     mse_list_test = []
     orders=np.linspace(1, max_degree, max_degree)
@@ -259,7 +261,7 @@ def part_c_request2():
     N = 40 ## number of points will be N x N
 
     if project_data == "F":
-        x, y, z = get_data_franke(N)
+        x, y, z = get_data_franke(N,noise=0.15)
     if project_data == "T":
         x, y, z = get_data_terrain(N)
 
@@ -304,8 +306,9 @@ def part_d_request1():
     N = 40 ## number of points will be N x N
 
     if project_data == "F":
-        x, y, z = get_data_franke(N)
+        x, y, z = get_data_franke(N,noise=0.15)
     if project_data == "T":
+
         x, y, z = get_data_terrain(N)
     stop =20
     start = 1
