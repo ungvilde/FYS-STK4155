@@ -240,8 +240,8 @@ def part_c_request1():
         mse_list_train.append(mse_train)
         mse_list_test.append(mse_test)
 
-    plt.plot(orders, mse_list_train)
-    plt.plot(orders, mse_list_test)
+    plt.plot(orders, mse_list_train,label='Train')
+    plt.plot(orders, mse_list_test,label='Test')
     plt.xlabel('Polynomial Degree', fontsize=12)
     plt.ylabel('prediction Error', fontsize=12)
     plt.legend()
@@ -303,11 +303,10 @@ def part_d_request1():
 
     N = 40 ## number of points will be N x N
 
-    x = np.sort(np.random.rand(N)).reshape((-1, 1))
-    y = np.sort(np.random.rand(N)).reshape((-1, 1))
-    x, y = np.meshgrid(x, y)
-
-    z = franke(x, y) +  0.15*np.random.randn(N, N)
+    if project_data == "F":
+        x, y, z = get_data_franke(N)
+    if project_data == "T":
+        x, y, z = get_data_terrain(N)
     stop =20
     start = 1
 
