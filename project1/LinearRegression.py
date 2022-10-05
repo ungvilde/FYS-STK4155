@@ -6,7 +6,6 @@ from Errors import Errors
 from Outofbounds import OutOfBounds
 from helper import *
 from sklearn.preprocessing import normalize
-from sklearn.model_selection import train_test_split
 
 class LinearRegression(OLS, LASSO, Ridge):
     '''
@@ -76,6 +75,10 @@ class LinearRegression(OLS, LASSO, Ridge):
         lmbd : float
             Default None\n
             Lambda to which we will make a fit for either Ridge or LASSO
+        
+        scale : boolean
+            Default False\n
+            If True the designmatrix will be normalized.
         
         Raises
         ------
