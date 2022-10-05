@@ -11,12 +11,39 @@ from sklearn.model_selection import train_test_split
 class LinearRegression(OLS, LASSO, Ridge):
     '''
     Superclass for the regression methods, the idea is to gather the most common methods 
-    here so they're easily accessible from the subclasses.
-    MSE and R2 and estimators are unique for each regression method though plotting is common.
-    This can be developped as we go along, splitting and scaling can be done in this superclass for instance :)
+    here so they're easily accessible.
 
-    The names of the fits for each subclass is no _fit, it might be smart to change that 
-    to _fitOLS, _fit_Ridge and _fitLASSO so they can be distinguished and used in the superclass.
+    The creation of this objects decides which method is going to be used: OLS, Ridge or LASSO.
+
+    Methods
+    -------
+    predict_resample(design_train, z_train, design_test)\n
+    predict(design_test, z_test)\n
+    design(scale=False)\n
+    beta()\n
+    mse(own=None)\n
+    r2(own=None)\n
+    var_beta() Note: only for OLS\n
+    conf_int() Note: only for OLS\n
+    split_predict_eval(test_size=0.2, fit=False, train=False, random_state=None)\n
+    set_beta(design, z)\n
+    set_known(z)\n
+    set_order(order)\n
+    set_design(design)\n
+    get_beta()\n
+    get_design()\n
+    get_known()\n
+    get_x()\n
+    get_y()
+
+    Private variables
+    -----------------
+    Beta\n
+    Method\n
+    Design matrix\n
+    x, y and z\n
+    Fit\n
+    Lambda
     '''
 
     # the 'private' variables for the superclass
@@ -318,9 +345,6 @@ class LinearRegression(OLS, LASSO, Ridge):
     def split_predict_eval(self, test_size=0.2, fit=False, train=False, random_state=None):
         '''
         Splits the contained data into training and testing and either returns the testing data and stores the training data or makes a fit and evaluates it.
-
-        Needs
-        -----
 
         Parameters
         ---------
