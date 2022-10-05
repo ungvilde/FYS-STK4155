@@ -31,7 +31,7 @@ class LinearRegression(OLS, LASSO, Ridge):
     _lambda = None  # contains the lambdas used for ridge or lasso
 
 
-    def __init__(self, order, x, y, z, method=1, lmbd=None):
+    def __init__(self, order, x, y, z, method=1, lmbd=None, scale=False):
         '''Creates an instance of LinearRegression which will do either OLS, Ridge or LASSO depending on the method number chosen.
         
         Parameters
@@ -69,7 +69,7 @@ class LinearRegression(OLS, LASSO, Ridge):
 
         self._method = method
 
-        self.design()   # calculating the design matrix immediately
+        self.design(scale=scale)   # calculating the design matrix immediately
 
     def __call__(self):
         '''
@@ -151,7 +151,7 @@ class LinearRegression(OLS, LASSO, Ridge):
 
         return out_mse, out_r2
 
-    def design(self):
+    def design(self, scale=False):
         '''
         Makes the design matrix based off of the chosen order and the x and y data. Stores the design matrix within the object, to get it use get_design().
 
@@ -182,6 +182,9 @@ class LinearRegression(OLS, LASSO, Ridge):
                 place += 1
 
         self._design = X
+
+        if scale:
+            self._design = normalize(self._design)
     
     def beta(self):
         '''
@@ -304,15 +307,15 @@ class LinearRegression(OLS, LASSO, Ridge):
         OutOfBounds(Exception) if the chosen method is not OLS
         '''
 
-        if self._method != 1:   # checks that the method is OLS
+        if self._method != 1:
             raise OutOfBounds(conf_int=True)
         
         else:
-            conf_intervals = Errors(self._z, self._fit) # creates an instance of Errors
+            conf_intervals = Errors(self._z, self._fit)
 
             return conf_intervals.conf_int(self._beta, self._design)    # finds and returns the confidence intervals of the estimator
 
-    def split_predict_eval(self, test_size=0.2, fit=False, train=False, random_state=None, scale=False):
+    def split_predict_eval(self, test_size=0.2, fit=False, train=False, random_state=None):
         '''
         Splits the contained data into training and testing and either returns the testing data and stores the training data or makes a fit and evaluates it.
 
@@ -335,14 +338,7 @@ class LinearRegression(OLS, LASSO, Ridge):
         random_state : int
             Default None\n
             Seed from which to randomize the splitting of the data.
-        
-        scale : boolean
-            Default False\n
-            Flag for scaling (True) or not (False) the design matrix.
         '''
-
-        if scale:   # normalizes the design matrix
-            self._design = normalize(self._design)
 
         X_train, X_test, z_train, z_test = our_tt_split(self._design, self._z, test_size=test_size, random_state=random_state)
 
