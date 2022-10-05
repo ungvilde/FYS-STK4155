@@ -13,6 +13,35 @@ project_data = input("Which data do you want to plot? (Franke or Terrain) ")
 project_section = input('Which part of project 1 you want to plot? (b, c, d, e, f)')
 
 
+def get_data_franke(N):
+    """
+    Get the franke data
+    """
+    np.random.seed(42)
+
+    x = np.sort(np.random.rand(N)).reshape((-1, 1))
+    y = np.sort(np.random.rand(N)).reshape((-1, 1))
+    x, y = np.meshgrid(x, y)
+
+    z = franke(x, y) + 0.1 * np.random.randn(N, N)
+
+    return x, y, z
+
+def get_data_terrain(N):
+    """
+    Get the terrain data
+    """
+    # Load the terrain
+    terrain = imread('SRTM_data_Norway_1.tif')
+    print(np.shape(terrain))
+    terrain = terrain[:N,:N]
+    # Creates mesh of image pixels
+    x = np.linspace(0,1, np.shape(terrain)[0])
+    y = np.linspace(0,1, np.shape(terrain)[1])
+    x, y = np.meshgrid(x,y)
+
+    z = terrain
+    return x, y, z
 
 
 ########## PART B ####################
@@ -26,28 +55,16 @@ def part_b_request1(show_betas=False):
     """
     np.random.seed(42)
 
-    if project_data == "Franke":
-        N = 12 ## number of points will be N x N
+    if project_data == "F":
 
-        x = np.sort(np.random.rand(N)).reshape((-1, 1))
-        y = np.sort(np.random.rand(N)).reshape((-1, 1))
-        x, y = np.meshgrid(x, y)
+        x, y, z = get_data_franke(N=12)
 
-        z = franke(x, y) + 0.1 * np.random.randn(N, N)
+    if project_data == "T":
 
-    if project_data == "Terrain":
-        # Load the terrain
-        terrain = imread('SRTM_data_Norway_1.tif')
-        print(np.shape(terrain))
-        N = 100
-        terrain = terrain[:N,:N]
-        # Creates mesh of image pixels
-        x = np.linspace(0,N, np.shape(terrain)[0])
-        y = np.linspace(0,N, np.shape(terrain)[1])
-        x, y = np.meshgrid(x,y)
 
-        z = terrain
+        x, y, z = get_data_terrain(N=10)
 
+    
     max_degree = 5
 
     mse_list = []
@@ -57,7 +74,7 @@ def part_b_request1(show_betas=False):
         print("At order: %d" %i, end='\r')
 
         i = int(i)
-        ols = LinearRegression(i, x, y, z, scale=True)
+        ols = LinearRegression(i, x, y, z, scale=False)
         mse, r2 = ols.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42)
         mse_list.append(mse)
         r2_list.append(r2)
@@ -106,14 +123,15 @@ def part_b_request1_extra():
     """
     np.random.seed(42)
 
-    if project_data == "Franke":
+    if project_data == "F":
         N = 12 ## number of points will be N x N
 
-        x = np.sort(np.random.rand(N)).reshape((-1, 1))
-        y = np.sort(np.random.rand(N)).reshape((-1, 1))
-        x, y = np.meshgrid(x, y)
+        x, y, z = get_data_franke(N)
+    if project_data == "T":
+        N = 10
+        x, y, z = get_data_terrain(N)
 
-        z = franke(x, y) + 0.1 * np.random.randn(N, N)
+    
     max_degree = 15
 
     mse_list = []
@@ -182,13 +200,16 @@ def part_c_request1():
     """
     np.random.seed(41)
 
-    N = 15 ## number of points will be N x N
+    
 
-    x = np.sort(np.random.rand(N)).reshape((-1, 1))
-    y = np.sort(np.random.rand(N)).reshape((-1, 1))
-    x, y = np.meshgrid(x, y)
+    if project_data == "F":
+        N = 15 ## number of points will be N x N
+        x, y, z = get_data_franke(N)
 
-    z = franke(x, y) +  0.15*np.random.randn(N, N)
+    if project_data == "T":
+        N=10
+        x, y, z = get_data_terrain(N)
+
     max_degree = 12
 
     mse_list_train = []
@@ -205,6 +226,7 @@ def part_c_request1():
 
         mse_list_train.append(mse_train)
         mse_list_test.append(mse_test)
+
 
     plt.plot(orders, mse_list_train)
     plt.plot(orders, mse_list_test)
@@ -224,11 +246,12 @@ def part_c_request2():
 
     N = 40 ## number of points will be N x N
 
-    x = np.sort(np.random.rand(N)).reshape((-1, 1))
-    y = np.sort(np.random.rand(N)).reshape((-1, 1))
-    x, y = np.meshgrid(x, y)
+    if project_data == "F":
+        x, y, z = get_data_franke(N)
+    if project_data == "T":
+        x, y, z = get_data_terrain(N)
 
-    z = franke(x, y) +  0.15*np.random.randn(N, N)
+    
     stop = 15
     start = 1
 
@@ -243,6 +266,7 @@ def part_c_request2():
         resampler = Resample(ols)
         r2[i-1], mse[i-1], bias[i-1], var[i-1] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
 
+    print(f"Z avg:{np.mean(z)} ")
     plt.plot(orders, mse, label="MSE")
 
     plt.plot(orders, bias, label="Bias")
@@ -265,11 +289,11 @@ def part_d_request1():
 
     N = 40 ## number of points will be N x N
 
-    x = np.sort(np.random.rand(N)).reshape((-1, 1))
-    y = np.sort(np.random.rand(N)).reshape((-1, 1))
-    x, y = np.meshgrid(x, y)
-
-    z = franke(x, y) +  0.15*np.random.randn(N, N)
+    if project_data == "F":
+        x, y, z = get_data_franke(N)
+    if project_data == "T":
+        x, y, z = get_data_terrain(N)
+    
     stop = 15
     start = 1
     for folds in np.arange(7, 11):
