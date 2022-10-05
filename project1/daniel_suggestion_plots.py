@@ -39,16 +39,16 @@ def part_b_request1(show_betas=False):
         # Load the terrain
         terrain = imread('SRTM_data_Norway_1.tif')
         print(np.shape(terrain))
-        N = 1000
+        N = 100
         terrain = terrain[:N,:N]
         # Creates mesh of image pixels
-        x = np.linspace(0,1, np.shape(terrain)[0])
-        y = np.linspace(0,1, np.shape(terrain)[1])
+        x = np.linspace(0,N, np.shape(terrain)[0])
+        y = np.linspace(0,N, np.shape(terrain)[1])
         x, y = np.meshgrid(x,y)
 
         z = terrain
 
-    max_degree = 6
+    max_degree = 5
 
     mse_list = []
     r2_list = []
