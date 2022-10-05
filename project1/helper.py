@@ -7,12 +7,43 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 
 def triangular_number(n):
-    '''this is to figure out how many permutations we have with x and y given the maximum order of the polynomial fit'''
-    return int(n*(n+1)/2)
+    '''
+    Function to figure out how many permutations we have with x and y given the maximum order of the polynomial fit.
+
+    Parameters
+    ----------
+    n : int
+        triangular number to calculate
+    
+    Returns
+    -------
+    traingular number of parameter n : int
+    '''
+    return int(n*(n+1)/2)   # well-known function for finding the triangular number
 
 def show_me_the_money(x, y, z, figsize = None):
-    '''plot surface given x, y, and z (meshgrids already)
-    most of this is taken from the code given in the project description'''
+    '''
+    Plots and shows a surface from x, y and z where x and y should be mehsgrids. This functionality is given in the project description of project 1 in the course FYS-STK4155/3155 at UiO <3.
+
+    Parameters
+    ---------
+    x : numpy array (meshgrid)
+        used for the coordinates to place the heights in z
+
+    y : numpy array (meshgrid)
+        used for the coordinates to place the heights in z
+
+    z : numpy array
+        heights as a an array in the same shape as x and y
+    
+    figsize : tuple
+        default is None. It sets the size of the figure as you probably guessed.
+
+    Returns
+    -------
+    None
+        plots and shows the surface.
+    '''
 
     if figsize != None:
         fig = plt.figure(figsize=figsize)
@@ -50,16 +81,54 @@ def show_me_the_money(x, y, z, figsize = None):
     plt.show()
 
 def franke(x, y):
-    '''computes the franke function :)'''
+    '''
+    Computes the Franke function given x and y parameters.
 
-    one = (3/4) * np.exp(-(9*x - 2)**2/4 - (9*y - 2)**2/4)
-    two = (3/4) * np.exp(-(9*x + 1)**2/49 - (9*y + 1)/10)
-    three = (1/2) * np.exp(-(9*x - 7)**2/4 - (9*y - 3)**2/4)
-    four = -(1/5) * np.exp(-(9*x - 4)**2 - (9*y - 7)**2)
+    Parameters
+    ----------
+    x : numpy array ; int ; float
+        As long as it's computable (numbers basically) and the same size as y anything goes.
 
-    return one + two + three + four
+    y : numpy array ; int ; float
+        As long as it's computable (numbers basically) and the same size as x anything goes.
+    
+    Returns
+    -------
+    Franke function evaluated at x and y (will be in the same shape as x and y)
+    '''
+
+    one = (3/4) * np.exp(-(9*x - 2)**2/4 - (9*y - 2)**2/4)  # calculates the first part
+    two = (3/4) * np.exp(-(9*x + 1)**2/49 - (9*y + 1)/10)   # calculates the seccond part
+    three = (1/2) * np.exp(-(9*x - 7)**2/4 - (9*y - 3)**2/4)    # calculates the third part
+    four = -(1/5) * np.exp(-(9*x - 4)**2 - (9*y - 7)**2)    # calculates the fourth part
+
+    return one + two + three + four # adding the parts together
 
 def our_tt_split(X, y, test_size=0.33, train_size = None, random_state=None):
+    '''
+    Our own function to split the data into a training and testing set. You can choose either the size of the testing data or the training data. If both are chosen the splitting will be decided by the chosen size of the training data.
+
+    Parameters
+    ---------
+    X : numpy array (matrix)
+        the design matrix which you want to split. Has to be correctly related to y.
+    
+    y : numpy array
+        It will be raveled.
+    
+    test_size : float
+        Default 0.33 . Decides the percentage size of the testing data from the original data.
+
+    train_size : float
+        Default None . Decides the percentage size of the training data from the original data.
+
+    random_state : int
+        Default None . Seed from which to randomize the splitting.
+
+    Returns
+    -------
+    X_train, X_test, y_train, y_test
+    '''
     y = np.ravel(y)
     assert len(X) == len(y)
     np.random.seed(random_state)
@@ -92,9 +161,9 @@ def our_tt_split(X, y, test_size=0.33, train_size = None, random_state=None):
 
 
 def standard_normalizer(x):
-    """
-    inspired by Machine Learning Refined from Watt et. all
-    """
+    '''
+    Unsure if used!
+    '''
     # compute the mean and standard deviation of the input
     x_means = np.mean(x,axis = 0)[np.newaxis, :]   
     x_stds = np.std(x,axis = 0)[np.newaxis, :]   
