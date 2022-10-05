@@ -385,15 +385,11 @@ def part_e_request1():
     plt.plot(lambdas[j_min, i_min], orders[i_min, j_min], '+', c='r')
     plt.colorbar()
 
-    #plt.plot(orders, bias, label="Bias")
-    #plt.plot(orders, var, label="Variance")
-    #plt.legend()
-
-    plt.xlabel('Polynomial Degree', fontsize=12)
-    plt.ylabel('prediction Error', fontsize=12)
-    plt.savefig('B-V_Tradeoff_Bootstrap_'+str(project_data)+'.pdf')
+    plt.xlabel('$Log_{10}(\lambda)$', fontsize=12)
+    plt.ylabel('Polynomial Degree', fontsize=12)
+    plt.savefig('Figs/Optimizing_Ridge_Bootstrap_'+str(project_data)+'.pdf')
     plt.show()
-
+    ## NOW I WILL SELECT THE BEST ORDER AND MAKE BV TRADEOFF
 
 ############################################
 
