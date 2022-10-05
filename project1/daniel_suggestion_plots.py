@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
+
 sns.set_theme()
 
 project_data = input("Which data do you want to plot? (Franke or Terrain) ")
@@ -254,7 +255,6 @@ def part_c_request1():
 def part_c_request2():
     """
     This is super similar to the part c request 1 but now using bootstrap and showing the bv tradeoff
-    SHOULD WE USE THE SCALING HERE? IF YES, IT SHOULD BE ADDED TO THE LinearRegression as an option
     """
     np.random.seed(41)
 
@@ -340,6 +340,63 @@ def part_d_request1():
     plt.legend()
     plt.show()
 
+########## PART E ####################
+
+def part_e_request1():
+    """
+    Perform the same bootstrap analysis as in the part c for the same plynomials but now for RIDGE
+    """
+    np.random.seed(41)
+
+    N = 10 ## number of points will be N x N
+
+    if project_data == "F":
+        x, y, z = get_data_franke(N,noise=0.15)
+    if project_data == "T":
+        x, y, z = get_data_terrain(N)
+
+    stop = 15
+    start = 1
+
+    n_lambdas = 50
+    lambdas = np.logspace(-5, 4, n_lambdas)
+    orders = np.linspace(1, stop-1, stop-1)
+
+    r2 = np.zeros((stop - start, n_lambdas))
+    mse = np.zeros((stop - start, n_lambdas))
+    bias = np.zeros((stop - start, n_lambdas))
+    var = np.zeros((stop - start, n_lambdas))
+
+    for i in range(start, stop):
+        for j in range(n_lambdas):
+            lmbd = lambdas[j]
+            ridge = LinearRegression(i, x, y, z, method=2, lmbd=lmbd, scale=True)
+            resampler = Resample(ridge)
+            r2[i-1,j], mse[i-1,j], bias[i-1,j], var[i-1,j] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
+
+    mse_min = np.min(mse)
+    print('++++++', mse_min)
+
+    i_min, j_min = np.where(mse == mse_min)
+    print('++++++', i_min, j_min)
+    lambdas = np.log10(lambdas)
+    plt.contourf(mse, extent=(lambdas[0], lambdas[-1], orders[0], orders[-1]))
+
+    #orders, lambdas = np.meshgrid(orders, lambdas)
+
+    plt.plot(lambdas[j_min], orders[i_min], 'o', c='r')
+    plt.colorbar()
+
+    #plt.plot(orders, bias, label="Bias")
+    #plt.plot(orders, var, label="Variance")
+    #plt.legend()
+
+    plt.xlabel('Polynomial Degree', fontsize=12)
+    plt.ylabel('prediction Error', fontsize=12)
+    plt.savefig('B-V_Tradeoff_Bootstrap_'+str(project_data)+'.pdf')
+    plt.show()
+
+
 ############################################
 
 
@@ -357,6 +414,10 @@ if project_section == "c":
 
 if project_section == "d":
     part_d_request1()
+
+
+if project_section == "e":
+    part_e_request1()
 
 
 
