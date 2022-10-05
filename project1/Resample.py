@@ -57,7 +57,7 @@ class Resample():
         self._reg.set_known(original_z)
 
         # return mean of R2 and mse, bias and variance
-        return np.mean(R2), np.mean(mse), bias, variance
+        return np.mean(R2), np.mean(mse), bias, variance, np.std(mse)
 
 
     def k_folds(self, k):
