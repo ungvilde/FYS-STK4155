@@ -4,6 +4,8 @@ Hello and welcome to our repository for Project 1 in the course FYS-STK4155/3155
 Here we explore three methods for linear regression which are Ordianry Least Squares, Ridge regression and LASSO regression.
 We'll also be taking a look at some resampling techniques and finally apply these methods on some real terrain data.
 
+If you want to have a look at the project description you can find it here: [compphysics.github.io/MachineLearning/doc/Projects/2022/Project1/](https://compphysics.github.io/MachineLearning/doc/Projects/2022/Project1/pdf/Project1.pdf).
+
 ## Classes
 
 We have decided to take an object oriented approach so here we'll give a simple overview of the classes (they all start with capital letters). The classes are commented and documented for easier understanding of these.
@@ -96,3 +98,27 @@ The class contains set methods for the expected and predicted values as well as:
 #### OutOfBounds
 
 To keep it short: it's an Exception subclass that is raised when the method (OLS, Ridge or LASSO) is chosen wrong.
+
+## Other files
+
+#### `helper.py`
+
+This file contains some functions that are useful (and used in the classes). We haven't found a fitting place for these in the class hierarchy.
+
+This class has the following funcitons:
+    triangular_number(n)
+    franke(x, y)
+    our_tt_split(X, y, test_size=0.33, train_size = None, random_state=None)
+    standard_normalizer(x)
+
+`triangular_number` calculates the triangular number of the input parameter which has to be an `int`. It's a function used to find the number of features the design matrix will contain, the input parameter will be the polynomial degree.
+
+`franke` computes and returns the Franke function evaluated at the parameters `x` and `y`.
+
+`our_tt_split` stands for 'our train test split'. We decided to make our own data splitting function as an exercise and so we will also use it in our code. The input parameters are the design matrix and the known output which we want to split accordingly. We are aware that scikit-learn has such a functionality.
+
+`standard_normalizer`
+
+#### `SRTM_data_Norway_1.tif`
+
+Contains the terrain data on which we apply our linear regression methods. The data file is taken from the project description.
