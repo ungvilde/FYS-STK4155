@@ -36,7 +36,7 @@ class Resample():
 
     # The resampling methods have to store the beta to then find the bias and the variance
 
-    def bootstrap(self, N, random_state=None):
+    def bootstrap(self, N, random_state=None, use_train=False):
         '''
         Performs the bootstrap resampling method N times by randomly shuffling the data and checking it against a test data.
 
@@ -83,6 +83,9 @@ class Resample():
             # self._reg.set_design(X_resampled,y_resampled)
             predictions[i,:] = self._reg.predict_resample(X_resampled, y_resampled, X_test)
             self._reg.set_known(z_test)
+            if use_train:
+                predictions[i,:] = self._reg.predict_resample(X_resampled, y_resampled, X_train)
+                self._reg.set_known(z_train)
             R2[i] = self._reg.r2()
             mse[i] = self._reg.mse()
         

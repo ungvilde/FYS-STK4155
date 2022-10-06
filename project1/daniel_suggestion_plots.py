@@ -123,19 +123,22 @@ def part_b_request1(show_betas=False):
     # code for reproducing fig 2.11
     mse_test = []
     mse_train = []
-    d_max = 16
+    d_max = 10
 
     for i in range(1, d_max+1):
         i = int(i)
         Linreg = LinearRegression(i, x, y, z, scale=True)
-
+        resampler = Resample(Linreg)
         # compute test error
-        mse, _ = Linreg.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42)
+        #mse, _ = Linreg.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42)
+        _, mse, bias, var, _ = resampler.bootstrap(100)
         mse_test.append(mse)
 
         # compute training error
         Linreg = LinearRegression(i, x, y, z, scale=True)
-        mse, _ = Linreg.split_predict_eval(test_size=0.2, fit=True, train=True, random_state=42)
+        #mse, _ = Linreg.split_predict_eval(test_size=0.2, fit=True, train=True, random_state=42)
+        _, mse, bias, var, _ = resampler.bootstrap(100, use_train=True)
+
         mse_train.append(mse)
 
     cm = 1/2.54
