@@ -133,8 +133,7 @@ def part_b_request1(show_betas=False):
 
         # compute training error
         Linreg = LinearRegression(i, x, y, z, scale=True)
-        #mse, _ = Linreg.split_predict_eval(test_size=0.2, fit=True, train=True, random_state=42)
-        _, mse, bias, var, _ = resampler.bootstrap(100, use_train=True)
+        mse, _ = Linreg.split_predict_eval(test_size=0.2, fit=True, train=True, random_state=42)
 
         mse_train.append(mse)
 
