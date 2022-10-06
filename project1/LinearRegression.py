@@ -6,7 +6,7 @@ from Errors import Errors
 from Outofbounds import OutOfBounds
 from helper import triangular_number
 from helper import our_tt_split
-from sklearn.preprocessing import normalize
+from sklearn.preprocessing import StandardScaler
 
 class LinearRegression(OLS, LASSO, Ridge):
     '''
@@ -79,7 +79,7 @@ class LinearRegression(OLS, LASSO, Ridge):
         
         scale : boolean
             Default False\n
-            If True the designmatrix will be normalized.
+            If True the designmatrix will be scaled.
         
         Raises
         ------
@@ -215,7 +215,11 @@ class LinearRegression(OLS, LASSO, Ridge):
         self._design = X
 
         if scale:
-            self._design = normalize(self._design)
+            # check to make sure thta x_stds > small threshold, for those not
+            # divide by 1 instead of original standard deviation
+            epsilon =  10**(-2)
+            denominator = [x if x > epsilon else 1 for x in np.std(self._design, axis=0)]
+            self._design = (self._design - np.mean(self._design, axis=0))/ denominator
 
     def beta(self):
         '''
