@@ -5,6 +5,7 @@ from Ridge import Ridge
 from Errors import Errors
 from Outofbounds import OutOfBounds
 from helper import our_tt_split
+from helper import triangular_number
 from sklearn.preprocessing import normalize
 
 class LinearRegression(OLS, LASSO, Ridge):

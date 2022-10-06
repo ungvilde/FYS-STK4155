@@ -417,7 +417,7 @@ def part_e_request1():
     lambdas = np.log10(lambdas)
     lambdas, orders = np.meshgrid(lambdas, orders)
 
-    plt.contourf(lambdas, orders, mse)
+    plt.contourf(lambdas, orders, mse, levels=100)
     print("CV MIN", lambdas[j_min, i_min])
     plt.plot(lambdas[j_min, i_min], orders[i_min, j_min], '+', c='r')
     plt.colorbar()
