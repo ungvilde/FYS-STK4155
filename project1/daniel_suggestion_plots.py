@@ -147,7 +147,7 @@ def part_b_request1(show_betas=False):
     plt.xticks(np.arange(1, d_max+1, step=2, dtype=int))
     plt.legend()
     plt.tight_layout()
-    plt.savefig("figs/train_v_test_error_plot.pdf")
+    plt.savefig(f"figs/train_v_test_error_plot_{project_data}.pdf")
 
     ###########################################
     # code for plotting Bias-Variance Trade-Off
@@ -187,7 +187,7 @@ def part_b_request1(show_betas=False):
     plt.xticks(np.arange(1, d_max+1, step=2, dtype=int))
     plt.legend()
     plt.tight_layout()
-    plt.savefig("Figs/bias_variance_plot.pdf")
+    plt.savefig(f"Figs/bias_variance_plot_{project_data}.pdf")
 
     ####################################################
     # code for plotting beta values with conf. intervals
@@ -215,7 +215,7 @@ def part_b_request1(show_betas=False):
 
         beta_inds = range(0, len(beta))
         #plt.plot(beta_inds, beta, 'o', label=f"Order {i}")
-        plt.errorbar(x=beta_inds, y=beta, yerr=conf_int, fmt='o', label=f"$d=${i}")
+        plt.errorbar(x=beta_inds, y=beta, yerr=conf_int, fmt='.', label=f"$d=${i}")
 
     plt.legend()
     p = (d_max+1)*(d_max+2)/2
@@ -223,7 +223,7 @@ def part_b_request1(show_betas=False):
     plt.xlabel(r"Index $j$")
     plt.ylabel(r"$\beta_j$")
     plt.tight_layout()
-    plt.savefig("Figs/beta_coef.pdf")
+    plt.savefig(f"Figs/beta_coef_{project_data}.pdf")
 
 
 def part_b_request1_extra():
@@ -256,8 +256,6 @@ def part_b_request1_extra():
         mse_list.append(mse)
         r2_list.append(r2)
 
-
-    
     # Plotting MSE and R2 in same figure with two y-axis
     fig, ax1 = plt.subplots()
     ax1.plot(orders, mse_list, 'b-')
@@ -284,11 +282,7 @@ def part_b_request1_extra():
         ols = LinearRegression(i, x, y, z, scale=True)
         mse, r2 = ols.split_predict_eval(test_size=0.2, fit=True, train=True, random_state=42)
         mse_list.append(mse)
-        r2_list.append(r2)
-
-
-
-    
+        r2_list.append(r2)    
     
     # Plotting MSE and R2 in same figure with two y-axis
     fig, ax1 = plt.subplots()
@@ -305,8 +299,6 @@ def part_b_request1_extra():
     fig.tight_layout()
     plt.savefig(f'Figs/Errors_x_order_{max_degree}_TRAIN_'+str(project_data)+'.pdf')
     #plt.show()
-
-
 
 def part_b_request2():
     """
