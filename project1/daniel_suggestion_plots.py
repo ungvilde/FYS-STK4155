@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
 
-sns.set_theme()
+sns.set_theme("notebook", "whitegrid")
 
 project_data = input("Which data do you want to plot? (Franke=F or Terrain=T) ")
 project_section = input('Which part of project 1 you want to plot? (b, c, d, e, f)')
@@ -99,7 +99,6 @@ def part_b_request1(show_betas=False):
 
     #(Adam) - Plotting Errors together and saving figs
     # Plotting MSE and R2 in same figure with two y-axis
-    #print(f"Sum:{mse_list+r2_list} ")
     cm=1/2.54
     fig, ax1 = plt.subplots(figsize=(12*cm, 10*cm))
     ax1.plot(orders, mse_list, 'b-', label="MSE")
@@ -116,8 +115,6 @@ def part_b_request1(show_betas=False):
     fig.legend(loc=7, bbox_to_anchor=(0.5, 0., 0.5, 0.5), bbox_transform=ax1.transAxes)
     plt.tight_layout()
     plt.savefig(f'Figs/Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.pdf')
-    #plt.show()
-
 
     ###########################################
     # code for reproducing fig 2.11
@@ -159,7 +156,6 @@ def part_b_request1(show_betas=False):
     X_train, X_test, z_train, z_test = train_test_split(X, np.ravel(z), test_size = 0.2, random_state=42)
 
     # now we use the bootstrap
-
     mse_list = []
     bias_list = []
     var_list = []
