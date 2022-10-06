@@ -117,7 +117,9 @@ This class has the following funcitons:
 
 `our_tt_split` stands for 'our train test split'. We decided to make our own data splitting function as an exercise and so we will also use it in our code. The input parameters are the design matrix and the known output which we want to split accordingly. We are aware that scikit-learn has such a functionality.
 
-`standard_normalizer`
+#### `plot.py`
+
+This cript does what you think it does. It plots the relevant plots which are included in the report. It's also a handy way to see how the classes are supposed to be used.
 
 #### `SRTM_data_Norway_1.tif`
 
