@@ -4,6 +4,7 @@ from LASSO import LASSO
 from Ridge import Ridge
 from Errors import Errors
 from Outofbounds import OutOfBounds
+from helper import triangular_number
 from helper import our_tt_split
 from sklearn.preprocessing import normalize
 
