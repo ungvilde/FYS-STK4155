@@ -30,8 +30,9 @@ def get_data_terrain(N):
     """
     Get the data for the terrain data.
     """
+    S = 1000
     terrain = imread('SRTM_data_Norway_1.tif')
-    terrain = terrain[0:N,0:N]
+    terrain = terrain[S:S+N,S:S+N]
     x = np.linspace(0,1,N)
     y = np.linspace(0,1,N)
     x, y = np.meshgrid(x,y)
@@ -433,6 +434,96 @@ def part_e_request1():
     plt.show()
 
 
+
+
+
+
+########## PART F ####################
+
+def part_f_request1():
+    """
+    Perform the same bootstrap analysis as in the part c for the same plynomials but now for Lasso
+    """
+    np.random.seed(41)
+
+    N = 5 ## number of points will be N x N
+
+    if project_data == "F":
+        x, y, z = get_data_franke(N,noise=0.15)
+    if project_data == "T":
+        x, y, z = get_data_terrain(N)
+
+    stop = 8
+    start = 1
+
+    n_lambdas = 25
+    lambdas = np.logspace(-4, 0, n_lambdas)
+    orders = np.linspace(1, stop-1, stop-1)
+
+    r2 = np.zeros((stop - start, n_lambdas))
+    mse = np.zeros((stop - start, n_lambdas))
+    bias = np.zeros((stop - start, n_lambdas))
+    var = np.zeros((stop - start, n_lambdas))
+    var_mse = np.zeros((stop - start, n_lambdas))
+
+    for i in range(start, stop):
+        for j in range(n_lambdas):
+            lmbd = lambdas[j]
+            lasso = LinearRegression(i, x, y, z, method=3, lmbd=lmbd, scale=True)
+            resampler = Resample(lasso)
+            r2[i-1,j], mse[i-1,j], bias[i-1,j], var[i-1,j],var_mse[i-1,j] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
+
+    mse_min = np.min(mse)
+    print("BOOTS MIN MSE", mse_min)
+    i_min, j_min = np.where(mse == mse_min)
+    lambdas = np.log10(lambdas)
+    lambdas_mesh, orders_mesh = np.meshgrid(lambdas, orders)
+
+    plt.contourf(lambdas_mesh, orders_mesh, mse, levels=100)
+    print("BOOTS MIN", lambdas[j_min])
+    plt.plot(lambdas[j_min], orders[i_min], '+', c='r')
+    
+
+    plt.colorbar()
+
+    plt.xlabel('$Log_{10}(\lambda)$', fontsize=12)
+    plt.ylabel('Polynomial Degree', fontsize=12)
+    plt.savefig('Figs/Optimizing_Lasso_Bootstrap_'+str(project_data)+f'N_{N*N}'+'.pdf')
+    plt.show()
+
+    ## NOW I WILL do the same thing but with crossval k= 10
+    k = 10
+    r2 = np.zeros((stop - start, n_lambdas))
+    mse = np.zeros((stop - start, n_lambdas))
+    bias = np.zeros((stop - start, n_lambdas))
+    var = np.zeros((stop - start, n_lambdas))
+
+    lambdas = np.logspace(-4, 0, n_lambdas)
+    orders = np.linspace(1, stop-1, stop-1)
+
+    for i in range(start, stop):
+        for j in range(n_lambdas):
+            lmbd = lambdas[j]
+            lasso = LinearRegression(i, x, y, z, method=3, lmbd=lmbd, scale=True)
+            resampler = Resample(lasso)
+            r2[i-1,j], mse[i-1,j] = resampler.cross_validation(k=k) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
+
+    mse_min = np.min(mse)
+    print("CV MIN MSE", mse_min)
+
+    i_min, j_min = np.where(mse == mse_min)
+    lambdas = np.log10(lambdas)
+    lambdas_mesh, orders_mesh = np.meshgrid(lambdas, orders)
+
+    plt.contourf(lambdas_mesh, orders_mesh, mse, levels=100)
+    print("CV MIN", lambdas[j_min])
+    plt.plot(lambdas[j_min], orders[i_min], '+', c='r')
+    plt.colorbar()
+
+    plt.xlabel('$Log_{10}(\lambda)$', fontsize=12)
+    plt.ylabel('Polynomial Degree', fontsize=12)
+    plt.savefig('Figs/Optimizing_lasso_Croassvalk10'+str(project_data)+f'N_{N*N}'+'.pdf')
+    plt.show()
 ############################################
 
 
@@ -455,6 +546,8 @@ if project_section == "d":
 if project_section == "e":
     part_e_request1()
 
+if project_section == "f":
+    part_f_request1()
 
 
 
