@@ -51,16 +51,11 @@ class Resample():
         
         Returns
         -------
-        r2 (numpy array), mse (numpy array), bias (float), variance (float)
-            Final R2 score and MSE after bootstrap has been done. Bias and variance of the model are also given.
+        r2 (numpy array), mse (numpy array), bias (float), variance (float), std(mse)
+            Final R2 score and MSE after bootstrap has been done. Bias and variance of the model are also given. The final return value is the standard error of the MSE.
         '''
         import helper
         from sklearn.utils import resample
-        
-        """
-        does bootstrap sampling on the training data for N samples and returns bias, variance and the mean of R2 and mse.
-        Also stores the orginial stuff.
-        """
 
         original_X = self._reg.get_design()
         original_z = self._reg.get_known()
