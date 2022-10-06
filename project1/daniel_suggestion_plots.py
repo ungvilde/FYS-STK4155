@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
 
-sns.set_theme()
+sns.set_theme("notebook", "whitegrid")
 
 project_data = input("Which data do you want to plot? (Franke=F or Terrain=T) ")
 project_section = input('Which part of project 1 you want to plot? (b, c, d, e, f)')
@@ -99,7 +99,6 @@ def part_b_request1(show_betas=False):
 
     #(Adam) - Plotting Errors together and saving figs
     # Plotting MSE and R2 in same figure with two y-axis
-    #print(f"Sum:{mse_list+r2_list} ")
     cm=1/2.54
     fig, ax1 = plt.subplots(figsize=(12*cm, 10*cm))
     ax1.plot(orders, mse_list, 'b-', label="MSE")
@@ -116,8 +115,6 @@ def part_b_request1(show_betas=False):
     fig.legend(loc=7, bbox_to_anchor=(0.5, 0., 0.5, 0.5), bbox_transform=ax1.transAxes)
     plt.tight_layout()
     plt.savefig(f'Figs/Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.pdf')
-    #plt.show()
-
 
     ###########################################
     # code for reproducing fig 2.11
@@ -162,7 +159,6 @@ def part_b_request1(show_betas=False):
     X_train, X_test, z_train, z_test = train_test_split(X, np.ravel(z), test_size = 0.2, random_state=42)
 
     # now we use the bootstrap
-
     mse_list = []
     bias_list = []
     var_list = []
@@ -461,10 +457,10 @@ def part_e_request1():
     """
     np.random.seed(41)
 
-    N = 10 ## number of points will be N x N
+    N = 12 ## number of points will be N x N
 
     if project_data == "F":
-        x, y, z = get_data_franke(N,noise=0.15)
+        x, y, z = get_data_franke(N, noise=0.15)
     if project_data == "T":
         x, y, z = get_data_terrain(N)
 
@@ -539,9 +535,37 @@ def part_e_request1():
     plt.savefig('Figs/Optimizing_Ridge_Croassvalk10'+str(project_data)+'.pdf')
     plt.show()
 
+    ######### Finally I will select the poly degree with min mse and perform the B-V tradeoff with bootstrap
+    lambdas = np.logspace(-5, 4, n_lambdas)
 
+    r2 = np.zeros(n_lambdas)
+    mse = np.zeros(n_lambdas)
+    bias = np.zeros(n_lambdas)
+    var = np.zeros(n_lambdas)
+    var_mse = np.zeros(n_lambdas)
 
+    chosen_poly_order = int(orders[i_min, j_min])
 
+    for j in range(n_lambdas):
+        lmbd = lambdas[j]
+        ridge = LinearRegression(chosen_poly_order, x, y, z, method=2, lmbd=lmbd, scale=True)
+        resampler = Resample(ridge)
+        r2[j], mse[j], bias[j], var[j],var_mse[j] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
+
+    lambdas = np.log10(lambdas)
+
+    plt.plot(lambdas, mse, label="MSE")
+
+    plt.plot(lambdas, bias, label="Bias",linestyle='dashed')
+    plt.plot(lambdas, var, label="Variance",linestyle='dashed')
+    plt.title(f"B-V Tradeoff for Ridge - With Bootstrap - d = {chosen_poly_order}")
+
+    plt.legend()
+
+    plt.xlabel('$Log_{10}(\lambda)$', fontsize=12)
+    plt.ylabel('Prediction Error', fontsize=12)
+    plt.savefig('Figs/B-V_Tradeoff_Bootstrap_Ridge_'+str(project_data)+'.pdf')
+    plt.show()
 
 
 ########## PART F ####################
@@ -630,8 +654,111 @@ def part_f_request1():
     plt.ylabel('Polynomial Degree', fontsize=12)
     plt.savefig('Figs/Optimizing_lasso_Croassvalk10'+str(project_data)+f'N_{N*N}'+'.pdf')
     plt.show()
-############################################
 
+    ######### Finally I will select the poly degree with min mse and perform the B-V tradeoff with bootstrap
+    lambdas = np.logspace(-5, 4, n_lambdas)
+
+    r2 = np.zeros(n_lambdas)
+    mse = np.zeros(n_lambdas)
+    bias = np.zeros(n_lambdas)
+    var = np.zeros(n_lambdas)
+    var_mse = np.zeros(n_lambdas)
+
+    chosen_poly_order = int(orders[i_min])
+
+    for j in range(n_lambdas):
+        lmbd = lambdas[j]
+        ridge = LinearRegression(chosen_poly_order, x, y, z, method=3, lmbd=lmbd, scale=True)
+        resampler = Resample(ridge)
+        r2[j], mse[j], bias[j], var[j],var_mse[j] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
+
+    lambdas = np.log10(lambdas)
+
+    plt.plot(lambdas, mse, label="MSE")
+
+    plt.plot(lambdas, bias, label="Bias",linestyle='dashed')
+    plt.plot(lambdas, var, label="Variance",linestyle='dashed')
+    plt.title(f"B-V Tradeoff for Lasso - With Bootstrap - d = {chosen_poly_order}")
+
+    plt.legend()
+
+    plt.xlabel('$Log_{10}(\lambda)$', fontsize=12)
+    plt.ylabel('Prediction Error', fontsize=12)
+    plt.savefig('Figs/B-V_Tradeoff_Bootstrap_Lasso_'+str(project_data)+'.pdf')
+    plt.show()
+################# Part F extra ###########################
+
+def part_f_extra():
+    np.random.seed(41)
+    N = 12 ## number of points will be N x N
+
+    if project_data == "F":
+        x, y, z = get_data_franke(N, noise=0.15)
+    if project_data == "T":
+        x, y, z = get_data_terrain(N)
+
+    stop = 15
+    start = 1
+
+    n_lambdas = 25
+    lambdas = np.logspace(-5, 4, n_lambdas)
+    orders = np.linspace(1, stop-1, stop-1)
+
+    mse_ridge = np.zeros((stop - start, n_lambdas))
+    
+    mse_lasso = np.zeros((stop - start, n_lambdas))
+
+    for i in range(start, stop):
+        for j in range(n_lambdas):
+            lmbd = lambdas[j]
+            ridge = LinearRegression(i, x, y, z, method=2, lmbd=lmbd, scale=True)
+            resampler = Resample(ridge)
+            _, mse_ridge[i-1,j], _, _,_ = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
+            
+            lasso = LinearRegression(i, x, y, z, method=3, lmbd=lmbd, scale=True)
+            resampler = Resample(lasso)
+            _, mse_lasso[i-1,j], _, _,_ = resampler.bootstrap(N, random_state=42)
+    
+    mse_min_ridge = np.min(mse_ridge)
+    i_min_ridge, j_min_ridge = np.where(mse_ridge == mse_min_ridge)
+
+    mse_min_lasso = np.min(mse_lasso)
+    i_min_lasso, j_min_lasso = np.where(mse_lasso == mse_min_lasso)
+
+    chosen_poly_order_ridge = int(orders[i_min_ridge])
+    chosen_poly_order_lasso = int(orders[i_min_lasso])
+
+    r2 = np.zeros(n_lambdas)
+    mse_ridge = np.zeros(n_lambdas)
+    mse_lasso = np.zeros(n_lambdas)
+
+    for j in range(n_lambdas):
+        lmbd = lambdas[j]
+        ridge = LinearRegression(chosen_poly_order_ridge, x, y, z, method=2, lmbd=lmbd, scale=True)
+        resampler = Resample(ridge)
+        _, mse_ridge[j], _, _, _ = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
+
+        lasso = LinearRegression(chosen_poly_order_lasso, x, y, z, method=3, lmbd=lmbd, scale=True)
+        resampler = Resample(lasso)
+        _, mse_lasso[j], _, _, _ = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
+
+
+    lambdas = np.log10(lambdas)
+
+    plt.plot(lambdas, mse_ridge, label="MSE Ridge")
+    plt.plot(lambdas, mse_lasso, label="MSE Lasso")
+    plt.title(f"MSE for Ridge and Lasso - W Boot - d_ridge = {chosen_poly_order_ridge} - d_lasso = {chosen_poly_order_lasso}")
+
+    plt.legend()
+
+    plt.xlabel('$Log_{10}(\lambda)$', fontsize=12)
+    plt.ylabel('Prediction Error', fontsize=12)
+    plt.savefig('Figs/MSE_Bootstrap_Ridge__Lasso_'+str(project_data)+'.pdf')
+    plt.show()
+
+
+######################
+    
 
 if project_section == "b":
     part_b_request1()
@@ -654,6 +781,8 @@ if project_section == "e":
 
 if project_section == "f":
     part_f_request1()
+
+    part_f_extra()
 
 
 
