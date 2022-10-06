@@ -188,7 +188,7 @@ def part_b_request1(show_betas=False):
     plt.xticks(np.arange(1, d_max+1, step=2, dtype=int))
     plt.legend()
     plt.tight_layout()
-    plt.savefig("figs/bias_variance_plot.pdf")
+    plt.savefig("Figs/bias_variance_plot.pdf")
 
     ####################################################
     # code for plotting beta values with conf. intervals
@@ -224,7 +224,7 @@ def part_b_request1(show_betas=False):
     plt.xlabel(r"Index $j$")
     plt.ylabel(r"$\beta_j$")
     plt.tight_layout()
-    plt.savefig("figs/beta_coef.pdf")
+    plt.savefig("Figs/beta_coef.pdf")
 
 
 def part_b_request1_extra():
