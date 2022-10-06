@@ -292,32 +292,6 @@ class LinearRegression(OLS, LASSO, Ridge):
         else:
             error.set_fit(self._fit)    # compares to the fit stored in the instance
             return error.r2()
-   
-    def var_beta(self):
-        '''
-        This method is only valid if the chosen method for the fitting is OLS! Calculates the variance of the estimator through the properties given by the linalg method of find the estimator.
-
-        Needs
-        -----
-        to be an instance that has method == 1\n
-        to have made a fit.
-
-        Returns
-        -------
-        the variance of the estimator : numpy array
-
-        Raises
-        ------
-        OutOfBounds(Exception) if the chosen method is not OLS
-        '''
-
-        if self._method != 1:   # checks if the method is OLS
-            raise OutOfBounds(var_beta=True)
-        
-        else:
-            variance_ols = Errors(self._z, self._fit)   # creates an instance of Errors to then find the variance of beta
-
-            return variance_ols.var_beta_ols(self._beta, self._design)  # calculates and returns
 
     def conf_int(self):
         '''
