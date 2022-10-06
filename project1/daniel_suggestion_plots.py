@@ -49,18 +49,16 @@ def part_b_request1(show_betas=False):
     Notice this uses the test data to plot and that is why the mse starts to go up.
     NOTICE THIS HAS SCALING ALREADY!
     """
-    np.random.seed(42)
+    np.random.seed(123)
 
     if project_data == "F":
-        N = 30 ## number of points will be N x N
-
+        N = 25 ## number of points will be N x N
         x, y, z = get_data_franke(N, noise=0.1)
     if project_data == "T":
         N = 10
         x, y, z = get_data_terrain(N)
 
     max_degree = 5
-
     mse_list = []
     r2_list = []
     orders=np.linspace(1, max_degree, max_degree)
@@ -95,13 +93,11 @@ def part_b_request1(show_betas=False):
         plt.title("Betas x Model Complexity - TEST")
         plt.xlabel('Polynomial Degree', fontsize=12)
         plt.ylabel('Betas', fontsize=12)
-        plt.show()
+        #plt.show()
         exit(1)
 
     #(Adam) - Plotting Errors together and saving figs
     # Plotting MSE and R2 in same figure with two y-axis
-    from matplotlib.lines import Line2D
-
     #print(f"Sum:{mse_list+r2_list} ")
     cm=1/2.54
     fig, ax1 = plt.subplots(figsize=(12*cm, 10*cm))
@@ -112,14 +108,123 @@ def part_b_request1(show_betas=False):
     ax1.set_xlabel('Polynomial Degree', fontsize=12)
     ax1.set_ylabel('MSE', fontsize=12)
     ax1.tick_params('y')
-    ax2.grid(False)
+    ax2.grid(False) # to not plot grid on top of other graph
 
     ax2.set_ylabel('$R^2$', fontsize=12)
     ax2.tick_params('y')
     fig.legend(loc=7, bbox_to_anchor=(0.5, 0., 0.5, 0.5), bbox_transform=ax1.transAxes)
     plt.tight_layout()
     plt.savefig(f'Figs/Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.pdf')
-    plt.show()
+    #plt.show()
+
+
+    ###########################################
+    # code for reproducing fig 2.11
+    mse_test = []
+    mse_train = []
+    d_max = 16
+
+    for i in range(1, d_max+1):
+        i = int(i)
+        Linreg = LinearRegression(i, x, y, z, scale=True)
+
+        # compute test error
+        mse, _ = Linreg.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42)
+        mse_test.append(mse)
+
+        # compute training error
+        Linreg = LinearRegression(i, x, y, z, scale=True)
+        mse, _ = Linreg.split_predict_eval(test_size=0.2, fit=True, train=True, random_state=42)
+        mse_train.append(mse)
+
+    cm = 1/2.54
+    plt.figure(figsize = (12*cm, 10*cm))
+    d_values = np.arange(1, d_max+1, step=1, dtype=int)
+    plt.plot(d_values, mse_train, label = "Training error")
+    plt.plot(d_values, mse_test, label = "Test error")
+    plt.xlabel("Polynomial degree")
+    plt.ylabel("MSE")
+    plt.xticks(np.arange(1, d_max+1, step=2, dtype=int))
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("figs/train_v_test_error_plot.pdf")
+
+    ###########################################
+    # code for plotting Bias-Variance Trade-Off
+    d_max = 10
+    Linreg = LinearRegression(d_max, x, y, z)
+    X = Linreg.get_design()
+    X = normalize(X)
+    X_train, X_test, z_train, z_test = train_test_split(X, np.ravel(z), test_size = 0.2, random_state=42)
+
+    # now we use the bootstrap
+
+    mse_list = []
+    bias_list = []
+    var_list = []
+
+    for i in range(1, d_max+1):
+        i = int(i)
+
+        Linreg = LinearRegression(i, x, y, z, scale=True)
+        resampler = Resample(Linreg)
+        #X_train, X_test, z_train, z_test = train_test_split(X, np.ravel(z), test_size = 0.3, random_state=42)
+        #Linreg.set_beta(X_train, z_train) 
+
+        _, mse, bias, var, _ = resampler.bootstrap(100)
+
+        mse_list.append(mse)
+        bias_list.append(bias)
+        var_list.append(var)
+
+    cm = 1/2.54
+    plt.figure(figsize = (12*cm, 10*cm))
+    d_values = np.arange(1, d_max+1, step=1, dtype=int)
+    plt.plot(d_values, mse_list, label = "Test error")
+    plt.plot(d_values, bias_list, '--', label = "Bias")
+    plt.plot(d_values, var_list, '--', label = "Variance")
+    plt.xlabel("Polynomial degree")
+    plt.ylabel("MSE")
+    plt.xticks(np.arange(1, d_max+1, step=2, dtype=int))
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("figs/bias_variance_plot.pdf")
+
+    ####################################################
+    # code for plotting beta values with conf. intervals
+
+    # N = 25
+    # x = np.sort(np.random.rand(N)).reshape((-1, 1))
+    # y = np.sort(np.random.rand(N)).reshape((-1, 1))
+    # x, y = np.meshgrid(x, y)
+    # z = franke(x, y) + np.random.normal(loc=0, scale=0.1, size=(N,N))
+    d_max = 5
+
+    plt.figure(figsize = (12*cm, 8*cm))
+
+    for i in range(d_max, 1, -1):
+        i = int(i)
+        slice = int((i+1)*(i+2)/2)
+
+        Linreg = LinearRegression(i, x, y, z, scale=True)
+        #X = Linreg.get_design()
+        #X = normalize(X)
+
+        Linreg()
+        beta = Linreg.get_beta()
+        conf_int = Linreg.conf_int()
+
+        beta_inds = range(0, len(beta))
+        #plt.plot(beta_inds, beta, 'o', label=f"Order {i}")
+        plt.errorbar(x=beta_inds, y=beta, yerr=conf_int, fmt='o', label=f"$d=${i}")
+
+    plt.legend()
+    p = (d_max+1)*(d_max+2)/2
+    plt.xticks(np.arange(0, p, step=2, dtype=int))
+    plt.xlabel(r"Index $j$")
+    plt.ylabel(r"$\beta_j$")
+    plt.tight_layout()
+    plt.savefig("figs/beta_coef.pdf")
 
 
 def part_b_request1_extra():
@@ -132,16 +237,17 @@ def part_b_request1_extra():
         N = 12 ## number of points will be N x N
 
         x, y, z = get_data_franke(N,noise=0.1)
+
     if project_data == "T":
         N = 10
         x, y, z = get_data_terrain(N)
 
-    
     max_degree = 15
 
     mse_list = []
     r2_list = []
     orders=np.linspace(1, max_degree, max_degree)
+
     for i in orders:
         print("At order: %d" %i, end='\r')
 
@@ -167,10 +273,7 @@ def part_b_request1_extra():
 
     fig.tight_layout()
     plt.savefig(f'Figs/Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.pdf')
-    plt.show()
-
-
-
+    #plt.show()
 
     mse_list = []
     r2_list = []
@@ -202,7 +305,7 @@ def part_b_request1_extra():
 
     fig.tight_layout()
     plt.savefig(f'Figs/Errors_x_order_{max_degree}_TRAIN_'+str(project_data)+'.pdf')
-    plt.show()
+    #plt.show()
 
 
 
