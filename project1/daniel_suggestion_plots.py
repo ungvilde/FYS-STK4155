@@ -371,13 +371,14 @@ def part_e_request1():
     mse = np.zeros((stop - start, n_lambdas))
     bias = np.zeros((stop - start, n_lambdas))
     var = np.zeros((stop - start, n_lambdas))
+    var_mse = np.zeros((stop - start, n_lambdas))
 
     for i in range(start, stop):
         for j in range(n_lambdas):
             lmbd = lambdas[j]
             ridge = LinearRegression(i, x, y, z, method=2, lmbd=lmbd, scale=True)
             resampler = Resample(ridge)
-            r2[i-1,j], mse[i-1,j], bias[i-1,j], var[i-1,j] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
+            r2[i-1,j], mse[i-1,j], bias[i-1,j], var[i-1,j], var_mse[i-1] = resampler.bootstrap(N, random_state=42) ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
 
     mse_min = np.min(mse)
     print("BOOTS MIN MSE", mse_min)
@@ -385,7 +386,7 @@ def part_e_request1():
     lambdas = np.log10(lambdas)
     lambdas, orders = np.meshgrid(lambdas, orders)
 
-    plt.contourf(lambdas, orders, mse)
+    plt.contourf(lambdas, orders, mse, levels=100)
     print("BOOTS MIN", lambdas[j_min, i_min])
 
     plt.plot(lambdas[j_min, i_min], orders[i_min, j_min], '+', c='r')
@@ -402,7 +403,7 @@ def part_e_request1():
     mse = np.zeros((stop - start, n_lambdas))
     bias = np.zeros((stop - start, n_lambdas))
     var = np.zeros((stop - start, n_lambdas))
-
+    
     lambdas = np.logspace(-5, 4, n_lambdas)
     orders = np.linspace(1, stop-1, stop-1)
 
