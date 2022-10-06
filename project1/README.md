@@ -13,7 +13,7 @@ We have decided to take an object oriented approach so here we'll give a simple 
 #### The OLS, Ridge and LASSO classes
 
 These three classes contain a single method each:
-´beta_ols(design, known)´, ´beta_ridge(design, known, lmbd)´ and ´beta_lasso(design, known, lmbd)´, respectively.
+`beta_ols(design, known)`, `beta_ridge(design, known, lmbd)` and `beta_lasso(design, known, lmbd)`, respectively.
 
 The functionality of these methods is to calculate the estimator of the respective model. They each return their respective estimator.
 
