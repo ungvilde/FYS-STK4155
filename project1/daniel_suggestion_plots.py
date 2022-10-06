@@ -12,7 +12,7 @@ from sklearn.model_selection import train_test_split
 
 sns.set_theme()
 
-project_data = input("Which data do you want to plot? (Franke or Terrain) ")
+project_data = input("Which data do you want to plot? (Franke=F or Terrain=T) ")
 project_section = input('Which part of project 1 you want to plot? (b, c, d, e, f)')
 
 def get_data_franke(N,noise):
@@ -52,7 +52,7 @@ def part_b_request1(show_betas=False):
     np.random.seed(42)
 
     if project_data == "F":
-        N = 12 ## number of points will be N x N
+        N = 30 ## number of points will be N x N
 
         x, y, z = get_data_franke(N, noise=0.1)
     if project_data == "T":
@@ -100,23 +100,26 @@ def part_b_request1(show_betas=False):
 
     #(Adam) - Plotting Errors together and saving figs
     # Plotting MSE and R2 in same figure with two y-axis
-    print(f"Sum:{mse_list+r2_list} ")
-    fig, ax1 = plt.subplots()
-    ax1.plot(orders, mse_list, 'b-')
-    ax1.set_xlabel('Polynomial Degree', fontsize=12)
-    ax1.set_ylabel('MSE', color='b', fontsize=12)
-    ax1.tick_params('y', colors='b')
+    from matplotlib.lines import Line2D
 
+    #print(f"Sum:{mse_list+r2_list} ")
+    cm=1/2.54
+    fig, ax1 = plt.subplots(figsize=(12*cm, 10*cm))
+    ax1.plot(orders, mse_list, 'b-', label="MSE")
     ax2 = ax1.twinx()
-    ax2.plot(orders, r2_list, 'r-')
-    ax2.set_ylabel('R2', color='r', fontsize=12)
-    ax2.tick_params('y', colors='r')
+    ax2.plot(orders, r2_list, 'r-', label="$R^2$")
 
-    fig.tight_layout()
+    ax1.set_xlabel('Polynomial Degree', fontsize=12)
+    ax1.set_ylabel('MSE', fontsize=12)
+    ax1.tick_params('y')
+    ax2.grid(False)
+
+    ax2.set_ylabel('$R^2$', fontsize=12)
+    ax2.tick_params('y')
+    fig.legend(loc=7, bbox_to_anchor=(0.5, 0., 0.5, 0.5), bbox_transform=ax1.transAxes)
+    plt.tight_layout()
     plt.savefig(f'Figs/Errors_x_order_{max_degree}_TEST_'+str(project_data)+'.pdf')
     plt.show()
-
-
 
 
 def part_b_request1_extra():
