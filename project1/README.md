@@ -11,7 +11,7 @@ We have decided to take an object oriented approach so here we'll give a simple 
 #### The OLS, Ridge and LASSO classes
 
 These three classes contain a single method each:
-`beta_ols(design, known)`, `beta_ridge(design, known, lmbd)` and `beta_lasso(design, known, lmbd)`, respectively.
+´beta_ols(design, known)´, ´beta_ridge(design, known, lmbd)´ and ´beta_lasso(design, known, lmbd)´, respectively.
 
 The functionality of these methods is to calculate the estimator of the respective model. They each return their respective estimator.
 
@@ -24,7 +24,7 @@ This class is the core of the project.
 This is a general class for the different regression models where the models' only difference lies in generating the estimator. The class inherits from OLS, Ridge and LASSO and the method which is used is chosen when an instance of LinearRegression is created. It needs the Error and OutOfBounds classes as well as helper.py to fully function ( and OLS, Ridge and LASSO of course).
 
 To initialize an instance of this class you call
-LinearRegression(order, x, y, z, method, lmbd, scale)
+`LinearRegression(order, x, y, z, method, lmbd, scale)`
 
 Here are the parameters explained as in the documentation:
 
@@ -56,11 +56,10 @@ The methods are listed here and the ones that are made to connect with other cla
     beta()
     mse(own=None) *Errors
     r2(own=None) *Errors
-    var_beta() Note: only for OLS
     conf_int() Note: only for OLS
     split_predict_eval(test_size=0.2, fit=False, train=False, random_state=None)
 
-Each method is explained in their docstring if their name doesn't tell you much.
+Each method is explained in their docstring if their name doesn't tell you much. `mse()`, `r2` and `conf_int()` require that you've already made a fit.
 
 #### Resample
 
@@ -68,7 +67,7 @@ This class is exclusive for resampling techniques. It contains a bootstrap metho
 This class relies on a LinearRegression instance so it can perform the resampling on the desired data with the desired regression method.
 
 To initialize this class you call
-Resample(regression)
+`Resample(regression)`
 
 where regression is an instance of LinearRegression.
 
@@ -77,7 +76,7 @@ The methods contained in this class are:
     k_folds(k)
     cross_validation(k)
 
-where k_folds() is used by cross_validation().
+where `k_folds()` is used by `cross_validation()`.
 
 The main methods (bootstrap and cross_validation) return the evaluation of the resampling, that is the MSE and R2 score. For bootstrap it also returns the bias and the variance of the model.
 
@@ -86,7 +85,7 @@ The main methods (bootstrap and cross_validation) return the evaluation of the r
 This is a simple class used to calculate the MSE and R2 score of a fit. For OLS it can calculate the confidence intervals of the estimator.
 
 To initialize the class you call
-Errors(expected, predicted)
+`Errors(expected, predicted)`
 
 The class contains set methods for the expected and predicted values as well as:
 
