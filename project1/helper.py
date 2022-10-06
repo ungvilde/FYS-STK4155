@@ -1,10 +1,5 @@
 # This a file with functions that can be usefull in other purposes than a single code or hierarchy
 import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
-from matplotlib import cm
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
-
 
 def triangular_number(n):
     '''
@@ -20,65 +15,6 @@ def triangular_number(n):
     traingular number of parameter n : int
     '''
     return int(n*(n+1)/2)   # well-known function for finding the triangular number
-
-def show_me_the_money(x, y, z, figsize = None):
-    '''
-    Plots and shows a surface from x, y and z where x and y should be mehsgrids. This functionality is given in the project description of project 1 in the course FYS-STK4155/3155 at UiO <3.
-
-    Parameters
-    ---------
-    x : numpy array (meshgrid)
-        used for the coordinates to place the heights in z
-
-    y : numpy array (meshgrid)
-        used for the coordinates to place the heights in z
-
-    z : numpy array
-        heights as a an array in the same shape as x and y
-    
-    figsize : tuple
-        default is None. It sets the size of the figure as you probably guessed.
-
-    Returns
-    -------
-    None
-        plots and shows the surface.
-    '''
-
-    if figsize != None:
-        fig = plt.figure(figsize=figsize)
-    else:
-        fig = plt.figure()
-
-    ax = fig.gca(projection='3d')
-
-    # Plot the surface.
-    surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
-
-    # Customize the z axis.
-    z_min = np.min(z)
-    z_max = np.max(z)
-
-    # we want to see a little above and a little below the max and min of the z axis
-    if z_min < 0:
-        #push a little further down if it's already below 0
-        z_min *= 1.01
-    else:
-        # if it's positive we need to reduce the minimum closer to 0
-        z_min *= 0.99
-
-    # similar thinking for the maximum
-    if z_max > 0:
-        z_max *= 1.01
-    else:
-        z_max *= 0.99
-
-    ax.set_zlim(z_min, z_max)
-    ax.zaxis.set_major_locator(LinearLocator(10))
-    ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
-    # Add a color bar which maps values to colors.
-    fig.colorbar(surf, shrink=0.5, aspect=5)
-    plt.show()
 
 def franke(x, y):
     '''
@@ -158,27 +94,3 @@ def our_tt_split(X, y, test_size=0.33, train_size = None, random_state=None):
     y_test = np.asarray(y_test)
 
     return X_train, X_test, y_train, y_test
-
-
-def standard_normalizer(x):
-    '''
-    Unsure if used!
-    '''
-    # compute the mean and standard deviation of the input
-    x_means = np.mean(x,axis = 0)[np.newaxis, :]   
-    x_stds = np.std(x,axis = 0)[np.newaxis, :]   
-
-    # check to make sure thta x_stds > small threshold, for those not
-    # divide by 1 instead of original standard deviation
-    ind = np.argwhere(x_stds < 10**(-2))
-    if len(ind) > 0:
-        ind = [v[0] for v in ind]
-        adjust = np.zeros((x_stds.shape))
-        adjust[ind] = 1.0
-        x_stds += adjust
-
-    # create standard normalizer function
-    normalizer = lambda data: (data - x_means)/x_stds
-
-    # return normalizer 
-    return normalizer

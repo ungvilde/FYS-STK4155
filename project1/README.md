@@ -109,7 +109,6 @@ This class has the following funcitons:
     triangular_number(n)
     franke(x, y)
     our_tt_split(X, y, test_size=0.33, train_size = None, random_state=None)
-    standard_normalizer(x)
 
 `triangular_number` calculates the triangular number of the input parameter which has to be an `int`. It's a function used to find the number of features the design matrix will contain, the input parameter will be the polynomial degree.
 
