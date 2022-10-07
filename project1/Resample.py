@@ -1,8 +1,6 @@
 import numpy as np
 from Errors import Errors
 from LinearRegression import LinearRegression
-from sklearn.preprocessing import normalize
-
 
 class Resample():
     '''
