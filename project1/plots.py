@@ -660,7 +660,7 @@ def part_f_request1():
     lambdas = np.log10(lambdas)
     lambdas_mesh, orders_mesh = np.meshgrid(lambdas, orders)
 
-    plt.contourf(lambdas_mesh, orders_mesh, mse, levels=50,cmap="plasma")
+    plt.contourf(lambdas_mesh, orders_mesh, mse, levels=50)
     print("BOOTS MIN", lambdas[j_min])
     plt.plot(lambdas[j_min], orders[i_min], "+", c="r")
 
@@ -668,6 +668,7 @@ def part_f_request1():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
+    plt.text(lambdas[j_min],orders[i_min+1],f'Min MSE = {mse_min:.3f}', color='red')
     plt.savefig(
         "Figs/Optimizing_Lasso_Bootstrap_" + str(project_data) + f"N_{N*N}" + f"_N_{N}.pdf"
     )
@@ -699,13 +700,15 @@ def part_f_request1():
     lambdas = np.log10(lambdas)
     lambdas_mesh, orders_mesh = np.meshgrid(lambdas, orders)
 
-    plt.contourf(lambdas_mesh, orders_mesh, mse, levels=50, cmap="plasma")
+    plt.contourf(lambdas_mesh, orders_mesh, mse, levels=50)
     print("CV MIN", lambdas[j_min])
     plt.plot(lambdas[j_min], orders[i_min], "+", c="r")
     plt.colorbar()
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
+    #add text box with min mse
+    plt.text(lambdas[j_min-2],orders[i_min+1],f'Min MSE = {mse_min:.3f}', color='red')
     plt.savefig(
         "Figs/Optimizing_lasso_Croassvalk10" + str(project_data) + f"N_{N*N}" + f"_N_{N}.pdf"
     )
