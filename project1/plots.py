@@ -459,8 +459,8 @@ def part_d_request1():
 
     plt.plot(orders, mse_cross, label=f"MSE Crossvalidation k = {k}")
     plt.plot(orders, mse_boostrap, label="MSE Boostrap")
-
     plt.legend()
+    plt.savefig("Figs/B-V_Tradeoff_Bootstrap_CV_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
 
