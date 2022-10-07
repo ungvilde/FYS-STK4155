@@ -44,6 +44,7 @@ def get_data_terrain(N):
     epsilon =  10**(-2)
     denominator = [x if x > epsilon else 1 for x in np.std(z, axis=0)]
     z = (z - np.mean(z, axis=0))/ denominator
+    print(z)
 
     return x, y, z
 
@@ -481,7 +482,9 @@ def part_e_request1():
     start = 1
 
     n_lambdas = 25
-    lambdas = np.logspace(-5, 4, n_lambdas)
+    lambda_min = int(input("Lambda min (log): "))
+    lambda_max = int(input("Lambda max (log): "))
+    lambdas = np.logspace(lambda_min, lambda_max, n_lambdas)
     orders = np.linspace(1, stop - 1, stop - 1)
 
     r2 = np.zeros((stop - start, n_lambdas))
@@ -509,12 +512,12 @@ def part_e_request1():
     print("BOOTS MIN MSE", mse_min)
     i_min, j_min = np.where(mse == mse_min)
     lambdas = np.log10(lambdas)
-    lambdas, orders = np.meshgrid(lambdas, orders)
+    lambdas_mesh, orders_mesh = np.meshgrid(lambdas, orders)
 
-    plt.contourf(lambdas, orders, mse, levels=100)
-    print("BOOTS MIN", lambdas[j_min, i_min])
+    plt.contourf(lambdas_mesh, orders_mesh, mse, levels=50)
+    print("BOOTS MIN", lambdas[j_min])
 
-    plt.plot(lambdas[j_min, i_min], orders[i_min, j_min], "+", c="r")
+    plt.plot(lambdas[j_min], orders[i_min], "o", c="r")
     plt.colorbar()
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
@@ -529,7 +532,7 @@ def part_e_request1():
     bias = np.zeros((stop - start, n_lambdas))
     var = np.zeros((stop - start, n_lambdas))
 
-    lambdas = np.logspace(-5, 4, n_lambdas)
+    lambdas = np.logspace(lambda_min, lambda_max, n_lambdas)
     orders = np.linspace(1, stop - 1, stop - 1)
 
     for i in range(start, stop):
@@ -559,7 +562,7 @@ def part_e_request1():
     plt.show()
 
     ######### Finally I will select the poly degree with min mse and perform the B-V tradeoff with bootstrap
-    lambdas = np.logspace(-5, 4, n_lambdas)
+    lambdas = np.logspace(lambda_min, lambda_max, n_lambdas)
 
     r2 = np.zeros(n_lambdas)
     mse = np.zeros(n_lambdas)
@@ -613,7 +616,9 @@ def part_f_request1():
     start = 1
 
     n_lambdas = 25
-    lambdas = np.logspace(-4, 0, n_lambdas)
+    lambda_min = int(input("Lambda min (log): "))
+    lambda_max = int(input("Lambda max (log): "))
+    lambdas = np.logspace(lambda_min, lambda_max, n_lambdas)
     orders = np.linspace(1, stop - 1, stop - 1)
 
     r2 = np.zeros((stop - start, n_lambdas))
@@ -663,7 +668,7 @@ def part_f_request1():
     bias = np.zeros((stop - start, n_lambdas))
     var = np.zeros((stop - start, n_lambdas))
 
-    lambdas = np.logspace(-4, 0, n_lambdas)
+    lambdas = np.logspace(lambda_min, lambda_max, n_lambdas)
     orders = np.linspace(1, stop - 1, stop - 1)
 
     for i in range(start, stop):
@@ -695,8 +700,7 @@ def part_f_request1():
     plt.show()
 
     ######### Finally I will select the poly degree with min mse and perform the B-V tradeoff with bootstrap
-    lambdas = np.logspace(-5, 4, n_lambdas)
-
+    lambdas = np.logspace(lambda_min, lambda_max, n_lambdas)
     r2 = np.zeros(n_lambdas)
     mse = np.zeros(n_lambdas)
     bias = np.zeros(n_lambdas)
@@ -745,7 +749,10 @@ def part_f_extra():
     start = 1
 
     n_lambdas = 25
-    lambdas = np.logspace(-5, 4, n_lambdas)
+    lambda_min = int(input("Lambda min (log): "))
+    lambda_max = int(input("Lambda max (log): "))
+    lambdas = np.logspace(lambda_min, lambda_max, n_lambdas)
+    
     orders = np.linspace(1, stop - 1, stop - 1)
 
     mse_ridge = np.zeros((stop - start, n_lambdas))
