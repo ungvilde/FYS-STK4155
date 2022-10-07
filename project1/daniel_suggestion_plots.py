@@ -37,7 +37,11 @@ def get_data_terrain(N):
     x = np.linspace(0, 1, N)
     y = np.linspace(0, 1, N)
     x, y = np.meshgrid(x, y)
+    
     z = terrain
+    epsilon =  10**(-2)
+    denominator = [x if x > epsilon else 1 for x in np.std(z, axis=0)]
+    z = (z - np.mean(z, axis=0))/ denominator
 
     return x, y, z
 
@@ -68,6 +72,7 @@ def part_b_request1(show_betas=False):
         print("At order: %d" % i, end="\r")
 
         i = int(i)
+
         ols = LinearRegression(i, x, y, z, scale=True)
         mse, r2 = ols.split_predict_eval(
             test_size=0.2, fit=True, train=False, random_state=42
