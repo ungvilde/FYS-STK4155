@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
 
+cm = 1 / 2.54
+plt.rcParams["figure.figsize"] = (12 * cm, 8 * cm)
 sns.set_theme("notebook", "whitegrid")
 
 project_data = input("Which data do you want to plot? (Franke=F or Terrain=T) ")
@@ -109,8 +111,7 @@ def part_b_request1(show_betas=False):
 
     # (Adam) - Plotting Errors together and saving figs
     # Plotting MSE and R2 in same figure with two y-axis
-    cm = 1 / 2.54
-    fig, ax1 = plt.subplots(figsize=(12 * cm, 10 * cm))
+    fig, ax1 = plt.subplots()
     ax1.plot(orders, mse_list, "b-", label="MSE")
     ax2 = ax1.twinx()
     ax2.plot(orders, r2_list, "r-", label="$R^2$")
@@ -148,8 +149,7 @@ def part_b_request1(show_betas=False):
         )
         mse_train.append(mse)
 
-    cm = 1 / 2.54
-    plt.figure(figsize=(12 * cm, 10 * cm))
+    plt.figure()
     d_values = np.arange(1, d_max + 1, step=1, dtype=int)
     plt.plot(d_values, mse_train, label="Training error")
     plt.plot(d_values, mse_test, label="Test error")
@@ -188,8 +188,7 @@ def part_b_request1(show_betas=False):
         bias_list.append(bias)
         var_list.append(var)
 
-    cm = 1 / 2.54
-    plt.figure(figsize=(12 * cm, 10 * cm))
+    plt.figure()
     d_values = np.arange(1, d_max + 1, step=1, dtype=int)
     plt.plot(d_values, mse_list, label="Test error")
     plt.plot(d_values, bias_list, "--", label="Bias")
@@ -204,12 +203,8 @@ def part_b_request1(show_betas=False):
     ####################################################
     # code for plotting beta values with conf. intervals
 
-    # x = np.sort(np.random.rand(N)).reshape((-1, 1))
-    # y = np.sort(np.random.rand(N)).reshape((-1, 1))
-    # x, y = np.meshgrid(x, y)
-    # z = franke(x, y) + np.random.normal(loc=0, scale=0.1, size=(N,N))
     d_max = 5
-    plt.figure(figsize=(12 * cm, 8 * cm))
+    plt.figure()
 
     for i in range(d_max, 1, -1):
         i = int(i)
@@ -386,7 +381,7 @@ def part_c_request2():
     orders = np.linspace(1, stop - 1, stop - 1)
 
     for i in range(start, stop):
-        ols = LinearRegression(i, x, y, z, scale = False)
+        ols = LinearRegression(i, x, y, z, scale = scale)
         resampler = Resample(ols)
         (
             r2[i - 1],
