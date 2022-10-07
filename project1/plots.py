@@ -138,7 +138,6 @@ def part_b_request1(show_betas=False):
         Linreg = LinearRegression(i, x, y, z, scale=scale)
         resampler = Resample(Linreg)
         # compute test error
-        # mse, _ = Linreg.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42)
         _, mse, bias, var, _ = resampler.bootstrap(100)
         mse_test.append(mse)
 
@@ -180,8 +179,6 @@ def part_b_request1(show_betas=False):
 
         Linreg = LinearRegression(i, x, y, z, scale=scale)
         resampler = Resample(Linreg)
-        # X_train, X_test, z_train, z_test = train_test_split(X, np.ravel(z), test_size = 0.3, random_state=42)
-        # Linreg.set_beta(X_train, z_train)
 
         _, mse, bias, var, _ = resampler.bootstrap(100)
         mse_list.append(mse)
@@ -408,7 +405,6 @@ def part_c_request2():
 
 ########## PART D ####################
 
-
 def part_d_request1():
     """
     Here the request is simple: compare the MSE from boostrap to the MSE from cross-validation with k from 5 to 10.
@@ -417,7 +413,6 @@ def part_d_request1():
     SHOULD WE USE THE SCALING HERE? IF YES, IT SHOULD BE ADDED TO THE LinearRegression as an option
     """
     np.random.seed(41)
-
 
     if project_data == "F":
         x, y, z = get_data_franke(N, noise=0.1)
@@ -463,9 +458,7 @@ def part_d_request1():
     plt.savefig("Figs/B-V_Tradeoff_Bootstrap_CV_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
-
 ########## PART E ####################
-
 
 def part_e_request1():
     """
@@ -603,8 +596,6 @@ def part_e_request1():
 
 
 ########## PART F ####################
-
-
 def part_f_request1():
     """
     Perform the same bootstrap analysis as in the part c for the same plynomials but now for Lasso
@@ -747,7 +738,6 @@ def part_f_request1():
 
 ################# Part F extra ###########################
 
-
 def part_f_extra():
     np.random.seed(41)
 
@@ -830,9 +820,6 @@ def part_f_extra():
     plt.ylabel("Prediction Error", fontsize=12)
     plt.savefig("Figs/MSE_Bootstrap_Ridge__Lasso_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
-
-
-######################
 
 
 if project_section == "b":
