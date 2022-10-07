@@ -62,8 +62,10 @@ def part_b_request1(show_betas=False):
 
     if project_data == "F":
         x, y, z = get_data_franke(N, noise=0.1)
+        scale = False
     if project_data == "T":
         x, y, z = get_data_terrain(N)
+        scale = True
 
     max_degree = stop
     mse_list = []
@@ -74,7 +76,7 @@ def part_b_request1(show_betas=False):
 
         i = int(i)
 
-        ols = LinearRegression(i, x, y, z, scale=True)
+        ols = LinearRegression(i, x, y, z, scale=scale)
         mse, r2 = ols.split_predict_eval(
             test_size=0.2, fit=True, train=False, random_state=42
         )
@@ -132,7 +134,7 @@ def part_b_request1(show_betas=False):
 
     for i in range(1, d_max + 1):
         i = int(i)
-        Linreg = LinearRegression(i, x, y, z, scale=True)
+        Linreg = LinearRegression(i, x, y, z, scale=scale)
         resampler = Resample(Linreg)
         # compute test error
         # mse, _ = Linreg.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42)
@@ -140,11 +142,10 @@ def part_b_request1(show_betas=False):
         mse_test.append(mse)
 
         # compute training error
-        Linreg = LinearRegression(i, x, y, z, scale=True)
+        Linreg = LinearRegression(i, x, y, z, scale=scale)
         mse, _ = Linreg.split_predict_eval(
             test_size=0.2, fit=True, train=True, random_state=42
         )
-
         mse_train.append(mse)
 
     cm = 1 / 2.54
@@ -177,13 +178,12 @@ def part_b_request1(show_betas=False):
     for i in range(1, d_max + 1):
         i = int(i)
 
-        Linreg = LinearRegression(i, x, y, z, scale=True)
+        Linreg = LinearRegression(i, x, y, z, scale=scale)
         resampler = Resample(Linreg)
         # X_train, X_test, z_train, z_test = train_test_split(X, np.ravel(z), test_size = 0.3, random_state=42)
         # Linreg.set_beta(X_train, z_train)
 
         _, mse, bias, var, _ = resampler.bootstrap(100)
-
         mse_list.append(mse)
         bias_list.append(bias)
         var_list.append(var)
@@ -209,21 +209,17 @@ def part_b_request1(show_betas=False):
     # x, y = np.meshgrid(x, y)
     # z = franke(x, y) + np.random.normal(loc=0, scale=0.1, size=(N,N))
     d_max = 5
-
     plt.figure(figsize=(12 * cm, 8 * cm))
 
     for i in range(d_max, 1, -1):
         i = int(i)
-        slice = int((i + 1) * (i + 2) / 2)
-
-        Linreg = LinearRegression(i, x, y, z, scale=True)
+        Linreg = LinearRegression(i, x, y, z, scale=scale)
 
         Linreg()
         beta = Linreg.get_beta()
         conf_int = Linreg.conf_int()
 
         beta_inds = range(0, len(beta))
-        # plt.plot(beta_inds, beta, 'o', label=f"Order {i}")
         plt.errorbar(x=beta_inds, y=beta, yerr=conf_int, fmt=".", label=f"$d=${i}")
 
     plt.legend()
@@ -242,14 +238,14 @@ def part_b_request1_extra():
     np.random.seed(42)
 
     if project_data == "F":
-
         x, y, z = get_data_franke(N, noise=0.1)
+        scale = False
 
     if project_data == "T":
         x, y, z = get_data_terrain(N)
+        scale = True
 
     max_degree = stop
-
     mse_list = []
     r2_list = []
     orders = np.linspace(1, max_degree, max_degree)
@@ -288,7 +284,7 @@ def part_b_request1_extra():
         print("At order: %d" % i, end="\r")
 
         i = int(i)
-        ols = LinearRegression(i, x, y, z, scale=True)
+        ols = LinearRegression(i, x, y, z, scale=scale)
         mse, r2 = ols.split_predict_eval(
             test_size=0.2, fit=True, train=True, random_state=42
         )
@@ -329,10 +325,13 @@ def part_c_request1():
 
     max_degree = stop
     if project_data == "F":
+        x, y, z = get_data_franke(N, noise=0.1)
+        scale = False
 
-        x, y, z = get_data_franke(N, noise=0.15)
     if project_data == "T":
         x, y, z = get_data_terrain(N)
+        scale = True
+
 
     mse_list_train = []
     mse_list_test = []
@@ -341,11 +340,11 @@ def part_c_request1():
         print("At order: %d" % i, end="\r")
 
         i = int(i)
-        ols = LinearRegression(i, x, y, z, scale=True)
+        ols = LinearRegression(i, x, y, z, scale=scale)
         mse_test, r2_test = ols.split_predict_eval(
             test_size=0.2, fit=True, train=False, random_state=42
         )
-        ols = LinearRegression(i, x, y, z, scale=True)
+        ols = LinearRegression(i, x, y, z, scale=scale)
         mse_train, r2_train = ols.split_predict_eval(
             test_size=0.2, fit=True, train=True, random_state=42
         )
@@ -370,12 +369,15 @@ def part_c_request2():
 
 
     if project_data == "F":
-        x, y, z = get_data_franke(N, noise=0.15)
+        x, y, z = get_data_franke(N, noise=0.1)
+        scale = False
+
     if project_data == "T":
         x, y, z = get_data_terrain(N)
+        scale = True
+
 
     start = 1
-
     r2 = np.zeros(stop - start)
     mse = np.zeros(stop - start)
     bias = np.zeros(stop - start)
@@ -384,7 +386,7 @@ def part_c_request2():
     orders = np.linspace(1, stop - 1, stop - 1)
 
     for i in range(start, stop):
-        ols = LinearRegression(i, x, y, z)
+        ols = LinearRegression(i, x, y, z, scale = False)
         resampler = Resample(ols)
         (
             r2[i - 1],
@@ -423,10 +425,13 @@ def part_d_request1():
 
 
     if project_data == "F":
-        x, y, z = get_data_franke(N, noise=0.15)
-    if project_data == "T":
+        x, y, z = get_data_franke(N, noise=0.1)
+        scale = False
 
+    if project_data == "T":
         x, y, z = get_data_terrain(N)
+        scale = True
+
     start = 1
 
     k = 10
@@ -443,11 +448,11 @@ def part_d_request1():
 
     for i in orders:
         i = int(i)
-        ols = LinearRegression(i, x, y, z, scale=True)
+        ols = LinearRegression(i, x, y, z, scale=scale)
         resampler = Resample(ols)
         r2_cross[i - 1], mse_cross[i - 1] = resampler.cross_validation(k=k)
 
-        ols = LinearRegression(i, x, y, z, scale=True)
+        ols = LinearRegression(i, x, y, z, scale=scale)
         resampler = Resample(ols)
         (
             r2_boostrap[i - 1],
@@ -475,9 +480,13 @@ def part_e_request1():
 
 
     if project_data == "F":
-        x, y, z = get_data_franke(N, noise=0.15)
+        x, y, z = get_data_franke(N, noise=0.1)
+        scale = False
+
     if project_data == "T":
         x, y, z = get_data_terrain(N)
+        scale = True
+
 
     start = 1
 
@@ -496,7 +505,7 @@ def part_e_request1():
     for i in range(start, stop):
         for j in range(n_lambdas):
             lmbd = lambdas[j]
-            ridge = LinearRegression(i, x, y, z, method=2, lmbd=lmbd, scale=True)
+            ridge = LinearRegression(i, x, y, z, method=2, lmbd=lmbd, scale=scale)
             resampler = Resample(ridge)
             (
                 r2[i - 1, j],
@@ -538,7 +547,7 @@ def part_e_request1():
     for i in range(start, stop):
         for j in range(n_lambdas):
             lmbd = lambdas[j]
-            ridge = LinearRegression(i, x, y, z, method=2, lmbd=lmbd, scale=True)
+            ridge = LinearRegression(i, x, y, z, method=2, lmbd=lmbd, scale=scale)
             resampler = Resample(ridge)
             r2[i - 1, j], mse[i - 1, j] = resampler.cross_validation(
                 k=k
@@ -575,7 +584,7 @@ def part_e_request1():
     for j in range(n_lambdas):
         lmbd = lambdas[j]
         ridge = LinearRegression(
-            chosen_poly_order, x, y, z, method=2, lmbd=lmbd, scale=True
+            chosen_poly_order, x, y, z, method=2, lmbd=lmbd, scale=scale
         )
         resampler = Resample(ridge)
         r2[j], mse[j], bias[j], var[j], var_mse[j] = resampler.bootstrap(
@@ -609,9 +618,12 @@ def part_f_request1():
 
 
     if project_data == "F":
-        x, y, z = get_data_franke(N, noise=0.15)
+        x, y, z = get_data_franke(N, noise=0.1)
+        scale = False
+
     if project_data == "T":
         x, y, z = get_data_terrain(N)
+        scale = True
 
     start = 1
 
@@ -630,7 +642,7 @@ def part_f_request1():
     for i in range(start, stop):
         for j in range(n_lambdas):
             lmbd = lambdas[j]
-            lasso = LinearRegression(i, x, y, z, method=3, lmbd=lmbd, scale=True)
+            lasso = LinearRegression(i, x, y, z, method=3, lmbd=lmbd, scale=scale)
             resampler = Resample(lasso)
             (
                 r2[i - 1, j],
@@ -674,7 +686,7 @@ def part_f_request1():
     for i in range(start, stop):
         for j in range(n_lambdas):
             lmbd = lambdas[j]
-            lasso = LinearRegression(i, x, y, z, method=3, lmbd=lmbd, scale=True)
+            lasso = LinearRegression(i, x, y, z, method=3, lmbd=lmbd, scale=scale)
             resampler = Resample(lasso)
             r2[i - 1, j], mse[i - 1, j] = resampler.cross_validation(
                 k=k
@@ -712,7 +724,7 @@ def part_f_request1():
     for j in range(n_lambdas):
         lmbd = lambdas[j]
         ridge = LinearRegression(
-            chosen_poly_order, x, y, z, method=3, lmbd=lmbd, scale=True
+            chosen_poly_order, x, y, z, method=3, lmbd=lmbd, scale=scale
         )
         resampler = Resample(ridge)
         r2[j], mse[j], bias[j], var[j], var_mse[j] = resampler.bootstrap(
@@ -742,9 +754,12 @@ def part_f_extra():
     np.random.seed(41)
 
     if project_data == "F":
-        x, y, z = get_data_franke(N, noise=0.15)
+        x, y, z = get_data_franke(N, noise=0.1)
+        scale = False
+
     if project_data == "T":
         x, y, z = get_data_terrain(N)
+        scale = True
 
     start = 1
 
@@ -762,13 +777,13 @@ def part_f_extra():
     for i in range(start, stop):
         for j in range(n_lambdas):
             lmbd = lambdas[j]
-            ridge = LinearRegression(i, x, y, z, method=2, lmbd=lmbd, scale=True)
+            ridge = LinearRegression(i, x, y, z, method=2, lmbd=lmbd, scale=scale)
             resampler = Resample(ridge)
             _, mse_ridge[i - 1, j], _, _, _ = resampler.bootstrap(
                 N, random_state=42
             )  ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
 
-            lasso = LinearRegression(i, x, y, z, method=3, lmbd=lmbd, scale=True)
+            lasso = LinearRegression(i, x, y, z, method=3, lmbd=lmbd, scale=scale)
             resampler = Resample(lasso)
             _, mse_lasso[i - 1, j], _, _, _ = resampler.bootstrap(N, random_state=42)
 
@@ -788,7 +803,7 @@ def part_f_extra():
     for j in range(n_lambdas):
         lmbd = lambdas[j]
         ridge = LinearRegression(
-            chosen_poly_order_ridge, x, y, z, method=2, lmbd=lmbd, scale=True
+            chosen_poly_order_ridge, x, y, z, method=2, lmbd=lmbd, scale=scale
         )
         resampler = Resample(ridge)
         _, mse_ridge[j], _, _, _ = resampler.bootstrap(
@@ -796,7 +811,7 @@ def part_f_extra():
         )  ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
 
         lasso = LinearRegression(
-            chosen_poly_order_lasso, x, y, z, method=3, lmbd=lmbd, scale=True
+            chosen_poly_order_lasso, x, y, z, method=3, lmbd=lmbd, scale=scale
         )
         resampler = Resample(lasso)
         _, mse_lasso[j], _, _, _ = resampler.bootstrap(
