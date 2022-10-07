@@ -22,7 +22,7 @@ z = (z - np.mean(z, axis=0))/den'''
 fig = go.Figure(data=[go.Surface(z=z, colorscale="jet", colorbar=dict(title="Height (m)"))])
 fig.update_traces(contours_z=dict(show=True, usecolormap=True, highlightcolor="limegreen", project_z=True))
 fig.update_layout(scene=dict(xaxis_title="X (m)", yaxis_title="Y (m)"), autosize=False, scene_camera_eye=dict(x=1.8, y=1.2, z=1.1), width=800, height=800, margin=dict(l=65, r=50, b=65, t=90))
-fig.write_image("test/terrain.pdf")
+fig.write_image("Figs/terrain.pdf")
 
 '''
 from LinearRegression import LinearRegression
