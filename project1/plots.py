@@ -668,9 +668,9 @@ def part_f_request1():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
-    plt.text(lambdas[j_min],orders[i_min+1],f'Min MSE = {mse_min:.3f}', color='red')
+    plt.text(lambdas[j_min],orders[i_min],f'Min MSE = {mse_min:.3f}', color='red')
     plt.savefig(
-        "Figs/Optimizing_Lasso_Bootstrap_" + str(project_data) + f"N_{N*N}" + f"_N_{N}.pdf"
+        "Figs/Optimizing_Lasso_Bootstrap_" + str(project_data) + f"_N_{N}.pdf"
     )
     plt.show()
 
