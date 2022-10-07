@@ -45,7 +45,8 @@ def get_data_terrain(N):
     z = terrain
     epsilon =  10**(-2)
     denominator = [x if x > epsilon else 1 for x in np.std(z, axis=0)]
-    z = (z - np.mean(z, axis=0))/ denominator
+
+    z = our_scaler(z)
     print(z)
 
     return x, y, z

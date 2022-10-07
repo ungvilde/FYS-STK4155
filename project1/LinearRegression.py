@@ -4,9 +4,7 @@ from LASSO import LASSO
 from Ridge import Ridge
 from Errors import Errors
 from Outofbounds import OutOfBounds
-from helper import triangular_number
-from helper import our_tt_split
-from sklearn.preprocessing import StandardScaler
+from helper import triangular_number, our_tt_split, our_scaler
 
 class LinearRegression(OLS, LASSO, Ridge):
     '''
@@ -215,6 +213,7 @@ class LinearRegression(OLS, LASSO, Ridge):
         self._design = X
 
         if scale:
+            self.design = our_scaler(self._design)
             # check to make sure thta x_stds > small threshold, for those not
             # divide by 1 instead of original standard deviation
             epsilon =  10**(-2)
