@@ -12,6 +12,8 @@ from sklearn.model_selection import train_test_split
 sns.set_theme("notebook", "whitegrid")
 
 project_data = input("Which data do you want to plot? (Franke=F or Terrain=T) ")
+N = int(input("How many data points do you want to use? "))
+stop = int(input("Max order:    "))
 project_section = input("Which part of project 1 you want to plot? (b, c, d, e, f)")
 
 
@@ -58,13 +60,11 @@ def part_b_request1(show_betas=False):
     np.random.seed(123)
 
     if project_data == "F":
-        N = 25  ## number of points will be N x N
         x, y, z = get_data_franke(N, noise=0.1)
     if project_data == "T":
-        N = 10
         x, y, z = get_data_terrain(N)
 
-    max_degree = 5
+    max_degree = stop
     mse_list = []
     r2_list = []
     orders = np.linspace(1, max_degree, max_degree)
@@ -127,7 +127,7 @@ def part_b_request1(show_betas=False):
     # code for reproducing fig 2.11
     mse_test = []
     mse_train = []
-    d_max = 10
+    d_max = max_degree
 
     for i in range(1, d_max + 1):
         i = int(i)
@@ -156,7 +156,7 @@ def part_b_request1(show_betas=False):
     plt.xticks(np.arange(1, d_max + 1, step=2, dtype=int))
     plt.legend()
     plt.tight_layout()
-    plt.savefig(f"figs/train_v_test_error_plot_{project_data}.pdf")
+    plt.savefig(f"Figs/train_v_test_error_plot_{project_data}.pdf")
 
     ###########################################
     # code for plotting Bias-Variance Trade-Off
@@ -198,12 +198,11 @@ def part_b_request1(show_betas=False):
     plt.xticks(np.arange(1, d_max + 1, step=2, dtype=int))
     plt.legend()
     plt.tight_layout()
-    plt.savefig(f"Figs/bias_variance_plot_{project_data}.pdf")
+    plt.savefig(f"Figs/bias_variance_plot_{project_data}_N_{N}.pdf")
 
     ####################################################
     # code for plotting beta values with conf. intervals
 
-    # N = 25
     # x = np.sort(np.random.rand(N)).reshape((-1, 1))
     # y = np.sort(np.random.rand(N)).reshape((-1, 1))
     # x, y = np.meshgrid(x, y)
@@ -242,15 +241,13 @@ def part_b_request1_extra():
     np.random.seed(42)
 
     if project_data == "F":
-        N = 12  ## number of points will be N x N
 
         x, y, z = get_data_franke(N, noise=0.1)
 
     if project_data == "T":
-        N = 10
         x, y, z = get_data_terrain(N)
 
-    max_degree = 15
+    max_degree = stop
 
     mse_list = []
     r2_list = []
@@ -329,13 +326,11 @@ def part_c_request1():
     """
     np.random.seed(41)
 
-    max_degree = 12
+    max_degree = stop
     if project_data == "F":
-        N = 15  ## number of points will be N x N
 
         x, y, z = get_data_franke(N, noise=0.15)
     if project_data == "T":
-        N = 10
         x, y, z = get_data_terrain(N)
 
     mse_list_train = []
@@ -372,14 +367,12 @@ def part_c_request2():
     """
     np.random.seed(41)
 
-    N = 40  ## number of points will be N x N
 
     if project_data == "F":
         x, y, z = get_data_franke(N, noise=0.15)
     if project_data == "T":
         x, y, z = get_data_terrain(N)
 
-    stop = 15
     start = 1
 
     r2 = np.zeros(stop - start)
@@ -427,14 +420,12 @@ def part_d_request1():
     """
     np.random.seed(41)
 
-    N = 40  ## number of points will be N x N
 
     if project_data == "F":
         x, y, z = get_data_franke(N, noise=0.15)
     if project_data == "T":
 
         x, y, z = get_data_terrain(N)
-    stop = 20
     start = 1
 
     k = 10
@@ -481,14 +472,12 @@ def part_e_request1():
     """
     np.random.seed(41)
 
-    N = 12  ## number of points will be N x N
 
     if project_data == "F":
         x, y, z = get_data_franke(N, noise=0.15)
     if project_data == "T":
         x, y, z = get_data_terrain(N)
 
-    stop = 15
     start = 1
 
     n_lambdas = 25
@@ -559,7 +548,7 @@ def part_e_request1():
     lambdas = np.log10(lambdas)
     lambdas, orders = np.meshgrid(lambdas, orders)
 
-    plt.contourf(lambdas, orders, mse, levels=100)
+    plt.contourf(lambdas, orders, mse, levels=50, cmap="plasma")
     print("CV MIN", lambdas[j_min, i_min])
     plt.plot(lambdas[j_min, i_min], orders[i_min, j_min], "+", c="r")
     plt.colorbar()
@@ -615,14 +604,12 @@ def part_f_request1():
     """
     np.random.seed(41)
 
-    N = 5  ## number of points will be N x N
 
     if project_data == "F":
         x, y, z = get_data_franke(N, noise=0.15)
     if project_data == "T":
         x, y, z = get_data_terrain(N)
 
-    stop = 8
     start = 1
 
     n_lambdas = 25
@@ -656,7 +643,7 @@ def part_f_request1():
     lambdas = np.log10(lambdas)
     lambdas_mesh, orders_mesh = np.meshgrid(lambdas, orders)
 
-    plt.contourf(lambdas_mesh, orders_mesh, mse, levels=100)
+    plt.contourf(lambdas_mesh, orders_mesh, mse, levels=50,cmap="plasma")
     print("BOOTS MIN", lambdas[j_min])
     plt.plot(lambdas[j_min], orders[i_min], "+", c="r")
 
@@ -695,7 +682,7 @@ def part_f_request1():
     lambdas = np.log10(lambdas)
     lambdas_mesh, orders_mesh = np.meshgrid(lambdas, orders)
 
-    plt.contourf(lambdas_mesh, orders_mesh, mse, levels=100)
+    plt.contourf(lambdas_mesh, orders_mesh, mse, levels=50, cmap="plasma")
     print("CV MIN", lambdas[j_min])
     plt.plot(lambdas[j_min], orders[i_min], "+", c="r")
     plt.colorbar()
@@ -749,14 +736,12 @@ def part_f_request1():
 
 def part_f_extra():
     np.random.seed(41)
-    N = 12  ## number of points will be N x N
 
     if project_data == "F":
         x, y, z = get_data_franke(N, noise=0.15)
     if project_data == "T":
         x, y, z = get_data_terrain(N)
 
-    stop = 15
     start = 1
 
     n_lambdas = 25
@@ -831,7 +816,11 @@ def part_f_extra():
 
 
 if project_section == "b":
-    part_b_request1()
+    betas = input("Do you want to plot the betas? (y/n) ")
+    if betas == "y":
+        part_b_request1(show_betas=True)
+    else:
+        part_b_request1()
 
     part_b_request1_extra()
     part_b_request2()
