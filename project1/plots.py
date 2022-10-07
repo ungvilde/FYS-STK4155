@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
 
+cm = 1 / 2.54
+plt.rcParams["figure.figsize"] = (12 * cm, 8 * cm)
 sns.set_theme("notebook", "whitegrid")
 
 project_data = input("Which data do you want to plot? (Franke=F or Terrain=T) ")
@@ -109,8 +111,7 @@ def part_b_request1(show_betas=False):
 
     # (Adam) - Plotting Errors together and saving figs
     # Plotting MSE and R2 in same figure with two y-axis
-    cm = 1 / 2.54
-    fig, ax1 = plt.subplots(figsize=(12 * cm, 10 * cm))
+    fig, ax1 = plt.subplots()
     ax1.plot(orders, mse_list, "b-", label="MSE")
     ax2 = ax1.twinx()
     ax2.plot(orders, r2_list, "r-", label="$R^2$")
@@ -137,7 +138,6 @@ def part_b_request1(show_betas=False):
         Linreg = LinearRegression(i, x, y, z, scale=scale)
         resampler = Resample(Linreg)
         # compute test error
-        # mse, _ = Linreg.split_predict_eval(test_size=0.2, fit=True, train=False, random_state=42)
         _, mse, bias, var, _ = resampler.bootstrap(100)
         mse_test.append(mse)
 
@@ -148,8 +148,7 @@ def part_b_request1(show_betas=False):
         )
         mse_train.append(mse)
 
-    cm = 1 / 2.54
-    plt.figure(figsize=(12 * cm, 10 * cm))
+    plt.figure()
     d_values = np.arange(1, d_max + 1, step=1, dtype=int)
     plt.plot(d_values, mse_train, label="Training error")
     plt.plot(d_values, mse_test, label="Test error")
@@ -180,16 +179,13 @@ def part_b_request1(show_betas=False):
 
         Linreg = LinearRegression(i, x, y, z, scale=scale)
         resampler = Resample(Linreg)
-        # X_train, X_test, z_train, z_test = train_test_split(X, np.ravel(z), test_size = 0.3, random_state=42)
-        # Linreg.set_beta(X_train, z_train)
 
         _, mse, bias, var, _ = resampler.bootstrap(100)
         mse_list.append(mse)
         bias_list.append(bias)
         var_list.append(var)
 
-    cm = 1 / 2.54
-    plt.figure(figsize=(12 * cm, 10 * cm))
+    plt.figure()
     d_values = np.arange(1, d_max + 1, step=1, dtype=int)
     plt.plot(d_values, mse_list, label="Test error")
     plt.plot(d_values, bias_list, "--", label="Bias")
@@ -204,12 +200,8 @@ def part_b_request1(show_betas=False):
     ####################################################
     # code for plotting beta values with conf. intervals
 
-    # x = np.sort(np.random.rand(N)).reshape((-1, 1))
-    # y = np.sort(np.random.rand(N)).reshape((-1, 1))
-    # x, y = np.meshgrid(x, y)
-    # z = franke(x, y) + np.random.normal(loc=0, scale=0.1, size=(N,N))
     d_max = 5
-    plt.figure(figsize=(12 * cm, 8 * cm))
+    plt.figure()
 
     for i in range(d_max, 1, -1):
         i = int(i)
@@ -386,7 +378,7 @@ def part_c_request2():
     orders = np.linspace(1, stop - 1, stop - 1)
 
     for i in range(start, stop):
-        ols = LinearRegression(i, x, y, z, scale = False)
+        ols = LinearRegression(i, x, y, z, scale = scale)
         resampler = Resample(ols)
         (
             r2[i - 1],
@@ -413,7 +405,6 @@ def part_c_request2():
 
 ########## PART D ####################
 
-
 def part_d_request1():
     """
     Here the request is simple: compare the MSE from boostrap to the MSE from cross-validation with k from 5 to 10.
@@ -422,7 +413,6 @@ def part_d_request1():
     SHOULD WE USE THE SCALING HERE? IF YES, IT SHOULD BE ADDED TO THE LinearRegression as an option
     """
     np.random.seed(41)
-
 
     if project_data == "F":
         x, y, z = get_data_franke(N, noise=0.1)
@@ -464,13 +454,11 @@ def part_d_request1():
 
     plt.plot(orders, mse_cross, label=f"MSE Crossvalidation k = {k}")
     plt.plot(orders, mse_boostrap, label="MSE Boostrap")
-
     plt.legend()
+    plt.savefig("Figs/B-V_Tradeoff_Bootstrap_CV_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
-
 ########## PART E ####################
-
 
 def part_e_request1():
     """
@@ -608,8 +596,6 @@ def part_e_request1():
 
 
 ########## PART F ####################
-
-
 def part_f_request1():
     """
     Perform the same bootstrap analysis as in the part c for the same plynomials but now for Lasso
@@ -752,7 +738,6 @@ def part_f_request1():
 
 ################# Part F extra ###########################
 
-
 def part_f_extra():
     np.random.seed(41)
 
@@ -835,9 +820,6 @@ def part_f_extra():
     plt.ylabel("Prediction Error", fontsize=12)
     plt.savefig("Figs/MSE_Bootstrap_Ridge__Lasso_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
-
-
-######################
 
 
 if project_section == "b":
