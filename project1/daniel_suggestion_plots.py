@@ -122,7 +122,7 @@ def part_b_request1(show_betas=False):
     ax2.tick_params("y")
     fig.legend(loc=7, bbox_to_anchor=(0.5, 0.0, 0.5, 0.5), bbox_transform=ax1.transAxes)
     plt.tight_layout()
-    plt.savefig(f"Figs/Errors_x_order_{max_degree}_TEST_" + str(project_data) + ".pdf")
+    plt.savefig(f"Figs/Errors_x_order_{max_degree}_TEST_" + str(project_data) + f"_N_{N}.pdf")
 
     ###########################################
     # code for reproducing fig 2.11
@@ -157,7 +157,7 @@ def part_b_request1(show_betas=False):
     plt.xticks(np.arange(1, d_max + 1, step=2, dtype=int))
     plt.legend()
     plt.tight_layout()
-    plt.savefig(f"Figs/train_v_test_error_plot_{project_data}.pdf")
+    plt.savefig(f"Figs/train_v_test_error_plot_{project_data}"+f"_N_{N}.pdf")
 
     ###########################################
     # code for plotting Bias-Variance Trade-Off
@@ -232,7 +232,7 @@ def part_b_request1(show_betas=False):
     plt.xlabel(r"Index $j$")
     plt.ylabel(r"$\beta_j$")
     plt.tight_layout()
-    plt.savefig(f"Figs/beta_coef_{project_data}.pdf")
+    plt.savefig(f"Figs/beta_coef_{project_data}"+f"_N_{N}.pdf")
 
 
 def part_b_request1_extra():
@@ -278,7 +278,7 @@ def part_b_request1_extra():
     ax2.tick_params("y", colors="r")
 
     fig.tight_layout()
-    plt.savefig(f"Figs/Errors_x_order_{max_degree}_TEST_" + str(project_data) + ".pdf")
+    plt.savefig(f"Figs/Errors_x_order_{max_degree}_TEST_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
     mse_list = []
@@ -308,7 +308,7 @@ def part_b_request1_extra():
     ax2.tick_params("y", colors="r")
 
     fig.tight_layout()
-    plt.savefig(f"Figs/Errors_x_order_{max_degree}_TRAIN_" + str(project_data) + ".pdf")
+    plt.savefig(f"Figs/Errors_x_order_{max_degree}_TRAIN_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
 
@@ -358,7 +358,7 @@ def part_c_request1():
     plt.xlabel("Polynomial Degree", fontsize=12)
     plt.ylabel("prediction Error", fontsize=12)
     plt.legend()
-    plt.savefig(f"Figs/Fig_2_11_" + str(project_data) + ".pdf")
+    plt.savefig(f"Figs/Fig_2_11_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
 
@@ -405,7 +405,7 @@ def part_c_request2():
 
     plt.xlabel("Polynomial Degree", fontsize=12)
     plt.ylabel("prediction Error", fontsize=12)
-    plt.savefig("Figs/B-V_Tradeoff_Bootstrap_" + str(project_data) + ".pdf")
+    plt.savefig("Figs/B-V_Tradeoff_Bootstrap_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
 
@@ -522,7 +522,7 @@ def part_e_request1():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
-    plt.savefig("Figs/Optimizing_Ridge_Bootstrap_" + str(project_data) + ".pdf")
+    plt.savefig("Figs/Optimizing_Ridge_Bootstrap_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
     ## NOW I WILL do the same thing but with crossval k= 10
@@ -558,7 +558,7 @@ def part_e_request1():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
-    plt.savefig("Figs/Optimizing_Ridge_Croassvalk10" + str(project_data) + ".pdf")
+    plt.savefig("Figs/Optimizing_Ridge_Croassvalk10" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
     ######### Finally I will select the poly degree with min mse and perform the B-V tradeoff with bootstrap
@@ -594,7 +594,7 @@ def part_e_request1():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Prediction Error", fontsize=12)
-    plt.savefig("Figs/B-V_Tradeoff_Bootstrap_Ridge_" + str(project_data) + ".pdf")
+    plt.savefig("Figs/B-V_Tradeoff_Bootstrap_Ridge_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
 
@@ -657,7 +657,7 @@ def part_f_request1():
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
     plt.savefig(
-        "Figs/Optimizing_Lasso_Bootstrap_" + str(project_data) + f"N_{N*N}" + ".pdf"
+        "Figs/Optimizing_Lasso_Bootstrap_" + str(project_data) + f"N_{N*N}" + f"_N_{N}.pdf"
     )
     plt.show()
 
@@ -695,7 +695,7 @@ def part_f_request1():
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
     plt.savefig(
-        "Figs/Optimizing_lasso_Croassvalk10" + str(project_data) + f"N_{N*N}" + ".pdf"
+        "Figs/Optimizing_lasso_Croassvalk10" + str(project_data) + f"N_{N*N}" + f"_N_{N}.pdf"
     )
     plt.show()
 
@@ -731,7 +731,7 @@ def part_f_request1():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Prediction Error", fontsize=12)
-    plt.savefig("Figs/B-V_Tradeoff_Bootstrap_Lasso_" + str(project_data) + ".pdf")
+    plt.savefig("Figs/B-V_Tradeoff_Bootstrap_Lasso_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
 
@@ -815,7 +815,7 @@ def part_f_extra():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Prediction Error", fontsize=12)
-    plt.savefig("Figs/MSE_Bootstrap_Ridge__Lasso_" + str(project_data) + ".pdf")
+    plt.savefig("Figs/MSE_Bootstrap_Ridge__Lasso_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
 
