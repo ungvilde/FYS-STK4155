@@ -350,6 +350,7 @@ def part_c_request1():
     plt.xlabel("Polynomial Degree", fontsize=12)
     plt.ylabel("prediction Error", fontsize=12)
     plt.legend()
+    plt.tight_layout()
     plt.savefig(f"Figs/Fig_2_11_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
@@ -396,10 +397,10 @@ def part_c_request2():
 
     plt.plot(orders, bias, label="Bias")
     plt.plot(orders, var, label="Variance")
-    plt.legend()
-
     plt.xlabel("Polynomial Degree", fontsize=12)
     plt.ylabel("prediction Error", fontsize=12)
+    plt.legend()
+    plt.tight_layout()
     plt.savefig("Figs/B-V_Tradeoff_Bootstrap_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
@@ -451,11 +452,14 @@ def part_d_request1():
             bias_boostrap[i - 1],
             var_boostrap[i - 1],
             std_mse[i - 1],
-        ) = resampler.bootstrap(10, random_state=42)
+        ) = resampler.bootstrap(100, random_state=42)
 
-    plt.plot(orders, mse_cross, label=f"MSE Crossvalidation k = {k}")
-    plt.plot(orders, mse_boostrap, label="MSE Boostrap")
+    plt.plot(orders, mse_cross, label=f"Cross Validation k = {k}")
+    plt.plot(orders, mse_boostrap, label="Boostrap N = 100")
+    plt.xlabel("Polynomial Degree", fontsize=12)
+    plt.ylabel("MSE", fontsize=12)
     plt.legend()
+    plt.tight_layout()
     plt.savefig("Figs/B-V_Tradeoff_Bootstrap_CV_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
@@ -520,6 +524,7 @@ def part_e_request1():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
+    plt.tight_layout()
     plt.savefig("Figs/Optimizing_Ridge_Bootstrap_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
@@ -556,6 +561,7 @@ def part_e_request1():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
+    plt.tight_layout()
     plt.savefig("Figs/Optimizing_Ridge_Croassvalk10" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
@@ -592,6 +598,7 @@ def part_e_request1():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Prediction Error", fontsize=12)
+    plt.tight_layout()
     plt.savefig("Figs/B-V_Tradeoff_Bootstrap_Ridge_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
@@ -656,8 +663,9 @@ def part_f_request1():
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
     plt.text(lambdas[j_min],orders[i_min+1],f'Min MSE = {mse_min:.3f}', color='red')
+    plt.tight_layout()
     plt.savefig(
-        "Figs/Optimizing_Lasso_Bootstrap_" + str(project_data) + f"N_{N*N}" + f"_N_{N}.pdf"
+        "Figs/Optimizing_Lasso_Bootstrap_" + str(project_data) + f"_N_{N}.pdf"
     )
     plt.show()
 
@@ -696,6 +704,7 @@ def part_f_request1():
     plt.ylabel("Polynomial Degree", fontsize=12)
     #add text box with min mse
     plt.text(lambdas[j_min-2],orders[i_min+1],f'Min MSE = {mse_min:.3f}', color='red')
+    plt.tight_layout()
     plt.savefig(
         "Figs/Optimizing_lasso_Croassvalk10" + str(project_data) + f"N_{N*N}" + f"_N_{N}.pdf"
     )
@@ -733,6 +742,7 @@ def part_f_request1():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Prediction Error", fontsize=12)
+    plt.tight_layout()
     plt.savefig("Figs/B-V_Tradeoff_Bootstrap_Lasso_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
@@ -819,6 +829,7 @@ def part_f_extra():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Prediction Error", fontsize=12)
+    plt.tight_layout()
     plt.savefig("Figs/MSE_Bootstrap_Ridge__Lasso_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
