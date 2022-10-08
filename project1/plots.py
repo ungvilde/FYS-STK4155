@@ -606,6 +606,7 @@ def part_e_request1():
 
 
 ########## PART F ####################
+
 def part_f_request1():
     """
     Perform the same bootstrap analysis as in the part c for the same plynomials but now for Lasso
@@ -634,7 +635,7 @@ def part_f_request1():
     bias = np.zeros((stop - start, n_lambdas))
     var = np.zeros((stop - start, n_lambdas))
     var_mse = np.zeros((stop - start, n_lambdas))
-
+    """ 
     for i in range(start, stop):
         for j in range(n_lambdas):
             lmbd = lambdas[j]
@@ -664,13 +665,13 @@ def part_f_request1():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
-    plt.text(lambdas[j_min],orders[i_min+1],f'Min MSE = {mse_min:.3f}', color='red')
+    plt.text(lambdas[j_min],orders[i_min+1],f'Min MSE = {mse_min:.3f}', color='white', fontsize='small')
     plt.tight_layout()
     plt.savefig(
         "Figs/Optimizing_Lasso_Bootstrap_" + str(project_data) + f"_N_{N}.pdf"
     )
     plt.show()
-
+    """
     ## NOW I WILL do the same thing but with crossval k= 10
     k = 10
     r2 = np.zeros((stop - start, n_lambdas))
@@ -678,6 +679,7 @@ def part_f_request1():
     bias = np.zeros((stop - start, n_lambdas))
     var = np.zeros((stop - start, n_lambdas))
 
+    lambda_min= -15
     lambdas = np.logspace(lambda_min, lambda_max, n_lambdas)
     orders = np.linspace(1, stop - 1, stop - 1)
 
@@ -705,7 +707,7 @@ def part_f_request1():
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
     #add text box with min mse
-    plt.text(lambdas[j_min-2],orders[i_min+1],f'Min MSE = {mse_min:.3f}', color='red')
+    plt.text(lambdas[j_min],orders[i_min],f'Min MSE = {mse_min:.3f}', color='white', fontsize='small')
     plt.tight_layout()
     plt.savefig(
         "Figs/Optimizing_lasso_Croassvalk10" + str(project_data) + f"N_{N*N}" + f"_N_{N}.pdf"
@@ -713,6 +715,7 @@ def part_f_request1():
     plt.show()
 
     ######### Finally I will select the poly degree with min mse and perform the B-V tradeoff with bootstrap
+    lambda_min=-4
     lambdas = np.logspace(lambda_min, lambda_max, n_lambdas)
     r2 = np.zeros(n_lambdas)
     mse = np.zeros(n_lambdas)

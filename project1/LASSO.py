@@ -1,5 +1,6 @@
 from sklearn import linear_model
 import numpy as np
+from numba import jit
 
 class LASSO():
     '''
@@ -10,7 +11,7 @@ class LASSO():
     -------
     beta_lasso(design, known, lambda)
     '''
-
+    @jit
     def beta_lasso(self, design, known, lmbd):
         '''
         Calculates the estimator for LASSO using the design matrix, the known output and a lambda.
