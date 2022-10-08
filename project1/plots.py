@@ -694,7 +694,7 @@ def part_f_request1():
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
     #add text box with min mse
-    plt.text(lambdas[j_min-2],orders[i_min+1],f'Min MSE = {mse_min:.3f}', color='red')
+    plt.text(lambdas[j_min],orders[i_min],f'Min MSE = {mse_min:.3f}', color='red')
     plt.savefig(
         "Figs/Optimizing_lasso_Croassvalk10" + str(project_data) + f"N_{N*N}" + f"_N_{N}.pdf"
     )
