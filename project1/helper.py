@@ -94,3 +94,23 @@ def our_tt_split(X, y, test_size=0.33, train_size = None, random_state=None):
     y_test = np.asarray(y_test)
 
     return X_train, X_test, y_train, y_test
+
+def our_scaler(data):
+    """
+    Scale our data by centering the mean to 0 and dividing by the standard deviation 
+    when it is larger then a certain threshold.
+
+    Parameters
+    ---------
+    data : numpy array (matrix)
+        the data to center. It can be both the design matrix or the z values.
+
+    Returns
+    -------
+    scaled data
+    """
+    # check to make sure thta x_stds > small threshold, for those not
+    # divide by 1 instead of original standard deviation
+    epsilon =  10**(-2)
+    denominator = [x if x > epsilon else 1 for x in np.std(data, axis=0)]
+    return (data - np.mean(data, axis=0))/ denominator
