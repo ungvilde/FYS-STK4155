@@ -165,7 +165,7 @@ def part_b_request1(show_betas=False):
     plt.figure()
     d_values = np.arange(1, d_max + 1, step=1, dtype=int)
     plt.plot(d_values, mse_list, label="Test error")
-    plt.plot(d_values, bias_list, "--", label="Bias")
+    plt.plot(d_values, bias_list, "--", label="$Bias^2$")
     plt.plot(d_values, var_list, "--", label="Variance")
     plt.xlabel("Polynomial degree")
     plt.ylabel("MSE")
@@ -371,7 +371,7 @@ def part_c_request2():
     # print(f"Z avg:{np.mean(z)} ")
     plt.plot(orders, mse, label="MSE")
 
-    plt.plot(orders, bias, label="Bias")
+    plt.plot(orders, bias, label="$Bias^2$")
     plt.plot(orders, var, label="Variance")
     plt.legend()
 
@@ -568,7 +568,7 @@ def part_e_request1():
 
     plt.plot(lambdas, mse, label="MSE")
 
-    plt.plot(lambdas, bias, label="Bias", linestyle="dashed")
+    plt.plot(lambdas, bias, label="$Bias^2$", linestyle="dashed")
     plt.plot(lambdas, var, label="Variance", linestyle="dashed")
     plt.title(f"B-V Tradeoff for Ridge - With Bootstrap - d = {chosen_poly_order}")
 
