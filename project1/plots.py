@@ -86,30 +86,6 @@ def part_b_request1(show_betas=False):
         mse_list.append(mse)
         r2_list.append(r2)
 
-        if show_betas == True:
-            beta = ols.get_beta()
-            plt.plot(i, beta[0], "or", label=r"$\beta_0$" + f" d={i}")
-            plt.plot(i, beta[1], "ob", label=r"$\beta_1$" + f" d={i}")
-            plt.plot(i, beta[2], "og", label=r"$\beta_2$" + f" d={i}")
-            if i > 3:
-                plt.plot(i, beta[3], "oy", label=r"$\beta_3$" + f" d={i}")
-            if i > 4:
-                plt.plot(i, beta[4], "ok", label=r"$\beta_4$" + f" d={i}")
-
-            if i > 5:
-                plt.plot(i, beta[5], "oc", label=r"$\beta_5$" + f" d={i}")
-
-            if i > 6:
-                plt.plot(i, beta[6], "om", label=r"$\beta_6$" + f" d={i}")
-
-    if show_betas == True:
-
-        plt.title("Betas x Model Complexity - TEST")
-        plt.xlabel("Polynomial Degree", fontsize=12)
-        plt.ylabel("Betas", fontsize=12)
-        plt.show()
-        exit(1)
-
     # (Adam) - Plotting Errors together and saving figs
     # Plotting MSE and R2 in same figure with two y-axis
     fig, ax1 = plt.subplots()
@@ -200,28 +176,28 @@ def part_b_request1(show_betas=False):
 
     ####################################################
     # code for plotting beta values with conf. intervals
+    if show_betas:
+        d_max = 5
+        plt.figure()
 
-    d_max = 5
-    plt.figure()
+        for i in range(d_max, 1, -1):
+            i = int(i)
+            Linreg = LinearRegression(i, x, y, z, scale=scale)
 
-    for i in range(d_max, 1, -1):
-        i = int(i)
-        Linreg = LinearRegression(i, x, y, z, scale=scale)
+            Linreg()
+            beta = Linreg.get_beta()
+            conf_int = Linreg.conf_int()
 
-        Linreg()
-        beta = Linreg.get_beta()
-        conf_int = Linreg.conf_int()
+            beta_inds = range(0, len(beta))
+            plt.errorbar(x=beta_inds, y=beta, yerr=conf_int, fmt=".", label=f"$d=${i}")
 
-        beta_inds = range(0, len(beta))
-        plt.errorbar(x=beta_inds, y=beta, yerr=conf_int, fmt=".", label=f"$d=${i}")
-
-    plt.legend()
-    p = (d_max + 1) * (d_max + 2) / 2
-    plt.xticks(np.arange(0, p, step=2, dtype=int))
-    plt.xlabel(r"Index $j$")
-    plt.ylabel(r"$\beta_j$")
-    plt.tight_layout()
-    plt.savefig(f"Figs/beta_coef_{project_data}"+f"_N_{N}.pdf")
+        plt.legend()
+        p = (d_max + 1) * (d_max + 2) / 2
+        plt.xticks(np.arange(0, p, step=2, dtype=int))
+        plt.xlabel(r"Index $j$")
+        plt.ylabel(r"$\beta_j$")
+        plt.tight_layout()
+        plt.savefig(f"Figs/beta_coef_{project_data}"+f"_N_{N}.pdf")
 
 
 def part_b_request1_extra():
