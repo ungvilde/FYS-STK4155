@@ -183,4 +183,4 @@ class Resample():
         self._reg.set_design(original_X)
         self._reg.set_known(original_z)
 
-        return np.mean(R2), np.mean(mse)    # these are the mean MSE and R2 scores for the model degree with k folds
+        return np.mean(R2), np.mean(mse), np.std(mse)    # these are the mean MSE and R2 scores for the model degree with k folds

@@ -47,7 +47,6 @@ def get_data_terrain(N):
     denominator = [x if x > epsilon else 1 for x in np.std(z, axis=0)]
 
     z = our_scaler(z)
-    print(z)
 
     return x, y, z
 
@@ -162,7 +161,7 @@ def part_b_request1(show_betas=False):
 
     ###########################################
     # code for plotting Bias-Variance Trade-Off
-    d_max = 10
+    d_max = max_degree
     Linreg = LinearRegression(d_max, x, y, z)
     X = Linreg.get_design()
     X = X - np.mean(X, axis=0)  # / np.std(X, axis=0)
@@ -174,18 +173,23 @@ def part_b_request1(show_betas=False):
     mse_list = []
     bias_list = []
     var_list = []
-
+    SE_list = []
     for i in range(1, d_max + 1):
         i = int(i)
 
         Linreg = LinearRegression(i, x, y, z, scale=scale)
         resampler = Resample(Linreg)
 
-        _, mse, bias, var, _ = resampler.bootstrap(100)
+        _, mse, bias, var, SE = resampler.bootstrap(100)
         mse_list.append(mse)
         bias_list.append(bias)
         var_list.append(var)
+        SE_list.append(SE)
 
+    min_ind = np.argmin(mse_list)
+    print("d = ", min_ind+1)
+    print("MSE = ", mse_list[min_ind])
+    print("SE = ", SE_list[min_ind])
     plt.figure()
     d_values = np.arange(1, d_max + 1, step=1, dtype=int)
     plt.plot(d_values, mse_list, label="Test error")
@@ -515,18 +519,22 @@ def part_e_request1():
     mse_min = np.min(mse)
     print("BOOTS MIN MSE", mse_min)
     i_min, j_min = np.where(mse == mse_min)
+    print("MSE ERROR", var_mse[i_min, j_min])
     lambdas = np.log10(lambdas)
     lambdas_mesh, orders_mesh = np.meshgrid(lambdas, orders)
 
     plt.contourf(lambdas_mesh, orders_mesh, mse, levels=50)
     print("BOOTS MIN", lambdas[j_min])
 
-    plt.plot(lambdas[j_min], orders[i_min], "o", c="r")
+    plt.plot(lambdas[j_min], orders[i_min], "+", c="r")
+    print("Degree min. MSE =", orders[i_min])
     plt.colorbar()
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
+    plt.text(lambdas[j_min],orders[i_min],f'Min MSE = {mse_min:.3f}', color='white', fontsize='small')
     plt.tight_layout()
+
     plt.savefig("Figs/Optimizing_Ridge_Bootstrap_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
@@ -534,6 +542,8 @@ def part_e_request1():
     k = 10
     r2 = np.zeros((stop - start, n_lambdas))
     mse = np.zeros((stop - start, n_lambdas))
+    stdErr = np.zeros((stop - start, n_lambdas))
+
     bias = np.zeros((stop - start, n_lambdas))
     var = np.zeros((stop - start, n_lambdas))
 
@@ -545,7 +555,7 @@ def part_e_request1():
             lmbd = lambdas[j]
             ridge = LinearRegression(i, x, y, z, method=2, lmbd=lmbd, scale=scale)
             resampler = Resample(ridge)
-            r2[i - 1, j], mse[i - 1, j] = resampler.cross_validation(
+            r2[i - 1, j], mse[i - 1, j], stdErr[i-1, j] = resampler.cross_validation(
                 k=k
             )  ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
 
@@ -553,21 +563,28 @@ def part_e_request1():
     print("CV MIN MSE", mse_min)
 
     i_min, j_min = np.where(mse == mse_min)
+    print("CV std. error", stdErr[i_min,j_min])
     lambdas = np.log10(lambdas)
-    lambdas, orders = np.meshgrid(lambdas, orders)
+    lambdas_mesh, orders_mesh = np.meshgrid(lambdas, orders)
 
-    plt.contourf(lambdas, orders, mse, levels=50, cmap="plasma")
-    print("CV MIN", lambdas[j_min, i_min])
-    plt.plot(lambdas[j_min, i_min], orders[i_min, j_min], "+", c="r")
+    plt.contourf(lambdas_mesh, orders_mesh, mse, levels=50)
+    print("CV MIN", lambdas[j_min])
+    #plt.plot(lambdas[j_min, i_min], orders[i_min, j_min], "+", c="r")
+    plt.plot(lambdas[j_min], orders[i_min], "+", c="r")
+
     plt.colorbar()
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
+    plt.text(lambdas[j_min],orders[i_min],f'Min MSE = {mse_min:.3f}', color='white', fontsize='small')
+
     plt.tight_layout()
     plt.savefig("Figs/Optimizing_Ridge_Croassvalk10" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
 
     ######### Finally I will select the poly degree with min mse and perform the B-V tradeoff with bootstrap
+    lambdas, orders = np.meshgrid(lambdas, orders)
+
     lambdas = np.logspace(lambda_min, lambda_max, n_lambdas)
 
     r2 = np.zeros(n_lambdas)
@@ -600,6 +617,8 @@ def part_e_request1():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Prediction Error", fontsize=12)
+    #plt.text(lambdas[j_min],orders[i_min],f'Min MSE = {mse_min:.3f}', color='white', fontsize='small')
+
     plt.tight_layout()
     plt.savefig("Figs/B-V_Tradeoff_Bootstrap_Ridge_" + str(project_data) + f"_N_{N}.pdf")
     plt.show()
@@ -635,7 +654,7 @@ def part_f_request1():
     bias = np.zeros((stop - start, n_lambdas))
     var = np.zeros((stop - start, n_lambdas))
     var_mse = np.zeros((stop - start, n_lambdas))
-    """ 
+    """
     for i in range(start, stop):
         for j in range(n_lambdas):
             lmbd = lambdas[j]
@@ -654,6 +673,7 @@ def part_f_request1():
     mse_min = np.min(mse)
     print("BOOTS MIN MSE", mse_min)
     i_min, j_min = np.where(mse == mse_min)
+    print("MSE SE: ",var_mse[i_min, j_min])
     lambdas = np.log10(lambdas)
     lambdas_mesh, orders_mesh = np.meshgrid(lambdas, orders)
 
@@ -665,19 +685,22 @@ def part_f_request1():
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
     plt.ylabel("Polynomial Degree", fontsize=12)
-    plt.text(lambdas[j_min],orders[i_min+1],f'Min MSE = {mse_min:.3f}', color='white', fontsize='small')
+    plt.text(lambdas[j_min],orders[i_min],f'Min MSE = {mse_min:.3f}', color='white', fontsize='small')
     plt.tight_layout()
     plt.savefig(
         "Figs/Optimizing_Lasso_Bootstrap_" + str(project_data) + f"_N_{N}.pdf"
     )
     plt.show()
     """
+    """
+    
     ## NOW I WILL do the same thing but with crossval k= 10
     k = 10
     r2 = np.zeros((stop - start, n_lambdas))
     mse = np.zeros((stop - start, n_lambdas))
     bias = np.zeros((stop - start, n_lambdas))
     var = np.zeros((stop - start, n_lambdas))
+    stdErr = np.zeros((stop - start, n_lambdas))
 
     lambda_min= -15
     lambdas = np.logspace(lambda_min, lambda_max, n_lambdas)
@@ -688,7 +711,7 @@ def part_f_request1():
             lmbd = lambdas[j]
             lasso = LinearRegression(i, x, y, z, method=3, lmbd=lmbd, scale=scale)
             resampler = Resample(lasso)
-            r2[i - 1, j], mse[i - 1, j] = resampler.cross_validation(
+            r2[i - 1, j], mse[i - 1, j], stdErr[i-1, j] = resampler.cross_validation(
                 k=k
             )  ## this random state is only for the train test split! This does not mean we are choosing the same sample on the bootstrap!
 
@@ -696,6 +719,8 @@ def part_f_request1():
     print("CV MIN MSE", mse_min)
 
     i_min, j_min = np.where(mse == mse_min)
+    print("CV std. error", stdErr[i_min,j_min])
+
     lambdas = np.log10(lambdas)
     lambdas_mesh, orders_mesh = np.meshgrid(lambdas, orders)
 
@@ -713,9 +738,9 @@ def part_f_request1():
         "Figs/Optimizing_lasso_Croassvalk10" + str(project_data) + f"N_{N*N}" + f"_N_{N}.pdf"
     )
     plt.show()
-
+    """
     ######### Finally I will select the poly degree with min mse and perform the B-V tradeoff with bootstrap
-    lambda_min=-4
+    lambda_min=-15
     lambdas = np.logspace(lambda_min, lambda_max, n_lambdas)
     r2 = np.zeros(n_lambdas)
     mse = np.zeros(n_lambdas)
@@ -723,7 +748,7 @@ def part_f_request1():
     var = np.zeros(n_lambdas)
     var_mse = np.zeros(n_lambdas)
 
-    chosen_poly_order = int(orders[i_min])
+    chosen_poly_order = 28 #int(orders[i_min])
 
     for j in range(n_lambdas):
         lmbd = lambdas[j]
