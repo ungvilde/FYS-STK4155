@@ -587,8 +587,8 @@ def part_e_request1():
 
     plt.plot(lambdas, bias, label="$Bias^2$", linestyle="dashed")
     plt.plot(lambdas, var, label="Variance", linestyle="dashed")
-    plt.title(f"B-V Tradeoff for Ridge - With Bootstrap - d = {chosen_poly_order}")
-
+    #plt.title(f"B-V Tradeoff for Ridge - With Bootstrap - d = {chosen_poly_order}")
+    print(f"B-V Tradeoff for Ridge - With Bootstrap - d = {chosen_poly_order}")
     plt.legend()
 
     plt.xlabel("$Log_{10}(\lambda)$", fontsize=12)
