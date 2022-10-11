@@ -92,7 +92,7 @@ class Errors():
         exact = np.ravel(self._known)
         fit = np.ravel(self._fit)
 
-        return (1 - np.sum((exact - fit)**2))/np.sum((exact - np.mean(exact))**2)
+        return 1 - (np.sum((exact - fit)**2))/np.sum((exact - np.mean(exact))**2)
 
     def conf_int(self, beta, design):
         '''
