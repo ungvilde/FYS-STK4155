@@ -25,14 +25,10 @@ def GD(X, y, n_iter, eta0, optimization=None, lmbda=0, gamma=0, eps=1e-10):
     eta = eta0 # learning rate 
     # should include possible choice of schedule
     change = 0 # Initiate the value with which beta changes
-    s = np.zeros_like(beta) # initiate vector used for optimizing learning rate
     
     delta = 1e-8 # to avoid division by zero
-    decay = 0.9 # might make this tunable later
-    rho1 = 0.9 # adam optimization decay values, based on suggested default in Goodfellow, might be made tunable later
-    rho2 = 0.999
-
     r = np.zeros(shape=(p,p))
+
     for i in range(n_iter):
 
         gradient = 2.0 / N * X.T @ (X @ beta - y) + 2.0 * lmbda * beta # if lambda>0, we do Ridge regression
@@ -54,12 +50,11 @@ def GD(X, y, n_iter, eta0, optimization=None, lmbda=0, gamma=0, eps=1e-10):
 
     return beta
 
-def SGD(X, y, n_epochs, eta0, optimization, t0, t1, M=1, lmbda=0, gamma=0, eps=1e-8):
+def SGD(X, y, n_epochs, eta0, optimization, M=1, lmbda=0, gamma=0, eps=1e-8):
     """
     X: Design matrix
     y: Response data
     n_epochs: number of epochs
-    t0, t1: linear scheduling option for learning rate (to be implemented...)
     rate: Choose an optimization method for the learning rate. Default is a constant learning rate. 
     Options are:
         - constant
