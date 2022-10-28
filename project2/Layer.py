@@ -17,3 +17,5 @@ class Layer:
         # For the gradient of the biases and weights in the layer
         self.dBias = None
         self.dWeights = None
+        self.velocity_bias = 0
+        self.velocity_weights = 0

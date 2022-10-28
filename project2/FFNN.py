@@ -14,7 +14,8 @@ class FFNN:
         batch_size,
         eta,
         lmbda=0.0,
-        # possible alternatives are sigmoid, tanh, relu, leaky relu
+        gamma=0.0, # moment
+        # possible alternatives are sigmoid, relu, leaky relu...
         activation_hidden="sigmoid",
         # Determines output activation func., ie. can be softmax if classification task
         activation_out="linear",
@@ -53,6 +54,7 @@ class FFNN:
         self.n_epochs = n_epochs
         self.batch_size = batch_size
         self.eta = eta  # learning rate
+        self.gamma = gamma # moment
 
         self.initialize_biases_and_weights()
 
@@ -131,6 +133,7 @@ class FFNN:
         previous_activation = self.X
         self.layer[l].dBias = np.sum(gradient,axis=0) + self.lmbda * bias
         self.layer[l].dWeights = previous_activation.T @ gradient  + self.lmbda * weights
+        self.gradient = gradient @ weights.T
 
     def predict(self):
         self.X = self.X_all
@@ -151,7 +154,7 @@ class FFNN:
         eta = eta0
 
         for epoch in range(1, self.n_epochs+1):
- 
+            
             for i in range(n_batches):
                 random_index = self.batch_size*np.random.randint(n_batches)
                 self.X = self.X_all[random_index:random_index+self.batch_size] 
@@ -164,7 +167,13 @@ class FFNN:
                 self.backpropagation()
 
                 for l in range(len(self.layer)):
-                    self.layer[l].weights += -eta * self.layer[l].dWeights
-                    self.layer[l].bias += -eta * self.layer[l].dBias
+                    self.layer[l].velocity_weights = self.gamma * self.layer[l].velocity_weights -eta * self.layer[l].dWeights
+                    self.layer[l].velocity_bias = self.gamma * self.layer[l].velocity_bias -eta * self.layer[l].dBias
+
+                    #self.layer[l].weights += -eta * self.layer[l].dWeights
+                    #self.layer[l].bias += -eta * self.layer[l].dBias
+
+                    self.layer[l].weights += self.layer[l].velocity_weights
+                    self.layer[l].bias += self.layer[l].velocity_bias
         
       

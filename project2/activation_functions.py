@@ -11,33 +11,22 @@ def sigmoid_derivative(x):
 
 #ReLU alternatives
 def reLU(x):
-    return np.max(0, x)
+    return np.maximum(0, x)
 
 def reLU_derivative(x):
-    if x > 0:
-        value = 1
-    else:
-        value = 0
+    return 1. * (x > 0)
 
 def leakyReLU(x):
-    if x > 0:
-        value = x
-    else:
-        value = 0.01*x
-    return value
+    return np.maximum(0, x) + 0.01 * np.minimum(0, x)
 
 def leaky_reLU_derivative(x):
-    if x > 0:
-        value = 1
-    else:
-        value = 0.01
-        return value
+    return 1 * (x > 0) + 0.01 * (x < 0)
 
 # activation for output with regression tasks
 def linear(x):
     return x
 
 def linear_derivative(x):
-    return 1.
+    return 1.0
 
 # TODO: add softmax and something for binary classifiers
