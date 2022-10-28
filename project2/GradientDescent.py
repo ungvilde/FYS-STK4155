@@ -23,8 +23,7 @@ def GD(X, y, n_iter, eta0, optimization=None, lmbda=0, gamma=0, eps=1e-10):
     beta = np.random.randn(p, 1) # randomly initiate beta
     
     eta = eta0 # learning rate 
-    # should include possible choice of schedule
-    change = 0 # Initiate the value with which beta changes
+    change = np.zeros_like(beta) # Initiate the values with which beta changes
     
     delta = 1e-8 # to avoid division by zero
     r = np.zeros(shape=(p,p))
