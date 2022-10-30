@@ -3,9 +3,11 @@ import numpy as np
 
 # sigmoid function
 def sigmoid(x):
+    x = np.clip(x, -500, 500 ) # to deal with overflow, but not sure if it is a bad idea
     return 1/(1 + np.exp(-x))
 
 def sigmoid_derivative(x):
+    x = np.clip(x, -500, 500 )
     f = 1/(1 + np.exp(-x))
     return 1 - f
 
@@ -29,4 +31,3 @@ def linear(x):
 def linear_derivative(x):
     return 1.0
 
-# TODO: add softmax and something for binary classifiers
