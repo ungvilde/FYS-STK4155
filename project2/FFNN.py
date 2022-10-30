@@ -12,23 +12,22 @@ class FFNN:
         n_hidden_neurons,  # list of num. neurons per hidden layer
         n_epochs,
         batch_size,
-        eta,
-        lmbda=0.0,
-        gamma=0.0, # moment
-        # possible alternatives are sigmoid, relu, leaky relu...
-        activation_hidden="sigmoid",
-        # Determines output activation func., ie. can be softmax if classification task
-        activation_out="linear",
-        task="regression"  # should check if activation function makes sense, how many output nodes there are, the cost function
+        eta, # learning rate (initial)
+        lmbda=0.0, # regularization
+        gamma=0.0, # moment variable
+        activation_hidden="sigmoid", # possible alternatives are sigmoid, relu, leaky relu...
+        task="regression"  # determines activation function, how many output nodes there are, the cost function
     ):
 
-        self.X_all = X
-        self.y_all = y
-        self.X = X
-        self.y = y
+        # dataset parameters
+        self.X_all = X # contains the whole data set
+        self.y_all = np.c_[y]
+        self.X = X # will be updated depending on batches
+        self.y = np.c_[y]
         self.n_inputs = X.shape[0]
         self.n_features = X.shape[1]
 
+        # architecture parameters
         self.n_hidden_neurons = n_hidden_neurons
         self.n_hidden_layers = len(n_hidden_neurons)
 
@@ -42,23 +41,32 @@ class FFNN:
         elif activation_hidden == "leaky_reLU":
             self.activation_hidden = leakyReLU
             self.activation_hidden_derivative = leaky_reLU_derivative
-
-        if activation_out == "linear":
+        
+        if task == "regression":
+            self.n_output = 1
             self.activation_out = linear
             self.activation_out_derivative = linear_derivative
-            # some "assert task=regression" or something like that?
 
-        # should set Cost function and its derivative, as they vary between classification/regression AND regularization
+        elif task == "classification":
+            self.n_output = 1 # could be made flexible, but fine for now
+            self.activation_out = sigmoid
+            self.activation_out_derivative = sigmoid_derivative
+
+        # regularization
         self.lmbda = lmbda
+
         # parameters for SGD
         self.n_epochs = n_epochs
         self.batch_size = batch_size
         self.eta = eta  # learning rate
         self.gamma = gamma # moment
 
+        # fill weights and biases with small random numbers
         self.initialize_biases_and_weights()
 
     def initialize_biases_and_weights(self):
+        # we initialize n hidden layers, as well as the weights and biases for the output layer
+
         self.layer = []
         self.layer.append(Layer(n_in=self.n_features,
                                 n_out=self.n_hidden_neurons[0]))
@@ -68,9 +76,8 @@ class FFNN:
                                     n_out=self.n_hidden_neurons[l]))
 
         self.layer.append(Layer(n_in=self.n_hidden_neurons[-1], 
-                                n_out=1))
+                                n_out=self.n_output))
         
-        # we initialized n hidden layers, as well as the weights and biases for the output layer
 
     def feed_forward(self):
         z = self.X
@@ -89,7 +96,6 @@ class FFNN:
         bias = self.layer[-1].bias
         z = a @ weights + bias
         self.layer[-1].z = z
-
         self.prediction = self.activation_out(z)
 
     def backpropagation(self):
@@ -99,7 +105,7 @@ class FFNN:
         in the Layer-objects for each layer.
         """
         # compute gradient wrt output layer
-        error = self.prediction - self.y # TODO: assert that y has shapes (n,1) for regression
+        error = self.prediction - self.y
         z = self.layer[-1].z
         previous_activation = self.layer[-2].activation
         weights = self.layer[-1].weights
@@ -135,9 +141,8 @@ class FFNN:
         self.layer[l].dWeights = previous_activation.T @ gradient  + self.lmbda * weights
         self.gradient = gradient @ weights.T
 
-    def predict(self):
-        self.X = self.X_all
-        self.y = self.y_all
+    def predict(self, X):
+        self.X = X
         self.feed_forward()
 
         return self.prediction
@@ -152,14 +157,15 @@ class FFNN:
             return (1-alpha) * eta0 + alpha * eta
 
         eta = eta0
+        indeces = np.arange(self.n_inputs)
 
         for epoch in range(1, self.n_epochs+1):
             
             for i in range(n_batches):
-                random_index = self.batch_size*np.random.randint(n_batches)
-                self.X = self.X_all[random_index:random_index+self.batch_size] 
-                self.y = self.y_all[random_index:random_index+self.batch_size]
-
+                batch_indeces = np.random.choice(indeces, size=self.batch_size, replace=True)
+                self.X = self.X_all[batch_indeces]
+                self.y = self.y_all[batch_indeces]
+                
                 #Compute the gradient using the data in minibatch k
                 eta = learning_schedule(t = epoch * n_batches + i, eta = eta)
 
@@ -167,12 +173,11 @@ class FFNN:
                 self.backpropagation()
 
                 for l in range(len(self.layer)):
-                    self.layer[l].velocity_weights = self.gamma * self.layer[l].velocity_weights -eta * self.layer[l].dWeights
-                    self.layer[l].velocity_bias = self.gamma * self.layer[l].velocity_bias -eta * self.layer[l].dBias
-
-                    #self.layer[l].weights += -eta * self.layer[l].dWeights
-                    #self.layer[l].bias += -eta * self.layer[l].dBias
-
+                    # compute change with momentum
+                    self.layer[l].velocity_weights = self.gamma * self.layer[l].velocity_weights - eta * self.layer[l].dWeights
+                    self.layer[l].velocity_bias = self.gamma * self.layer[l].velocity_bias - eta * self.layer[l].dBias
+                    
+                    # update gradients
                     self.layer[l].weights += self.layer[l].velocity_weights
                     self.layer[l].bias += self.layer[l].velocity_bias
         
