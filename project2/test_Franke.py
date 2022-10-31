@@ -14,17 +14,20 @@ x = np.random.rand(n)
 y = np.random.rand(n)
 x, y = np.meshgrid(x, y)
 
+# generate franke function data without noise
 z = FrankeFunction(x, y)
 
+# sets up design matrix for polynomial of given degree
 X = FrankeDesignMatrix(x.ravel(), y.ravel(), degree=7)
 
+# scale data and split into training and testing data
 scaler = StandardScaler()
 scaler.fit(X)
 Xscaled = np.array(scaler.transform(X))
-Xscaled[:,0] = np.ones(n*n)
+Xscaled[:,0] = np.ones(n*n) #intercept column
 Xtrain, Xtest, ztrain, ztest = train_test_split(Xscaled, z.ravel(), test_size=0.2)
 
-# solved analytically
+# Linear regression, solved analytically
 linreg = LinearRegression(solver="analytic", lmbda=0.0)
 linreg.fit(Xtrain, ztrain)
 predictions = linreg.predict(Xtest)
@@ -46,7 +49,7 @@ predictions = linreg.predict(Xtest)
 mse = MSE(y_pred=predictions, y = ztest)
 print("MSE with SGD LinearRegression = ", mse)
 
-# Solved with FFNN
+# Solved with FFNN and SGD
 network = FFNN(lmbda=0.0, n_hidden_neurons=[100], batch_size=20, 
 n_epochs=200, eta=1e-4, gamma=0.9, activation_hidden="sigmoid")
 network.fit(Xtrain, ztrain)
