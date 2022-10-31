@@ -72,13 +72,13 @@ class FFNN:
         
 
     def feed_forward(self):
-        z = self.X
-        a = np.zeros_like(z)
+        a = self.X
+        z = np.zeros_like(a)
         for l in range(self.n_hidden_layers):
             weights = self.layer[l].weights
             bias = self.layer[l].bias
 
-            z = z @ weights + bias
+            z = a @ weights + bias
             a = self.activation_hidden(z) # apply activation function element-wise
             self.layer[l].z = z
             self.layer[l].activation = a 

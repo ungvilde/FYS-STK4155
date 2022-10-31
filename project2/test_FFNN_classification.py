@@ -41,3 +41,10 @@ pred = clf.predict(Xtest)
 accuracy = accuracy_score(ytest, pred)
 print("Accuracy of SKlearn=", accuracy)
 
+network = FFNN(n_hidden_neurons=[100, 50], task="classification", 
+n_epochs=n_epochs, batch_size=m, eta=eta, lmbda=lmbda, gamma=0.9, activation_hidden="reLU")
+network.fit(Xtrain, ytrain)
+predictions = network.predict(Xtest)
+acc = accuracy_score(ytest, predictions > 0.5)
+print("For eta = ",eta," and n_epochs = ",n_epochs)
+print("FFNN two layers Accuracy = ", acc)
