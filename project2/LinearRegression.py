@@ -47,7 +47,7 @@ class LinearRegression:
         
     def GD(self):
         beta = np.random.randn(self.n_features, 1) # randomly initiate beta
-    
+        self.y_all = np.c_[self.y_all]
         eta = self.eta0 # learning rate 
         change = np.zeros_like(beta) # Initiate the values with which beta changes
         
@@ -57,7 +57,7 @@ class LinearRegression:
         for i in range(self.n_iter):
 
             gradient = 2.0 / self.n_inputs * self.X_all.T @ (self.X_all @ beta - self.y_all) + 2.0 * self.lmbda * beta # if lambda>0, we do Ridge regression
-            
+                        
             if self.optimization is None:
                 change = -eta*gradient + self.gamma*change
                 #print("No optimization Change = \n",change)
@@ -99,7 +99,7 @@ class LinearRegression:
             for i in range(m):
                 random_indeces = np.random.choice(indeces, replace=True, size=self.batch_size)
                 self.X = self.X_all[random_indeces] # ideally want to shuffle data before this
-                self.y = self.y_all[random_indeces]
+                self.y = np.c_[self.y_all[random_indeces]]
 
                 #Compute the gradient using the data in minibatch k
                 gradient = 2.0/ self.batch_size * self.X.T @ (self.X @ beta - self.y) + 2.0 * self.lmbda * beta
@@ -142,7 +142,7 @@ class LinearRegression:
         # Optimal parameters found analytically. 
         # If lmbda > 0 then we do Ridge regression, otherwise OLS regression
         Id = np.eye((self.X_all.T @ self.X_all).shape[0])
-        self.beta = np.linalg.inv((self.X_all.T @ self.X_all) + self.lmbda * Id) @ self.X_all.T @ self.y
+        self.beta = np.linalg.inv((self.X_all.T @ self.X_all) + self.lmbda * Id) @ self.X_all.T @ self.y_all
 
     def predict(self, X):
         self.X = X
