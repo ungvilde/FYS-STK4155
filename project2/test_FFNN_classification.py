@@ -27,9 +27,9 @@ m=20
 eta=1e-4
 lmbda = 0
 
-network = FFNN(Xtrain, ytrain, n_hidden_neurons=[100], task="classification", 
+network = FFNN(n_hidden_neurons=[100], task="classification", 
 n_epochs=n_epochs, batch_size=m, eta=eta, lmbda=lmbda, gamma=0.9, activation_hidden="reLU")
-network.train()
+network.fit(Xtrain, ytrain)
 predictions = network.predict(Xtest)
 acc = accuracy_score(ytest, predictions > 0.5)
 print("For eta = ",eta," and n_epochs = ",n_epochs)

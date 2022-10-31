@@ -26,9 +26,9 @@ Xtrain, Xtest, ytrain, ytest = train_test_split(X, y, test_size=0.2)
 eta = 0.001
 
 # testing for basic FFNN 
-network = FFNN(Xtrain, ytrain, n_hidden_neurons=[100], n_epochs=200, batch_size=20, 
+network = FFNN(n_hidden_neurons=[100], n_epochs=200, batch_size=20, 
 eta = eta, lmbda = 0, gamma=0.9, activation_hidden="sigmoid", task = "regression")
-network.train()
+network.fit(Xtrain, ytrain)
 pred = network.predict(Xtest)
 mse = MSE(ytest, pred)
 print("MSE with basic FFNN = ", mse)

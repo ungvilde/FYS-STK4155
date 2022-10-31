@@ -7,8 +7,6 @@ from activation_functions import *
 class FFNN:
     def __init__(
         self,
-        X,
-        y,
         n_hidden_neurons,  # list of num. neurons per hidden layer
         n_epochs,
         batch_size,
@@ -18,14 +16,6 @@ class FFNN:
         activation_hidden="sigmoid", # possible alternatives are sigmoid, relu, leaky relu...
         task="regression"  # determines activation function, how many output nodes there are, the cost function
     ):
-
-        # dataset parameters
-        self.X_all = X # contains the whole data set
-        self.y_all = np.c_[y]
-        self.X = X # will be updated depending on batches
-        self.y = np.c_[y]
-        self.n_inputs = X.shape[0]
-        self.n_features = X.shape[1]
 
         # architecture parameters
         self.n_hidden_neurons = n_hidden_neurons
@@ -61,9 +51,6 @@ class FFNN:
         self.eta = eta  # learning rate
         self.gamma = gamma # moment
 
-        # fill weights and biases with small random numbers
-        self.initialize_biases_and_weights()
-
     def initialize_biases_and_weights(self):
         # we initialize n hidden layers, as well as the weights and biases for the output layer
 
@@ -81,7 +68,7 @@ class FFNN:
 
     def feed_forward(self):
         z = self.X
-
+        a = np.zeros_like(z)
         for l in range(self.n_hidden_layers):
             weights = self.layer[l].weights
             bias = self.layer[l].bias
@@ -89,7 +76,7 @@ class FFNN:
             z = z @ weights + bias
             a = self.activation_hidden(z) # apply activation function element-wise
             self.layer[l].z = z
-            self.layer[l].activation = a # h_1
+            self.layer[l].activation = a 
 
         # the output layer
         weights = self.layer[-1].weights
@@ -101,8 +88,8 @@ class FFNN:
     def backpropagation(self):
         """
         Compute the gradients of weights and biases at each layer, starting at the output layer 
-        and working backwards towards the first hidden layer. Gradients of each layer are stored
-        in the Layer-objects for each layer.
+        and working backwards towards the first hidden layer. Gradients of weights and biases are stored
+        in the Layer-objects for their respective layer.
         """
         # compute gradient wrt output layer
         error = self.prediction - self.y
@@ -147,13 +134,24 @@ class FFNN:
 
         return self.prediction
 
-    def train(self):
-       
+    def fit(self, X, y):
+
+        # dataset parameters
+        self.X_all = X # contains the whole data set
+        self.y_all = np.c_[y]
+        self.X = X # will be updated depending on batches
+        self.y = np.c_[y]
+        self.n_inputs = X.shape[0]
+        self.n_features = X.shape[1]
+        
+        # fill weights and biases with small random numbers
+        self.initialize_biases_and_weights()
+
         n_batches = int(self.n_inputs/self.batch_size) # num. batches
         eta0 = self.eta
 
         def learning_schedule(t, eta):
-            alpha = t / (self.n_epochs*n_batches)
+            alpha = t / (self.n_epochs*n_batches) # taken from Goodfellow
             return (1-alpha) * eta0 + alpha * eta
 
         eta = eta0

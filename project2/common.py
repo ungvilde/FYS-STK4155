@@ -4,6 +4,11 @@ def MSE(y, y_pred):
     N = len(y)
     return 1/N * np.sum((y - y_pred)**2)
 
+def R2(y, y_pred):
+    mean_y = np.mean(y)
+    return 1 - np.sum( (y - y_pred )**2) / np.sum((mean_y - y_pred)**2)
+
+
 def readfile(filename):
     xvals, datavals = [], []
     with open(filename, 'r') as f:
