@@ -31,6 +31,8 @@ class FFNN:
         elif activation_hidden == "leaky_reLU":
             self.activation_hidden = leakyReLU
             self.activation_hidden_derivative = leaky_reLU_derivative
+        else:
+            raise Exception("Invalid activation function.")
         
         if task == "regression":
             self.n_output = 1
@@ -41,6 +43,9 @@ class FFNN:
             self.n_output = 1 # could be made flexible, but fine for now
             self.activation_out = sigmoid
             self.activation_out_derivative = sigmoid_derivative
+        
+        else:
+            raise Exception("Invalid learning task.")
 
         # regularization
         self.lmbda = lmbda
