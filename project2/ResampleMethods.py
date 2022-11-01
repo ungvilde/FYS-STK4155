@@ -54,7 +54,7 @@ def CrossValidation_regression(model, X, y, k=10):
         MSE_values.append( MSE(y=predicted, y_pred=ytest) )
         R2_values.append( R2(y=ytest, y_pred=predicted) )
 
-    return np.mean(MSE_values), np.mean(R2_values)
+    return np.mean(MSE_values), np.mean(R2_values) #should include error of estimates too
 
 def CrossValidation_classification(model, X, y, k=10):
 
