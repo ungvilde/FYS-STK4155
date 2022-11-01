@@ -1,5 +1,7 @@
 import numpy as np
 
+cm = 1/2.54
+
 def MSE(y, y_pred):
     N = len(y)
     y = y.ravel()
@@ -22,23 +24,31 @@ def accuracy(y, y_pred):
     
     return np.sum( y == y_pred) / N
 
-def readfile(filename):
-    xvals, datavals = [], []
+def readfile_1dpoly(filename):
+    x, y = [], []
     with open(filename, 'r') as f:
         for line in f:
-            xvals.append(float(line.split()[0]))
-            datavals.append(float(line.split()[1]))
+            x.append(float(line.split()[0]))
+            y.append(float(line.split()[1]))
 
-    return np.array(xvals), np.array(datavals)
+    return np.array(x), np.array(y)
+
+def readfile_franke(filename):
+    x, y, z = [], [], []
+    with open(filename, 'r') as f:
+        for line in f:
+            x.append(float(line.split()[0]))
+            y.append(float(line.split()[1]))
+            z.append(float(line.split()[2]))
+
+    return np.array(x), np.array(y), np.array(z)
 
 def DesignMatrix(x, degree):
     N = len(x)
-    X = np.zeros((N, degree+1))
+    X = np.zeros((N, degree))
 
-    for d in range(1, degree+1):
-        X[:,d] = x**d
-
-    X[:,0] = np.ones(N) # intercept column
+    for i in range(degree):
+        X[:,i] = x**(i+1)
 
     return X
 

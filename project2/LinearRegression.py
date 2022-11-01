@@ -83,16 +83,16 @@ class LinearRegression:
         beta = np.random.randn(self.n_features, 1) #initialize beta
         delta = 1e-8 # to avoid division by zero
 
-        def learning_schedule(t, eta):
-            alpha = t / (self.n_epochs*m)
-            return (1-alpha) * self.eta0 + alpha * eta
+        def learning_schedule(t):
+            alpha = t / (self.n_epochs*m) # taken from Goodfellow
+            return (1-alpha) * self.eta0 + alpha * self.eta0*0.01
 
         change = np.zeros_like(beta) # initiate vector used for computing change in beta
         eta = self.eta0
 
         indeces = np.arange(self.n_inputs)
+
         for epoch in range(1, self.n_epochs+1):
-            #Giter = np.zeros(shape=(p,p))
             s = np.zeros_like(beta)
             r = np.zeros(shape=(self.n_features, self.n_features))
 
@@ -103,7 +103,7 @@ class LinearRegression:
 
                 #Compute the gradient using the data in minibatch k
                 gradient = 2.0/ self.batch_size * self.X.T @ (self.X @ beta - self.y) + 2.0 * self.lmbda * beta
-                eta = learning_schedule(t = epoch * m + i, eta = eta)
+                eta = learning_schedule(t = epoch * m + i)
 
                 if self.optimization is None:
                     change = -eta*gradient + self.gamma*change

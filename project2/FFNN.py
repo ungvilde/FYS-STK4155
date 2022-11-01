@@ -155,9 +155,9 @@ class FFNN:
         n_batches = int(self.n_inputs/self.batch_size) # num. batches
         eta0 = self.eta
 
-        def learning_schedule(t, eta):
+        def learning_schedule(t):
             alpha = t / (self.n_epochs*n_batches) # taken from Goodfellow
-            return (1-alpha) * eta0 + alpha * eta
+            return (1-alpha) * eta0 + alpha * eta0*0.01
 
         eta = eta0
         indeces = np.arange(self.n_inputs)
@@ -170,7 +170,7 @@ class FFNN:
                 self.y = self.y_all[batch_indeces]
                 
                 #Compute the gradient using the data in minibatch k
-                eta = learning_schedule(t = epoch * n_batches + i, eta = eta)
+                eta = learning_schedule(t = epoch * n_batches + i)
 
                 self.feed_forward()
                 self.backpropagation()

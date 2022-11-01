@@ -51,9 +51,13 @@ class LogisticRegression:
         beta = np.random.randn(self.n_features, 1) #initialize beta
         delta = 1e-8 # to avoid division by zero
 
-        def learning_schedule(t, eta):
-            alpha = t / (self.n_epochs*m)
-            return (1-alpha) * self.eta0 + alpha * eta
+        # def learning_schedule(t, eta):
+        #     alpha = t / (self.n_epochs*m)
+        #     return (1-alpha) * self.eta0 + alpha * eta
+
+        def learning_schedule(t):
+            alpha = t / (self.n_epochs*m) # taken from Goodfellow
+            return (1-alpha) * self.eta0 + alpha * self.eta0*0.01
 
         change = np.zeros_like(beta) # initiate vector used for computing change in beta
         eta = self.eta0
@@ -70,7 +74,7 @@ class LogisticRegression:
 
                 #Compute the gradient using the data in minibatch k
                 gradient = - self.X.T @ (self.y - sigmoid(self.X @ beta)) + self.lmbda * beta
-                eta = learning_schedule(t = epoch * m + i, eta = eta)
+                eta = learning_schedule(t = epoch * m + i)
 
                 if self.optimization is None:
                     change = -eta*gradient + self.gamma*change
