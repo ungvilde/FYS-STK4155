@@ -129,7 +129,7 @@ class FFNN:
         bias = self.layer[l].bias
         z = self.layer[l].z
         previous_activation = self.X
-        self.layer[l].dBias = np.sum(gradient,axis=0) + self.lmbda * bias
+        self.layer[l].dBias = np.sum(gradient,axis=0) #+ self.lmbda * bias #might be better to only regularize weights, not biases
         self.layer[l].dWeights = previous_activation.T @ gradient  + self.lmbda * weights
         self.gradient = gradient @ weights.T
 

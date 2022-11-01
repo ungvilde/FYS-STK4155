@@ -29,7 +29,7 @@ def Bootstrap(model, X, y, B=100):
 
     return np.mean(MSE_values), np.mean(R2_values)
 
-def CrossValidation(model, X, y, k=10):
+def CrossValidation_regression(model, X, y, k=10):
 
     # make folds for training
     n_train = X.shape[0]  
@@ -50,7 +50,33 @@ def CrossValidation(model, X, y, k=10):
         ytest = y[test_fold]
         model.fit(Xtrain, ytrain)
         predicted = model.predict(Xtest)
+
         MSE_values.append( MSE(y=predicted, y_pred=ytest) )
         R2_values.append( R2(y=ytest, y_pred=predicted) )
 
     return np.mean(MSE_values), np.mean(R2_values)
+
+def CrossValidation_classification(model, X, y, k=10):
+
+    # make folds for training
+    n_train = X.shape[0]  
+    indeces = np.arange(n_train)
+    shuffled_indeces = np.random.choice(indeces, replace=False, size=n_train)
+    folds = np.array_split(shuffled_indeces, k)
+
+    accuracy_values = []
+
+    for i, test_fold in enumerate(folds):
+        train_fold = folds.copy()
+        train_fold.pop(i) #remove test fold 
+        train_fold = np.concatenate(train_fold) # combines indeces into a single array
+        Xtrain = X[train_fold]
+        ytrain = y[train_fold]
+        Xtest = X[test_fold]
+        ytest = y[test_fold]
+        model.fit(Xtrain, ytrain)
+        predicted = model.predict(Xtest)
+
+        accuracy_values.append( accuracy(y=ytest, y_pred=predicted) )
+
+    return np.mean(accuracy_values)

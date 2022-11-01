@@ -12,7 +12,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import mean_squared_error, accuracy_score
 
-np.random.seed(123)
+#np.random.seed(123)
+np.random.seed(543)
 X, y = load_breast_cancer(return_X_y=True)
 
 scaler = StandardScaler()
@@ -34,6 +35,8 @@ predictions = network.predict(Xtest)
 acc = accuracy_score(ytest, predictions > 0.5)
 print("For eta = ",eta," and n_epochs = ",n_epochs)
 print("FFNN Accuracy = ", acc)
+acc = accuracy(y=ytest, y_pred=predictions)
+print("Accuracy of FFNN (my accuracy score function) = ", acc)
 
 clf = MLPClassifier(solver="sgd", max_iter=n_epochs, alpha=lmbda)
 clf.fit(Xtrain, ytrain)

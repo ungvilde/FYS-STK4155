@@ -8,9 +8,19 @@ def MSE(y, y_pred):
     return 1/N * np.sum((y - y_pred)**2)
 
 def R2(y, y_pred):
+    y = y.ravel()
+    y_pred = y_pred.ravel()
     mean_y = np.mean(y)
     return 1 - np.sum( (y - y_pred )**2) / np.sum((mean_y - y_pred)**2)
 
+def accuracy(y, y_pred):
+    y = y.ravel()
+    y_pred = y_pred.ravel()
+    N = len(y)
+
+    y_pred = y_pred > 0.5
+    
+    return np.sum( y == y_pred) / N
 
 def readfile(filename):
     xvals, datavals = [], []
