@@ -251,3 +251,76 @@ def GridSearch_FFNN_reg(
         plt.savefig("figs/gridsearch_FFNN_reg_R2" + info + ".pdf")   
 
     return mse_values, r2_values
+
+def GridSearch_LinReg_epochs_batchsize(
+    X,
+    y, 
+    eta,
+    lmbda=0,  
+    solver="sgd",
+    optimization=None,
+    plot_grid=True,
+    gamma=0.0,
+    max_iter=500,
+    batch_size=20,
+    k=5
+    ):
+    mse_values = np.zeros((len(eta_values), len(lambda_values)))
+    r2_values = np.zeros((len(eta_values), len(lambda_values)))
+
+
+    for i, eta in enumerate(eta_values):
+        for j, lmbda in enumerate(lambda_values):
+            print(f"Computing eta={eta} and lambda={lmbda}.")
+            linreg = LinearRegression(
+                solver=solver,
+                optimization=optimization,
+                batch_size=batch_size, 
+                eta0=eta, 
+                lmbda=lmbda, 
+                gamma=gamma, 
+                max_iter=max_iter
+                )
+
+            mse, r2 = CrossValidation_regression(linreg, X, y, k=k)
+
+            mse_values[i][j] = mse
+            r2_values[i][j] = r2
+
+    if plot_grid:
+        fig, ax = plt.subplots(figsize = (12*cm, 12*cm))
+        sns.heatmap(
+            mse_values, 
+            annot=True, 
+            ax=ax, 
+            cmap="viridis", 
+            yticklabels=np.round(np.log10(eta_values), 2), 
+            xticklabels=np.round(np.log10(lambda_values), 2)
+            )
+        ax.set_title("MSE")
+        ax.set_ylabel("$\log_{10}(\eta$)")
+        ax.set_xlabel("$\log_{10}(\lambda$)")
+        plt.tight_layout()
+        info = "_sol" + solver 
+
+        if solver != "analytic":
+            info += f"_opt{optimization}_mom{gamma}_iter{max_iter}_batch{batch_size}"
+
+        plt.savefig("figs/gridsearch_linreg_MSE" + info + ".pdf")
+        
+        fig, ax = plt.subplots(figsize = (12*cm, 12*cm))
+        sns.heatmap(
+            r2_values, 
+            annot=True, 
+            ax=ax, 
+            cmap="viridis", 
+            yticklabels=np.round(np.log10(eta_values), 2), 
+            xticklabels=np.round(np.log10(lambda_values), 2)
+            )
+        ax.set_title("$R^2$")
+        ax.set_ylabel("$\log_{10}(\eta$)")
+        ax.set_xlabel("$\log_{10}(\lambda$)")
+        plt.tight_layout()
+        plt.savefig("figs/gridsearch_linreg_R2" + info + ".pdf")
+
+    return mse_values, r2_values
