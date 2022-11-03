@@ -1,4 +1,5 @@
 import numpy as np
+from numba import njit
 
 class LinearRegression:
     def __init__(self, 
@@ -93,13 +94,14 @@ class LinearRegression:
         indeces = np.arange(self.n_inputs)
 
         for epoch in range(1, self.n_epochs+1):
-            s = np.zeros_like(beta)
+            s = np.zeros_like(beta) # for computing first and second moments
             r = np.zeros(shape=(self.n_features, self.n_features))
+            random_indeces = np.random.choice(indeces, replace=False, size=indeces.size) #shuffle the data
+            batches = np.array_split(random_indeces, m) # split into batches
 
             for i in range(m):
-                random_indeces = np.random.choice(indeces, replace=True, size=self.batch_size)
-                self.X = self.X_all[random_indeces] # ideally want to shuffle data before this
-                self.y = np.c_[self.y_all[random_indeces]]
+                self.X = self.X_all[batches[i]]
+                self.y = np.c_[self.y_all[batches[i]]]
 
                 #Compute the gradient using the data in minibatch k
                 gradient = 2.0/ self.batch_size * self.X.T @ (self.X @ beta - self.y) + 2.0 * self.lmbda * beta
