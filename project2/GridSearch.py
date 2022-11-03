@@ -149,6 +149,7 @@ def GridSearch_LinReg(
         fig, ax = plt.subplots(figsize = (12*cm, 12*cm))
         sns.heatmap(
             mse_values, 
+            cbar=False,
             annot=True, 
             ax=ax, 
             cmap="viridis", 
@@ -170,6 +171,7 @@ def GridSearch_LinReg(
         sns.heatmap(
             r2_values, 
             annot=True, 
+            cbar=False,
             ax=ax, 
             cmap="viridis", 
             yticklabels=np.round(np.log10(eta_values), 2), 
@@ -292,6 +294,7 @@ def GridSearch_LinReg_epochs_batchsize(
         sns.heatmap(
             mse_values, 
             annot=True, 
+            cbar=False,
             ax=ax, 
             cmap="viridis", 
             yticklabels=batch_sizes, 
@@ -312,6 +315,7 @@ def GridSearch_LinReg_epochs_batchsize(
         sns.heatmap(
             r2_values, 
             annot=True, 
+            cbar=False,
             ax=ax, 
             cmap="viridis", 
             yticklabels=batch_sizes, 
