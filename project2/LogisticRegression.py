@@ -51,10 +51,6 @@ class LogisticRegression:
         beta = np.random.randn(self.n_features, 1) #initialize beta
         delta = 1e-8 # to avoid division by zero
 
-        # def learning_schedule(t, eta):
-        #     alpha = t / (self.n_epochs*m)
-        #     return (1-alpha) * self.eta0 + alpha * eta
-
         def learning_schedule(t):
             alpha = t / (self.n_epochs*m) # taken from Goodfellow
             return (1-alpha) * self.eta0 + alpha * self.eta0*0.01
@@ -63,14 +59,16 @@ class LogisticRegression:
         eta = self.eta0
 
         indeces = np.arange(self.n_inputs)
+        
         for epoch in range(1, self.n_epochs+1):
             s = np.zeros_like(beta)
             r = np.zeros(shape=(self.n_features, self.n_features))
+            random_indeces = np.random.choice(indeces, replace=False, size=indeces.size) #shuffle the data
+            batches = np.array_split(random_indeces, m) # split into batches
 
             for i in range(m):
-                random_indeces = np.random.choice(indeces, replace=True, size=self.batch_size)
-                self.X = self.X_all[random_indeces] # ideally want to shuffle data before this
-                self.y = np.c_[self.y_all[random_indeces]]
+                self.X = self.X_all[batches[i]]
+                self.y = np.c_[self.y_all[batches[i]]]
 
                 #Compute the gradient using the data in minibatch k
                 gradient = - self.X.T @ (self.y - sigmoid(self.X @ beta)) + self.lmbda * beta

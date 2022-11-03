@@ -163,11 +163,12 @@ class FFNN:
         indeces = np.arange(self.n_inputs)
 
         for epoch in range(1, self.n_epochs+1):
-            
+            random_indeces = np.random.choice(indeces, replace=False, size=indeces.size) #shuffle the data
+            batches = np.array_split(random_indeces, n_batches) # split into batches
+
             for i in range(n_batches):
-                batch_indeces = np.random.choice(indeces, size=self.batch_size, replace=True)
-                self.X = self.X_all[batch_indeces]
-                self.y = self.y_all[batch_indeces]
+                self.X = self.X_all[batches[i]]
+                self.y = self.y_all[batches[i]]
                 
                 #Compute the gradient using the data in minibatch k
                 eta = learning_schedule(t = epoch * n_batches + i)
