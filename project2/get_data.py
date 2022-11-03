@@ -42,6 +42,6 @@ z = z.ravel()
 filename = f"datasets/Franke_sigma{sigma}_N{n*n}.txt"
 
 with open(filename, "w") as outfile:
-    for i in range(n):
+    for i in range(n*n):
         outfile.write(str(x[i]) + " " + str(y[i]) + " " + str(z[i]))
         outfile.write("\n")
