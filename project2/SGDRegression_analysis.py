@@ -53,8 +53,8 @@ lambda_values = np.logspace(-10, -1, 10)
 
 # do a grid search for epochs and mini-batch size
 
-# results = GridSearch_LinReg_epochs_batchsize(X, y, eta=1e-1, batch_sizes=batch_sizes, n_epochs=epochs)
-# print(results)
+results = GridSearch_LinReg_epochs_batchsize(X, y, eta=1e-1, batch_sizes=batch_sizes, n_epochs=epochs)
+print(results)
 
 # ------------------------------------------------------#
 
