@@ -227,6 +227,7 @@ def GridSearch_FFNN_reg(
             annot=True, 
             ax=ax, 
             cmap="viridis", 
+            cbar=False,
             yticklabels=np.round(np.log10(eta_values), 2), 
             xticklabels=np.round(np.log10(lambda_values), 2)
             )
@@ -326,5 +327,78 @@ def GridSearch_LinReg_epochs_batchsize(
         ax.set_xlabel("Epochs")
         plt.tight_layout()
         plt.savefig("figs/gridsearch_linreg_R2_epoch_batchsize" + info + ".pdf")
+
+    return mse_values, r2_values
+
+
+def GridSearch_FFNN_reg_architecture(
+    X,
+    y,
+    n_layers,
+    n_neurons, 
+    lmbda=0, 
+    eta=1e-3, 
+    plot_grid=True,
+    gamma=0.9,
+    activation_hidden="sigmoid",
+    n_epochs=1000,
+    batch_size=20,
+    k=5
+    ):
+
+    mse_values = np.zeros((len(n_layers), len(n_neurons)))
+    r2_values = np.zeros((len(n_layers), len(n_neurons)))
+
+    for i, L in enumerate(n_layers):
+        for j, n in enumerate(n_neurons):
+            print(f"Computing with {L} layers and {n} neurons.")
+            network = FFNN(
+                n_hidden_neurons=[n]*L, 
+                task="regression", 
+                n_epochs=n_epochs, 
+                batch_size=batch_size, 
+                eta=eta, lmbda=lmbda, 
+                gamma=gamma, 
+                activation_hidden=activation_hidden
+                )
+
+            mse, r2 = CrossValidation_regression(network, X, y, k=k)
+
+            mse_values[i][j] = mse
+            r2_values[i][j] = r2
+    
+    if plot_grid:
+        fig, ax = plt.subplots(figsize = (12*cm, 12*cm))
+        sns.heatmap(
+            mse_values, 
+            annot=True, 
+            cbar=False,
+            ax=ax, 
+            cmap="viridis", 
+            yticklabels=n_layers, 
+            xticklabels=n_neurons
+            )
+        ax.set_title("MSE")
+        ax.set_ylabel("Layers")
+        ax.set_xlabel("Neurons")
+        
+        info = f"_mom{gamma}" + "_activ" + activation_hidden + f"_epoch{n_epochs}_batch{batch_size}_eta{eta}"
+        
+        plt.savefig("figs/gridsearch_FFNN_reg_MSE_architecture" + info + ".pdf")  
+
+        fig, ax = plt.subplots(figsize = (12*cm, 12*cm))
+        sns.heatmap(
+            r2_values, 
+            annot=True, 
+            ax=ax, 
+            cbar=False,
+            cmap="viridis", 
+            yticklabels=n_layers, 
+            xticklabels=n_neurons
+            )
+        ax.set_title("$R^2$")
+        ax.set_ylabel("Layers")
+        ax.set_xlabel("Neurons")
+        plt.savefig("figs/gridsearch_FFNN_reg_R2_architecture" + info + ".pdf")   
 
     return mse_values, r2_values
