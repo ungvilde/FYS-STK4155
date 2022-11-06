@@ -5,7 +5,7 @@ class Layer:
         self,
         n_in,
         n_out,
-        initialization = "normalized"
+        initialization = "standard"
         ):
 
         self.initialization = initialization

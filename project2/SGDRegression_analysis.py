@@ -16,12 +16,10 @@ np.random.seed(199)
 
 # Here we do Linear regression using the Stochastic Gradient Descent (SGD) algorithm: 
 # We will consider the following parameters/aspects of the algorithm:
-# - model complexity
 # - learning rate
 # - regularization
 # - epochs and batch size
 # - optimization shcemes
-# and possibly: momentum coefficients
 
 x, y = readfile_1dpoly("datasets/Poly_degree3_sigma0.1_N1000.txt")
 
@@ -37,8 +35,8 @@ Xscaled = np.c_[np.ones((n,1)), Xscaled] # add intercept column to design matrix
 Xtrain, Xtest, ytrain, ytest = train_test_split(Xscaled, y, test_size=0.2)
 
 # We will consider the following range of parameters
-batch_sizes = [5, 10, 20, 50, 100] #200]
-epochs = [100, 200, 400, 600, 800, 1000]
+batch_sizes = np.array([5, 10, 20, 50, 100] )
+epochs = np.array([100, 200,400, 600, 800, 1000])
 learning_rates = np.logspace(-5, -1, 10)
 lambda_values = np.logspace(-10, -1, 10)
 
@@ -53,8 +51,13 @@ lambda_values = np.logspace(-10, -1, 10)
 
 # do a grid search for epochs and mini-batch size
 
-results = GridSearch_LinReg_epochs_batchsize(X, y, eta=1e-1, batch_sizes=batch_sizes, n_epochs=epochs)
-print(results)
+# note, we do not do this with many different etas, which would be ideal...
+# results, _ = GridSearch_LinReg_epochs_batchsize(X, y, eta=1e-1, batch_sizes=batch_sizes, n_epochs=epochs)
+# i, j = np.where(results == np.min(results))
+# batch_size = batch_sizes[i][0]
+# n_epochs = epochs[j][0]
+# print("Optimal batch size = ", batch_size)
+# print("Optimal epochs = ", n_epochs)
 
 # ------------------------------------------------------#
 
@@ -142,53 +145,53 @@ print(results)
 
 # ------------------------------------------------------#
 
-# # here we plot MSE and R2 as function of learning rate, with and without momentum
+# here we plot MSE and R2 as function of learning rate, with and without momentum
 
-# n_epochs = 1000
-# batch_size = 20
-# learning_rates = np.logspace(-4, -(0.5), 10)
+n_epochs = 800
+batch_size = 5
+learning_rates = np.logspace(-4, -(0.5), 10)
 
-# mse_values_sched = []
-# r2_values_schec = []
+mse_values_sched = []
+r2_values_schec = []
 
-# mse_values_mom = []
-# r2_values_mom = []
+mse_values_mom = []
+r2_values_mom = []
 
-# for eta in learning_rates:
-#     print(f"learning rate = {eta}")
-#     print("No moment")
-#     linreg = LinearRegression(lmbda=0, solver="sgd", max_iter=n_epochs, batch_size=batch_size, gamma=0, optimization=None, eta0=eta)
-#     mse, r2 = CrossValidation_regression(linreg, Xtrain, ytrain)
-#     mse_values_sched.append(mse)
-#     r2_values_schec.append(r2)
-#     print("W/ moment")
-#     linreg = LinearRegression(lmbda=0, solver="sgd", max_iter=n_epochs, batch_size=batch_size, gamma=0.9, optimization=None, eta0=eta)
-#     mse, r2 = CrossValidation_regression(linreg, Xtrain, ytrain)
-#     mse_values_mom.append(mse)
-#     r2_values_mom.append(r2)
+for eta in learning_rates:
+    print(f"learning rate = {eta}")
+    print("No moment")
+    linreg = LinearRegression(lmbda=0, solver="sgd", max_iter=n_epochs, batch_size=batch_size, gamma=0, optimization=None, eta0=eta)
+    mse, r2 = CrossValidation_regression(linreg, Xtrain, ytrain)
+    mse_values_sched.append(mse)
+    r2_values_schec.append(r2)
+    print("W/ moment")
+    linreg = LinearRegression(lmbda=0, solver="sgd", max_iter=n_epochs, batch_size=batch_size, gamma=0.9, optimization=None, eta0=eta)
+    mse, r2 = CrossValidation_regression(linreg, Xtrain, ytrain)
+    mse_values_mom.append(mse)
+    r2_values_mom.append(r2)
 
 
-# plt.figure(figsize=(12*cm, 10*cm))
-# plt.loglog(learning_rates, mse_values_sched, label = "Without moment")
-# plt.loglog(learning_rates, mse_values_mom, label = "With moment, $\gamma = 0.9$")
-# plt.hlines(y=0.01, linestyles='dotted', colors='k', xmin=learning_rates[0], xmax=learning_rates[-1], label="$\sigma^2 = 0.01$")
+plt.figure(figsize=(12*cm, 10*cm))
+plt.loglog(learning_rates, mse_values_sched, label = "Without moment")
+plt.loglog(learning_rates, mse_values_mom, label = "With moment, $\gamma = 0.9$")
+plt.hlines(y=0.01, linestyles='dotted', colors='k', xmin=learning_rates[0], xmax=learning_rates[-1], label="$\sigma^2 = 0.01$")
 
-# plt.text(x=0.6, y=0.5, s="1000 epochs\nBatch size = 20", transform=plt.gca().transAxes)
-# plt.legend()
-# plt.xlabel("Initial learning rate")
-# plt.ylabel("MSE")
-# plt.tight_layout()
-# plt.savefig("figs/MSE_learning_rate_1dpoly.pdf")
+plt.text(x=0.6, y=0.5, s="800 epochs\nBatch size = 5", transform=plt.gca().transAxes)
+plt.legend()
+plt.xlabel("Initial learning rate")
+plt.ylabel("MSE")
+plt.tight_layout()
+plt.savefig("figs/MSE_learning_rate_1dpoly.pdf")
 
-# plt.figure(figsize=(12*cm, 10*cm))
-# plt.plot(learning_rates, r2_values_schec, label = "Without moment")
-# plt.loglog(learning_rates, r2_values_mom, label = "With moment, $\gamma = 0.9$")
-# plt.xscale('log')
-# plt.legend()
-# plt.xlabel("Initial learning rate")
-# plt.ylabel("$R^2$")
-# plt.tight_layout()
-# plt.savefig("figs/R2_learning_rate_1dpoly.pdf")
+plt.figure(figsize=(12*cm, 10*cm))
+plt.plot(learning_rates, r2_values_schec, label = "Without moment")
+plt.loglog(learning_rates, r2_values_mom, label = "With moment, $\gamma = 0.9$")
+plt.xscale('log')
+plt.legend()
+plt.xlabel("Initial learning rate")
+plt.ylabel("$R^2$")
+plt.tight_layout()
+plt.savefig("figs/R2_learning_rate_1dpoly.pdf")
 
 # ------------------------------------------------------#
 
@@ -280,6 +283,48 @@ print(results)
 # eta_values = np.logspace(-5, -1, 7)
 # lmbda_values = np.logspace(-10, -1, 7)
 
-# results = GridSearch_LinReg(Xtrain, ytrain, lambda_values=lmbda_values, 
-# eta_values=eta_values, solver="sgd", gamma=0, max_iter=300, batch_size=20)
-# print(results)
+# results, _ = GridSearch_LinReg(Xtrain, ytrain, lambda_values=lmbda_values, 
+# eta_values=eta_values, solver="sgd", gamma=0, max_iter=n_epochs, batch_size=batch_size)
+# i, j = np.where(results == np.min(results))
+# eta0 = eta_values[i]
+# lmbda = lambda_values[j]
+
+# print("Optimal eta0 = ", eta0)
+# print("optimal lmdba = ", lmbda)
+
+# ------------------------------------------------------#
+# finally we test the model with the optimal parameters on unseen the test data
+
+# # optimal parameters
+# n_epochs = 500
+# batch_size=20
+# eta0=1e-1
+# gamma=0.9
+# lmbda=1e-10
+
+# gamma=0.9
+
+# linreg = LinearRegression(
+#     lmbda=lmbda,
+#     gamma=gamma,
+#     solver="sgd",
+#     max_iter=n_epochs,
+#     batch_size=batch_size,
+#     optimization=None,
+#     eta0=eta0
+# )
+
+# linreg.fit(Xtrain, ytrain)
+# ypred = linreg.predict(Xtest)
+# mse = MSE(y=ytest, y_pred=ypred)
+# print(mse)
+
+# linreg = LinearRegression(
+#     lmbda=0,
+#     solver="analytic"
+# )
+
+# linreg.fit(Xtrain, ytrain)
+# ypred = linreg.predict(Xtest)
+# mse = MSE(y=ytest, y_pred=ypred)
+# print(mse)
