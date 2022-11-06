@@ -42,19 +42,21 @@ def GridSearch_FFNN_classifier(
             accuracy[i][j] = accuracy_score
     
     if plot_grid:
-        fig, ax = plt.subplots(figsize = (12*cm, 12*cm))
+        fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
         sns.heatmap(
             accuracy, 
             annot=True, 
             ax=ax, 
             cmap="viridis", 
+            cbar_kws={'label': 'Accuracy'},
             yticklabels=np.round(np.log10(eta_values), 2), 
             xticklabels=np.round(np.log10(lambda_values), 2)
             )
-        ax.set_title("Accuracy")
+        #ax.set_title("Accuracy")
         ax.set_ylabel("$\log_{10}(\eta$)")
         ax.set_xlabel("$\log_{10}(\lambda$)")
         info = f"_mom{gamma}" + "_activ" + activation_hidden + f"_epoch{n_epochs}_batch{batch_size}_layers{len(n_hidden_neurons)}_neuro{n_hidden_neurons[0]}"
+        plt.tight_layout()
         plt.savefig("figs/gridsearch_FFNN_class" + info + ".pdf")   
 
     return accuracy
@@ -92,16 +94,17 @@ def GridSearch_LogReg(
             accuracy[i][j] = accuracy_score
     
     if plot_grid:
-        fig, ax = plt.subplots(figsize = (12*cm, 12*cm))
+        fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
         sns.heatmap(
             accuracy, 
             annot=True, 
             ax=ax, 
             cmap="viridis", 
+            cbar_kws={'label': 'Accuracy'},
             yticklabels=np.round(np.log10(eta_values), 2), 
             xticklabels=np.round(np.log10(lambda_values), 2)
             )
-        ax.set_title("Accuracy")
+        #ax.set_title("Accuracy")
         ax.set_ylabel("$\log_{10}(\eta$)")
         ax.set_xlabel("$\log_{10}(\lambda$)")
         plt.tight_layout()
@@ -146,17 +149,18 @@ def GridSearch_LinReg(
             r2_values[i][j] = r2
 
     if plot_grid:
-        fig, ax = plt.subplots(figsize = (12*cm, 12*cm))
+        fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
         sns.heatmap(
             mse_values, 
             cbar=False,
             annot=True, 
             ax=ax, 
             cmap="viridis", 
+            cbar_kws={'label': 'MSE'},
             yticklabels=np.round(np.log10(eta_values), 2), 
             xticklabels=np.round(np.log10(lambda_values), 2)
             )
-        ax.set_title("MSE")
+        #ax.set_title("MSE")
         ax.set_ylabel("$\log_{10}(\eta$)")
         ax.set_xlabel("$\log_{10}(\lambda$)")
         plt.tight_layout()
@@ -174,10 +178,11 @@ def GridSearch_LinReg(
             cbar=False,
             ax=ax, 
             cmap="viridis", 
+            cbar_kws={'label': '$R^2$'},
             yticklabels=np.round(np.log10(eta_values), 2), 
             xticklabels=np.round(np.log10(lambda_values), 2)
             )
-        ax.set_title("$R^2$")
+        #ax.set_title("$R^2$")
         ax.set_ylabel("$\log_{10}(\eta$)")
         ax.set_xlabel("$\log_{10}(\lambda$)")
         plt.tight_layout()
@@ -196,7 +201,8 @@ def GridSearch_FFNN_reg(
     n_epochs=200,
     batch_size=20,
     n_hidden_neurons = [100],
-    k=5
+    k=5,
+    initialization="standard"
     ):
 
     mse_values = np.zeros((len(eta_values), len(lambda_values)))
@@ -212,7 +218,8 @@ def GridSearch_FFNN_reg(
                 batch_size=batch_size, 
                 eta=eta, lmbda=lmbda, 
                 gamma=gamma, 
-                activation_hidden=activation_hidden
+                activation_hidden=activation_hidden,
+                initialization=initialization
                 )
 
             mse, r2 = CrossValidation_regression(network, X, y, k=k)
@@ -221,36 +228,38 @@ def GridSearch_FFNN_reg(
             r2_values[i][j] = r2
     
     if plot_grid:
-        fig, ax = plt.subplots(figsize = (12*cm, 12*cm))
+        fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
         sns.heatmap(
             mse_values, 
             annot=True, 
             ax=ax, 
             cmap="viridis", 
-            cbar=False,
+            cbar_kws={'label': 'MSE'},
             yticklabels=np.round(np.log10(eta_values), 2), 
             xticklabels=np.round(np.log10(lambda_values), 2)
             )
-        ax.set_title("MSE")
+        #ax.set_title("MSE")
         ax.set_ylabel("$\log_{10}(\eta$)")
         ax.set_xlabel("$\log_{10}(\lambda$)")
         
         info = f"_mom{gamma}" + "_activ" + activation_hidden + f"_epoch{n_epochs}_batch{batch_size}_layers{len(n_hidden_neurons)}_neuro{n_hidden_neurons[0]}"
-        
+        plt.tight_layout()
         plt.savefig("figs/gridsearch_FFNN_reg_MSE" + info + ".pdf")  
 
-        fig, ax = plt.subplots(figsize = (12*cm, 12*cm))
+        fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
         sns.heatmap(
             r2_values, 
             annot=True, 
             ax=ax, 
             cmap="viridis", 
+            cbar_kws={'label': '$R^2$'},
             yticklabels=np.round(np.log10(eta_values), 2), 
             xticklabels=np.round(np.log10(lambda_values), 2)
             )
-        ax.set_title("$R^2$")
+        #ax.set_title("$R^2$")
         ax.set_ylabel("$\log_{10}(\eta$)")
         ax.set_xlabel("$\log_{10}(\lambda$)")
+        plt.tight_layout()
         plt.savefig("figs/gridsearch_FFNN_reg_R2" + info + ".pdf")   
 
     return mse_values, r2_values
@@ -291,17 +300,18 @@ def GridSearch_LinReg_epochs_batchsize(
             r2_values[i][j] = r2
 
     if plot_grid:
-        fig, ax = plt.subplots(figsize = (12*cm, 12*cm))
+        fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
         sns.heatmap(
             mse_values, 
             annot=True, 
             cbar=False,
             ax=ax, 
             cmap="viridis", 
+            cbar_kws={'label': 'MSE'},
             yticklabels=batch_sizes, 
             xticklabels=n_epochs
             )
-        ax.set_title("MSE")
+        #ax.set_title("MSE")
         ax.set_ylabel("Batch size")
         ax.set_xlabel("Epochs")
         plt.tight_layout()
@@ -318,18 +328,18 @@ def GridSearch_LinReg_epochs_batchsize(
             annot=True, 
             cbar=False,
             ax=ax, 
-            cmap="viridis", 
+            cmap="viridis",
+            cbar_kws={'label': '$R^2$'}, 
             yticklabels=batch_sizes, 
             xticklabels=n_epochs
             )
-        ax.set_title("$R^2$")
+        #ax.set_title("$R^2$")
         ax.set_ylabel("Batch size")
         ax.set_xlabel("Epochs")
         plt.tight_layout()
         plt.savefig("figs/gridsearch_linreg_R2_epoch_batchsize" + info + ".pdf")
 
     return mse_values, r2_values
-
 
 def GridSearch_FFNN_reg_architecture(
     X,
@@ -368,17 +378,17 @@ def GridSearch_FFNN_reg_architecture(
             r2_values[i][j] = r2
     
     if plot_grid:
-        fig, ax = plt.subplots(figsize = (12*cm, 12*cm))
+        fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
         sns.heatmap(
             mse_values, 
             annot=True, 
-            cbar=False,
+            cbar_kws={'label': 'MSE'},
             ax=ax, 
             cmap="viridis", 
             yticklabels=n_layers, 
             xticklabels=n_neurons
             )
-        ax.set_title("MSE")
+        #ax.set_title("MSE")
         ax.set_ylabel("Layers")
         ax.set_xlabel("Neurons")
         
@@ -386,19 +396,21 @@ def GridSearch_FFNN_reg_architecture(
         
         plt.savefig("figs/gridsearch_FFNN_reg_MSE_architecture" + info + ".pdf")  
 
-        fig, ax = plt.subplots(figsize = (12*cm, 12*cm))
+        fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
         sns.heatmap(
             r2_values, 
             annot=True, 
             ax=ax, 
             cbar=False,
             cmap="viridis", 
+            cbar_kws={'label': '$R^2$'},
             yticklabels=n_layers, 
             xticklabels=n_neurons
             )
-        ax.set_title("$R^2$")
+        #ax.set_title("$R^2$")
         ax.set_ylabel("Layers")
         ax.set_xlabel("Neurons")
+        plt.tight_layout()
         plt.savefig("figs/gridsearch_FFNN_reg_R2_architecture" + info + ".pdf")   
 
     return mse_values, r2_values

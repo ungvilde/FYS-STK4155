@@ -4,12 +4,22 @@ class Layer:
     def __init__(
         self,
         n_in,
-        n_out
+        n_out,
+        initialization = "normalized"
         ):
 
+        self.initialization = initialization
         self.n_neurons = n_out
         self.n_input = n_in
-        self.weights = np.random.randn(n_in, n_out)
+
+        if self.initialization == "normalized":
+            r = np.sqrt(6 / (n_in + n_out))
+            self.weights = np.random.uniform(low=-r, high=r, size=(n_in, n_out))
+        elif self.initialization == "standard":
+            self.weights = np.random.randn(n_in, n_out)
+        else:
+            raise Exception("Invalid initialization scheme.")
+        
         self.bias = np.zeros(n_out) + 0.01
         self.activation = None
         self.z = None

@@ -14,12 +14,14 @@ class FFNN:
         lmbda=0.0, # regularization
         gamma=0.0, # moment variable
         activation_hidden="sigmoid", # possible alternatives are sigmoid, relu, leaky relu...
-        task="regression"  # determines activation function, how many output nodes there are, the cost function
+        task="regression",  # determines activation function, how many output nodes there are, the cost function
+        initialization = "standard"
     ):
 
         # architecture parameters
         self.n_hidden_neurons = n_hidden_neurons
         self.n_hidden_layers = len(n_hidden_neurons)
+        self.initalization = initialization
 
         # set the activation function
         if activation_hidden == "sigmoid":
@@ -61,19 +63,26 @@ class FFNN:
 
         self.layer = []
         self.layer.append(Layer(n_in=self.n_features,
-                                n_out=self.n_hidden_neurons[0]))
+                                n_out=self.n_hidden_neurons[0],
+                                initialization=self.initalization)
+                                )
 
         for l in range(1, self.n_hidden_layers):
             self.layer.append(Layer(n_in=self.n_hidden_neurons[l-1], 
-                                    n_out=self.n_hidden_neurons[l]))
+                                    n_out=self.n_hidden_neurons[l],
+                                    initialization=self.initalization)
+                                    )
 
         self.layer.append(Layer(n_in=self.n_hidden_neurons[-1], 
-                                n_out=self.n_output))
+                                n_out=self.n_output,
+                                initialization=self.initalization)
+                                )
         
 
     def feed_forward(self):
         a = self.X
-        z = np.zeros_like(a)
+
+        z = np.zeros_like(a, dtype=np.float64)
         for l in range(self.n_hidden_layers):
             weights = self.layer[l].weights
             bias = self.layer[l].bias
@@ -86,6 +95,7 @@ class FFNN:
         # the output layer
         weights = self.layer[-1].weights
         bias = self.layer[-1].bias
+
         z = a @ weights + bias
         self.layer[-1].z = z
         self.prediction = self.activation_out(z)
