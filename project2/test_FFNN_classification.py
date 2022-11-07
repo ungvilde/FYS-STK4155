@@ -51,3 +51,11 @@ predictions = network.predict(Xtest)
 acc = accuracy_score(ytest, predictions > 0.5)
 print("For eta = ",eta," and n_epochs = ",n_epochs)
 print("FFNN two layers Accuracy = ", acc)
+
+network = FFNN(n_hidden_neurons=[100, 100, 100], task="classification", 
+n_epochs=100, batch_size=m, eta=eta, lmbda=lmbda, gamma=0.9, activation_hidden="leaky_reLU")
+network.fit(Xtrain, ytrain)
+predictions = network.predict(Xtest)
+acc = accuracy_score(ytest, predictions > 0.5)
+print("For eta = ",eta," and n_epochs = ",n_epochs)
+print("FFNN multiple layers Accuracy = ", acc)

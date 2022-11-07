@@ -92,7 +92,9 @@ def GridSearch_LogReg(
             accuracy_score = CrossValidation_classification(logreg, X, y, k=k)
 
             accuracy[i][j] = accuracy_score
-    
+    print('Largest grid accuracy:', np.max(accuracy))
+    print('eta:', eta_values[np.argmax(accuracy)//len(lambda_values)])
+    print('lambda:', lambda_values[np.argmax(accuracy)%len(lambda_values)])
     if plot_grid:
         fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
         sns.heatmap(
