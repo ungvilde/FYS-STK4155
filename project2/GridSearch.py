@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from FFNN import FFNN
+from sklearn.linear_model import SGDClassifier
 from LogisticRegression import LogisticRegression
 from LinearRegression import LinearRegression
 from ResampleMethods import *
@@ -78,7 +79,7 @@ def GridSearch_LogReg(
 
     for i, eta in enumerate(eta_values):
         for j, lmbda in enumerate(lambda_values):
-            print(f"Computing eta={eta} and lambda={lmbda}.")
+            #print(f"Computing eta={eta} and lambda={lmbda}.")
             logreg = LogisticRegression(
                 solver=solver,
                 optimization=optimization,
@@ -90,11 +91,8 @@ def GridSearch_LogReg(
                 )
 
             accuracy_score = CrossValidation_classification(logreg, X, y, k=k)
-
             accuracy[i][j] = accuracy_score
-    print('Largest grid accuracy:', np.max(accuracy))
-    print('eta:', eta_values[np.argmax(accuracy)//len(lambda_values)])
-    print('lambda:', lambda_values[np.argmax(accuracy)%len(lambda_values)])
+
     if plot_grid:
         fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
         sns.heatmap(
@@ -110,10 +108,53 @@ def GridSearch_LogReg(
         ax.set_ylabel("$\log_{10}(\eta$)")
         ax.set_xlabel("$\log_{10}(\lambda$)")
         plt.tight_layout()
+        if optimization == None:
+            optimization = "None"
         info = f"_sol" + solver + "_opt" + optimization + f"_mom{gamma}_iter{max_iter}_batch{batch_size}"
         plt.savefig("figs/gridsearch_logreg" + info + ".pdf")   
 
     return accuracy
+
+# this will include l2
+def GridSearch_LogReg_Sklearn(
+    X,
+    y, 
+    lambda_values, 
+    eta_values, 
+    plot_grid=True,
+    max_iter=300,
+    k=5
+    ):
+    accuracy = np.zeros((len(eta_values), len(lambda_values)))
+
+    for i, eta in enumerate(eta_values):
+        for j, lmbda in enumerate(lambda_values):
+            print(f"Computing eta={eta} and lambda={lmbda}.")
+            logreg = SGDClassifier(max_iter=max_iter, alpha=lmbda, eta0=eta, tol=1e-3)
+            accuracy_score = CrossValidation_classification(logreg, X, y, k=k)
+            accuracy[i][j] = accuracy_score
+
+    if plot_grid:
+        fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
+        sns.heatmap(
+            accuracy, 
+            annot=True, 
+            ax=ax, 
+            cmap="viridis", 
+            cbar_kws={'label': 'Accuracy'},
+            yticklabels=np.round(np.log10(eta_values), 2), 
+            xticklabels=np.round(np.log10(lambda_values), 2)
+            )
+        #ax.set_title("Accuracy")
+        ax.set_ylabel("$\log_{10}(\eta$)")
+        ax.set_xlabel("$\log_{10}(\lambda$)")
+        plt.tight_layout()
+
+        info =  f"_iter{max_iter}"
+        plt.savefig("figs/gridsearch_logreg_sklearn" + info + ".pdf")   
+
+    return accuracy
+
 
 def GridSearch_LinReg(
     X,
@@ -416,3 +457,58 @@ def GridSearch_FFNN_reg_architecture(
         plt.savefig("figs/gridsearch_FFNN_reg_R2_architecture" + info + ".pdf")   
 
     return mse_values, r2_values
+
+
+def GridSearch_FFNN_classification_architecture(
+    X,
+    y,
+    n_layers,
+    n_neurons, 
+    eta, 
+    n_epochs,
+    lmbda=0, 
+    plot_grid=True,
+    gamma=0.9,
+    activation_hidden="sigmoid",
+    batch_size=20,
+    k=5
+    ):
+
+    accuracy_scores = np.zeros((len(n_layers), len(n_neurons)))
+
+    for i, L in enumerate(n_layers):
+        for j, n in enumerate(n_neurons):
+            print(f"Computing with {L} layers of {n} neurons each.")
+            network = FFNN(
+                n_hidden_neurons=[n]*L, 
+                task="classification", 
+                n_epochs=n_epochs, 
+                batch_size=batch_size, 
+                eta=eta, lmbda=lmbda, 
+                gamma=gamma, 
+                activation_hidden=activation_hidden
+                )
+
+            acc = CrossValidation_classification(network, X, y, k=k)
+
+            accuracy_scores[i][j] = acc
+    
+    if plot_grid:
+        fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
+        sns.heatmap(
+            accuracy_scores, 
+            annot=True, 
+            cbar_kws={'label': 'Accuracy'},
+            ax=ax, 
+            cmap="viridis", 
+            yticklabels=n_layers, 
+            xticklabels=n_neurons
+            )
+        ax.set_ylabel("Layers")
+        ax.set_xlabel("Neurons")
+        
+        info = f"_mom{gamma}" + "_activ" + activation_hidden + f"_epoch{n_epochs}_batch{batch_size}_eta{eta}"
+        
+        plt.savefig("figs/gridsearch_FFNN_classify_accuracy_architecture" + info + ".pdf")  
+
+    return accuracy_scores
