@@ -11,7 +11,6 @@ from sklearn.linear_model import SGDClassifier
 
 np.random.seed(123)
 X, y = load_breast_cancer(return_X_y=True)
-
 scaler = StandardScaler()
 scaler.fit(X)
 Xscaled = scaler.transform(X)

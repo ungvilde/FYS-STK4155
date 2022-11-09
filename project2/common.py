@@ -76,3 +76,6 @@ def FrankeDesignMatrix(x, y, degree):
             X[:, k + j] = x**(i - j) * y**j # i - j + j <= p for all i,j
     
     return X
+
+def moving_average(x, w):
+    return np.convolve(x, np.ones(w), 'valid') / w
