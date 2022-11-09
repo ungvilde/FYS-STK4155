@@ -115,7 +115,6 @@ def GridSearch_LogReg(
 
     return accuracy
 
-# this will include l2
 def GridSearch_LogReg_Sklearn(
     X,
     y, 
@@ -195,7 +194,6 @@ def GridSearch_LinReg(
         fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
         sns.heatmap(
             mse_values, 
-            cbar=False,
             annot=True, 
             ax=ax, 
             cmap="viridis", 
@@ -218,7 +216,6 @@ def GridSearch_LinReg(
         sns.heatmap(
             r2_values, 
             annot=True, 
-            cbar=False,
             ax=ax, 
             cmap="viridis", 
             cbar_kws={'label': '$R^2$'},
@@ -347,7 +344,6 @@ def GridSearch_LinReg_epochs_batchsize(
         sns.heatmap(
             mse_values, 
             annot=True, 
-            cbar=False,
             ax=ax, 
             cmap="viridis", 
             cbar_kws={'label': 'MSE'},
@@ -369,7 +365,6 @@ def GridSearch_LinReg_epochs_batchsize(
         sns.heatmap(
             r2_values, 
             annot=True, 
-            cbar=False,
             ax=ax, 
             cmap="viridis",
             cbar_kws={'label': '$R^2$'}, 
@@ -383,6 +378,64 @@ def GridSearch_LinReg_epochs_batchsize(
         plt.savefig("figs/gridsearch_linreg_R2_epoch_batchsize" + info + ".pdf")
 
     return mse_values, r2_values
+
+def GridSearch_LogReg_epochs_batchsize(
+    X,
+    y, 
+    lmbda, 
+    eta, 
+    solver="sgd",
+    optimization=None,
+    plot_grid=True,
+    gamma=0.9,
+    max_iters=300,
+    batch_sizes=20,
+    k=5
+    ):
+
+    accuracy = np.zeros((len(batch_sizes), len(max_iters)))
+
+    for i, eta in enumerate(batch_sizes):
+        for j, _iter in enumerate(max_iters):
+            #print(f"Computing eta={eta} and lambda={lmbda}.")
+            logreg = LogisticRegression(
+                solver=solver,
+                optimization=optimization,
+                batch_size=batch_sizes[i], 
+                eta0=eta, 
+                lmbda=lmbda,
+                gamma=gamma, 
+                max_iter=_iter
+                )
+
+            accuracy_score = CrossValidation_classification(logreg, X, y, k=k)
+            accuracy[i][j] = accuracy_score
+
+    if plot_grid:
+        fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
+        sns.heatmap(
+            accuracy, 
+            annot=True, 
+            ax=ax, 
+            cmap="viridis", 
+            cbar_kws={'label': 'Accuracy'},
+            yticklabels=batch_sizes, 
+            xticklabels=max_iters
+            )
+        #ax.set_title("Accuracy")
+        ax.set_ylabel("Batch size")
+        ax.set_xlabel("Epochs")
+        plt.tight_layout()
+        info = "_sol" + solver 
+
+        if optimization == None:
+            optimization = "None"
+        info += f"_opt{optimization}_mom{gamma}_eta{eta}_lmbda{lmbda}"
+        plt.savefig("figs/gridsearch_logreg_epoch_batchsize" + info + ".pdf")
+
+    return accuracy
+
+
 
 def GridSearch_FFNN_reg_architecture(
     X,
@@ -444,7 +497,6 @@ def GridSearch_FFNN_reg_architecture(
             r2_values, 
             annot=True, 
             ax=ax, 
-            cbar=False,
             cmap="viridis", 
             cbar_kws={'label': '$R^2$'},
             yticklabels=n_layers, 

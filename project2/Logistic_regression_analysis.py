@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.linear_model import SGDClassifier
 import seaborn as sns
 import matplotlib.pyplot as plt
-from GridSearch import GridSearch_LogReg, GridSearch_FFNN_classification_architecture, GridSearch_FFNN_classifier, GridSearch_LogReg_Sklearn
+from GridSearch import GridSearch_LogReg, GridSearch_FFNN_classification_architecture, GridSearch_FFNN_classifier, GridSearch_LogReg_Sklearn, GridSearch_LogReg_epochs_batchsize
 from ResampleMethods import *
 
 from FFNN import FFNN
@@ -28,13 +28,14 @@ scaler.fit(X)
 Xscaled = scaler.transform(X)
 X = Xscaled
 Xtrain, Xtest, ytrain, ytest = train_test_split(X, y, test_size=0.2)
+plt.figure(figsize=(12*cm, 10*cm))
 
 # First we use the simple GD and find some good eta and n_epochs
-epochs = [int(x) for x in np.linspace(100, 1000, 40)]
+#epochs = [int(x) for x in np.linspace(50, 400, 100)]
 
-etas = [1e-2, 1e-3, 1e-4]
-lmbda = 0
-gamma = 0
+#etas = [1e-2, 1e-3, 1e-4]
+#lmbda = 0
+#gamma = 0
 
 # acc_values1 = [] 
 # acc_values2 = []
@@ -98,69 +99,118 @@ gamma = 0
 # #########################################################
 # # Now, with eta = 1e-3, let us try sgd with different optimizers just to see how they perform
 # plt.clf()
-# acc_values1 = [] 
-# acc_values2 = []
-# acc_values3 = []
-# acc_values4 = []
+#acc_values1 = [] 
+#acc_values2 = []
+#acc_values3 = []
+#acc_values4 = []
+#acc_values5 = []
+#
+#plt.figure(figsize=(12*cm, 10*cm))
+#
+#epochs = [int(x) for x in np.linspace(50, 450, 100)]
+#
+#for n_epochs in epochs:
+#
+#    logreg = LogisticRegression(lmbda=lmbda, solver="sgd", optimization=None ,max_iter=n_epochs, batch_size=20, gamma=0, eta0=1e-3)
+#    acc = CrossValidation_classification(logreg, X, y, k=5)
+#    acc_values1.append(acc)
+#
+#    logreg = LogisticRegression(lmbda=lmbda, solver="sgd", optimization=None ,max_iter=n_epochs, batch_size=20, gamma=0.9, eta0=1e-3)
+#    acc = CrossValidation_classification(logreg, X, y, k=5)
+#    acc_values2.append(acc)
+#
+#    logreg = LogisticRegression(lmbda=lmbda, solver="sgd", optimization='RMSprop' ,max_iter=n_epochs, batch_size=20, gamma=0, eta0=1e-3)
+#    acc = CrossValidation_classification(logreg, X, y, k=5)
+#    acc_values3.append(acc)
+#
+#    logreg = LogisticRegression(lmbda=lmbda, solver="sgd", optimization='adam' ,max_iter=n_epochs, batch_size=20, gamma=0, eta0=1e-3)
+#    acc = CrossValidation_classification(logreg, X, y, k=5)
+#    acc_values4.append(acc)
+#
+#    logreg = LogisticRegression(lmbda=lmbda, solver="sgd", optimization='adagrad' ,max_iter=n_epochs, batch_size=20, gamma=0, eta0=1e-3)
+#    acc = CrossValidation_classification(logreg, X, y, k=5)
+#    acc_values5.append(acc)
+#
+#
+#plt.plot(epochs, acc_values1, label = f"No Optimization", c='tab:blue')
+#print("best acc no optimization", max(acc_values1), "at epoch", epochs[np.argmax(acc_values1)])
+#plt.plot(epochs, acc_values2, label = f"With moment $\gamma=0.9$", c='tab:red')
+#print("best acc With moment $\gamma=0.9$", max(acc_values2), "at epoch", epochs[np.argmax(acc_values2)])
+#plt.plot(epochs, acc_values3, label = f"RMSprop", c="tab:green")
+#print("best acc RMSprop", max(acc_values3) , "at epoch", epochs[np.argmax(acc_values3)])
+#plt.plot(epochs, acc_values4, label = f"ADAM", c="tab:orange")
+#print("best acc Adam", max(acc_values4), "at epoch", epochs[np.argmax(acc_values4)])
+#plt.plot(epochs, acc_values5, label = f"AdaGrad", c="tab:purple")
+#print("best acc AdaGrad", max(acc_values5), "at epoch", epochs[np.argmax(acc_values5)])
+#
+#plt.xlabel("Epochs")
+#plt.ylabel("Accuracy")
+##plt.yscale('log')
+#plt.legend()
+#plt.tight_layout()
+#plt.savefig("figs/logistic_acc_epoch_cancer_multiple_sgd.pdf")
+### LETS TRY TO PLOT THIS WITH MOVING AVERAGE
+#plt.clf()
+#window = 10
+#acc_values1_MA = moving_average(acc_values1, window)
+#acc_values2_MA = moving_average(acc_values2, window)
+#acc_values3_MA = moving_average(acc_values3, window)
+#acc_values4_MA = moving_average(acc_values4, window)
+#acc_values5_MA = moving_average(acc_values5, window)
+#
+#
+#plt.plot(epochs[:-(window-1)], acc_values1_MA, label = f"No Optimization", c='tab:blue')
+#print("best acc no optimization", max(acc_values1_MA))
+#plt.plot(epochs[:-(window-1)], acc_values2_MA, label = f"With moment $\gamma=0.9$", c='tab:red')
+#print("best acc With moment $\gamma=0.9$", max(acc_values2_MA))
+#plt.plot(epochs[:-(window-1)], acc_values3_MA, label = f"RMSprop", c="tab:green")
+#print("best acc RMSprop", max(acc_values3_MA))
+#plt.plot(epochs[:-(window-1)], acc_values4_MA, label = f"ADAM", c="tab:orange")
+#print("best acc Adam", max(acc_values4_MA))
+#plt.plot(epochs[:-(window-1)], acc_values5_MA, label = f"AdaGrad", c="tab:purple")
+#print("best acc AdaGrad", max(acc_values5_MA))
+#
+#plt.xlabel("Epochs")
+#plt.ylabel("Accuracy")
+##plt.yscale('log')
+#plt.legend()
+#plt.tight_layout()
+#plt.savefig(f"figs/logistic_acc_epoch_cancer_multiple_sgd_MA{window}.pdf")
 
-# epochs = [int(x) for x in np.linspace(50, 1010, 400)]
+# best acc no optimization 0.9771774569166279 at epoch 441
+# best acc With moment $\gamma=0.9$ 0.9841639496972518 at epoch 171
+# best acc RMSprop 0.9859649122807017 at epoch 445
+# best acc Adam 0.982425089271852 at epoch 365
+# best acc AdaGrad 0.9701599130569788 at epoch 389
 
-# for n_epochs in epochs:
+#######################################################
+# Now we gridsearch batch sizes and epochs 
+batch_sizes = np.array([10, 20, 50, 100] )
+epochs = np.array([100, 200,400, 600, 800, 1000])
 
-#     logreg = LogisticRegression(lmbda=lmbda, solver="sgd", optimization=None ,max_iter=n_epochs, batch_size=20, gamma=0.9, eta0=1e-3)
-#     acc = CrossValidation_classification(logreg, X, y, k=5)
-#     acc_values1.append(acc)
 
-#     logreg = LogisticRegression(lmbda=lmbda, solver="sgd", optimization='RMSprop' ,max_iter=n_epochs, batch_size=20, gamma=0.9, eta0=1e-3)
-#     acc = CrossValidation_classification(logreg, X, y, k=5)
-#     acc_values2.append(acc)
+results = GridSearch_LogReg_epochs_batchsize(
+    X,
+    y, 
+    lmbda=0,
+    eta=1e-3, 
+    solver="sgd",
+    optimization=None,
+    plot_grid=True,
+    gamma=0.9,
+    max_iters=epochs,
+    batch_sizes=batch_sizes,
+    k=5
+    )
 
-#     logreg = LogisticRegression(lmbda=lmbda, solver="sgd", optimization='adagrad' ,max_iter=n_epochs, batch_size=20, gamma=0.9, eta0=1e-3)
-#     acc = CrossValidation_classification(logreg, X, y, k=5)
-#     acc_values3.append(acc)
+print(results)
 
-#     logreg = LogisticRegression(lmbda=lmbda, solver="sgd", optimization='adam' ,max_iter=n_epochs, batch_size=20, gamma=0.9, eta0=1e-3)
-#     acc = CrossValidation_classification(logreg, X, y, k=5)
-#     acc_values4.append(acc)
+# [[0.95430834 0.94902965 0.95607825 0.96478808 0.9490607  0.94375097]
+#  [0.93842571 0.9595715  0.96135693 0.95256948 0.94025772 0.95609377]
+#  [0.95430834 0.9560472  0.95433939 0.94733737 0.94733737 0.95601615]
+#  [0.95606272 0.96134141 0.9489986  0.95787921 0.94725974 0.95786369]]
 
-# plt.plot(epochs, acc_values1, label = f"No Optimization", c='tab:blue')
-# print("best acc no optimization", max(acc_values1), "at epoch", epochs[np.argmax(acc_values1)])
-# plt.plot(epochs, acc_values2, label = f"RMSprop", c='tab:red')
-# print("best acc adagrad", max(acc_values2), "at epoch", epochs[np.argmax(acc_values2)])
-# plt.plot(epochs, acc_values3, label = f"adagrad", c="tab:green")
-# print("best acc RMSprop", max(acc_values3) , "at epoch", epochs[np.argmax(acc_values3)])
-# plt.plot(epochs, acc_values4, label = f"ADAM", c="tab:orange")
-# print("best acc Adam", max(acc_values4), "at epoch", epochs[np.argmax(acc_values4)])
 
-# plt.xlabel("Epochs")
-# plt.ylabel("Accuracy")
-# #plt.yscale('log')
-# plt.legend()
-# plt.tight_layout()
-# plt.savefig("figs/logistic_acc_epoch_cancer_multiple_sgd.pdf")
-# ### LETS TRY TO PLOT THIS WITH MOVING AVERAGE
-# plt.clf()
-# window = 10
-# acc_values1_MA = moving_average(acc_values1, window)
-# acc_values2_MA = moving_average(acc_values2, window)
-# acc_values3_MA = moving_average(acc_values3, window)
-# acc_values4_MA = moving_average(acc_values4, window)
-
-# plt.plot(epochs[:-(window-1)], acc_values1_MA, label = f"No Optimization", c='tab:blue')
-# print("best acc no optimization", max(acc_values1_MA))
-# plt.plot(epochs[:-(window-1)], acc_values2_MA, label = f"RMSprop", c='tab:red')
-# print("best acc adagrad", max(acc_values2_MA))
-# plt.plot(epochs[:-(window-1)], acc_values3_MA, label = f"adagrad", c="tab:green")
-# print("best acc RMSprop", max(acc_values3_MA))
-# plt.plot(epochs[:-(window-1)], acc_values4_MA, label = f"ADAM", c="tab:orange")
-# print("best acc Adam", max(acc_values4_MA))
-
-# plt.xlabel("Epochs")
-# plt.ylabel("Accuracy")
-# #plt.yscale('log')
-# plt.legend()
-# plt.tight_layout()
-# plt.savefig(f"figs/logistic_acc_epoch_cancer_multiple_sgd_MA{window}.pdf")
 
 ###########################################################
 # Let us do a gridsearch of lambda and eta with sgd for diferent optimizers
