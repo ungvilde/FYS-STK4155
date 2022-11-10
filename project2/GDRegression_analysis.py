@@ -100,12 +100,12 @@ mse_values3, r2_values3 = [], []
 for n_epochs in epochs:
     print("Cross validating using n_epochs = ", n_epochs)
     # eta0 = 1e1
-    linreg = LinearRegression(lmbda=0, solver="gd", max_iter=n_epochs, batch_size=20, gamma=0, optimization=None, eta0=0.2)
+    linreg = LinearRegression(lmbda=0, solver="gd", max_iter=n_epochs, batch_size=20, gamma=0, optimization=None, eta0=0.2069)
     mse, r2 = CrossValidation_regression(linreg, Xtrain, ytrain)
     mse_values_2.append(mse)
     r2_values_2.append(r2)
     # eta0 = 1e0
-    linreg = LinearRegression(lmbda=0, solver="gd", max_iter=n_epochs, batch_size=20, gamma=0.9, optimization=None, eta0=0.2)
+    linreg = LinearRegression(lmbda=0, solver="gd", max_iter=n_epochs, batch_size=20, gamma=0.9, optimization=None, eta0=0.2069)
     mse, r2 = CrossValidation_regression(linreg, Xtrain, ytrain)
     mse_values0.append(mse)
     r2_values0.append(r2)
@@ -126,9 +126,9 @@ for n_epochs in epochs:
     r2_values3.append(r2)
 
 plt.figure(figsize=(12*cm, 10*cm))
-plt.plot(epochs, mse_values_2, label = "$\eta_1 = 0.2$")
-plt.plot(epochs, mse_values0, label = "$\eta_1 = 0.2069, \gamma = 0.9$")
-plt.plot(epochs, mse_values1, label = "$\eta_1 = 0.1$")
+plt.plot(epochs, mse_values_2, label = "$\eta_{opt} = 0.2069$")
+plt.plot(epochs, mse_values0, label = "$\eta_{opt} = 0.2069, \gamma = 0.9$")
+# plt.plot(epochs, mse_values1, label = "$\eta_1 = 0.1$")
 plt.plot(epochs, mse_values2, label = "$\eta_2 = 0.01$")
 plt.plot(epochs, mse_values3, label = "$\eta_3 = 0.001$")
 plt.hlines(y=0.01, linestyles='dotted', colors='k', xmin=epochs[0], xmax=epochs[-1], label="$\sigma^2=0.01$")
