@@ -22,7 +22,7 @@ Regularization of the weights and biases is also available. We implemented the s
 - **common.py** has definitions of commonly used functions.
 - **get_data.py** is a script used for generating the polynomial data set.
 - **figs/** is a folder containing the figures produced.
-- **/datasets** is a folder where the polynomial data is stored.
+- **datasets/** is a folder where the polynomial data is stored.
 
 In addition, we have scripts used for testing the classes and functions, as well as scripts for doing the analyses:
 - **test_FFNN_classification.py** is a script used to test the neural network on a classification task and compare it to the ``MLPCLassifier``-function from ``scikit-learn``.
