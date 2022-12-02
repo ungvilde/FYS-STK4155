@@ -4,7 +4,7 @@ import pickle
 
 from sklearn.neural_network import MLPRegressor
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.preprocessing import RobustScaler
+from sklearn.preprocessing import StandardScaler
 
 from preprocessing import *
 
@@ -22,8 +22,7 @@ X = X.reshape(X.shape[0],(X.shape[1]*X.shape[2]))
 X = X[(bins_before+1):, :] #the first 13 bins will not be used, because they lack covariates
 y = y[(bins_before+1):]
 
-#scaler = StandardScaler() 
-scaler = RobustScaler()# better than standard scaler
+scaler = StandardScaler()
 scaler.fit(X)
 X_scaled = scaler.transform(X)
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3)
@@ -31,7 +30,7 @@ X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3)
 network = MLPRegressor(max_iter=1000)
 
 print("Learning rates to search:")
-eta_vals=np.logspace(-4, -1, 4) # might not go this low with eta?
+eta_vals=np.logspace(-4, -1, 4) 
 print(eta_vals)
 
 print("Regularization params to search:")

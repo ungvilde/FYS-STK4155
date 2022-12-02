@@ -6,7 +6,7 @@ from sklearn.svm import SVR
 from sklearn.multioutput import MultiOutputRegressor
 
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.preprocessing import RobustScaler
+from sklearn.preprocessing import RobustScaler, MinMaxScaler, StandardScaler
 
 from preprocessing import *
 from ResampleMethods import *
@@ -18,7 +18,7 @@ bins_before=13 #How many bins of neural data prior to the output are used for de
 bins_current=1 #Whether to use concurrent time bin of neural data
 bins_after=0
 
-X=get_spikes_with_history(neural_data, bins_before,bins_after,bins_current)
+X=get_spikes_with_history(neural_data, bins_before, bins_after,bins_current)
 y=vels_binned
 
 X = X.reshape(X.shape[0],(X.shape[1]*X.shape[2]))
@@ -27,30 +27,32 @@ y = y[(bins_before+1):]
 print(X.shape)
 print(y.shape)
 
-scaler = RobustScaler()
+scaler = StandardScaler()
 scaler.fit(X)
 X_scaled = scaler.transform(X)
 scaler.fit(y)
 y_scaled = scaler.transform(y)
-print(X[0,:])
-print(y[0,:])
+print(X[:10,:])
+print(y[:10,:])
 
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_scaled, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_scaled, test_size=0.3)
 
-svr = MultiOutputRegressor(SVR(max_iter=2000))
+print("gamma = ", 1/(X_train.shape[1] * X_train.var()))
 
 print("Regularisation params to search:")
-C_vals=np.logspace(-15, 5, 11)
+C_vals=np.logspace(0, 5, 10)
 print(C_vals)
 
 print("Kernel coefficients to search:")
-gamma_vals = np.logspace(-15, 3, 10)
+scale= 1/(X_train.shape[1] * X_train.var())
+gamma_vals =  [0.1*scale, 0.2*scale, 0.3*scale, 0.5*scale, scale]
 print(gamma_vals)
 
 hyperparameters_to_search = {
     'estimator__C': C_vals,
     'estimator__gamma': gamma_vals
     }
+svr = MultiOutputRegressor(SVR(max_iter=2000, cache_size=1000))
 
 regression = GridSearchCV(
     svr, 

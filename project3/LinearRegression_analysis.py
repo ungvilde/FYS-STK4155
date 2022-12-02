@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pickle
 
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import RobustScaler, MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 
 from preprocessing import *
 from ResampleMethods import CrossValidation
@@ -23,13 +23,23 @@ X = X.reshape(X.shape[0] , (X.shape[1]*X.shape[2]))
 X = X[(bins_before+1):, :]
 y = y[(bins_before+1):]
 
-scaler = RobustScaler()
-scaler = MinMaxScaler()
+scaler = StandardScaler()
 scaler.fit(X)
 X_scaled = scaler.transform(X)
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3)
 
-linreg = LinearRegression() #lmbda
+linreg = LinearRegression(lmbda=0) #lmbda
 mse, r2 = CrossValidation(linreg, X_train, y_train)
+print("lambda = ", 0)
 print("mse = ", mse)
 print("r2 = ", r2)
+
+lambda_vals = np.logspace(-8, 1, 10)
+
+for i, lmbda in enumerate(lambda_vals):
+    linreg = LinearRegression(lmbda=lmbda) #lmbda
+    mse, r2 = CrossValidation(linreg, X_train, y_train)
+    print("lambda = ", lmbda)
+    print("mse = ", mse)
+    print("r2 = ", r2)
+
