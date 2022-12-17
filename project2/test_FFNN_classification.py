@@ -15,7 +15,7 @@ from sklearn.metrics import mean_squared_error, accuracy_score
 #np.random.seed(123)
 np.random.seed(543)
 X, y = load_breast_cancer(return_X_y=True)
-
+print(X)
 scaler = StandardScaler()
 scaler.fit(X)
 Xscaled = scaler.transform(X)

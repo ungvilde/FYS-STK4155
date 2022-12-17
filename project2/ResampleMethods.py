@@ -21,7 +21,7 @@ def Bootstrap(model, X, y, B=100):
         resampled_inds = np.random.choice(indeces, size = n_train, replace=True)
         X = Xtrain[resampled_inds]
         y = ytrain[resampled_inds]
-        model.fit(X, y) # is a little slow with sgd
+        model.fit(X, y) 
 
         predicted = model.predict(Xtest)
         MSE_values.append( MSE(y=predicted, y_pred=ytest) )

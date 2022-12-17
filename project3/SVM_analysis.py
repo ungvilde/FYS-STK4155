@@ -35,7 +35,7 @@ y_scaled = scaler.transform(y)
 print(X[:10,:])
 print(y[:10,:])
 
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_scaled, test_size=0.3)
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_scaled, test_size=0.3, random_state=123)
 
 print("gamma = ", 1/(X_train.shape[1] * X_train.var()))
 
@@ -54,31 +54,33 @@ hyperparameters_to_search = {
     }
 svr = MultiOutputRegressor(SVR(max_iter=2000, cache_size=1000))
 
-regression = GridSearchCV(
-    svr, 
-    cv = 5, 
-    param_grid = hyperparameters_to_search, 
-    refit=True,
-    scoring="r2", 
-    n_jobs=-1, 
-    verbose=3
-    )
+# regression = GridSearchCV(
+#     svr, 
+#     cv = 5, 
+#     param_grid = hyperparameters_to_search, 
+#     refit=True,
+#     scoring="r2", 
+#     n_jobs=-1, 
+#     verbose=3
+#     )
 
-print("Do the search (can take some time!)")
-search = regression.fit(X_train, y_train)
+# print("Do the search (can take some time!)")
+# search = regression.fit(X_train, y_train)
 
-print("Best parameters from gridsearch:")
-print(search.best_params_)
+# print("Best parameters from gridsearch:")
+# print(search.best_params_)
 
-print("Best CV R2 score from gridsearch:")
-print(search.best_score_)
+# print("Best CV R2 score from gridsearch:")
+# print(search.best_score_)
 
-print("R2 score on test data:")
-r2 = search.score(X_test, y_test)
-print("R2 = ", r2)
+# print("R2 score on test data:")
+# r2 = search.score(X_test, y_test)
+# print("R2 = ", r2)
 
-with open('datasets/cv_svr_results.pickle','wb') as f:
-    pickle.dump(search.cv_results_, f)
+# with open('datasets/cv_svr_results.pickle','wb') as f:
+#     pickle.dump(search.cv_results_, f)
 
-
-
+svr = MultiOutputRegressor(SVR(max_iter=2000, cache_size=1000, C=3.5938136638046276, gamma=0.00021767389160393826))
+svr.fit(X_train, y_train)
+with open('models/svr.pickle', 'wb') as f:
+    pickle.dump(svr, f)

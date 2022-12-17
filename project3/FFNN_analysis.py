@@ -25,20 +25,25 @@ y = y[(bins_before+1):]
 scaler = StandardScaler()
 scaler.fit(X)
 X_scaled = scaler.transform(X)
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3)
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3, random_state=123)
 
 network = MLPRegressor(max_iter=1000)
 
 print("Learning rates to search:")
-eta_vals=np.logspace(-4, -1, 4) 
+eta_vals=np.logspace(-3, -2, 3) 
 print(eta_vals)
 
 print("Regularization params to search:")
-alpha_vals = np.logspace(1, 3, 5)
+alpha_vals = np.logspace(1, 2, 5)
 print(alpha_vals)
 
+layers=[
+    [K]*L for K in [200, 500, 1000] for L in range(2,4)
+]
+print(layers)
+
 hyperparameters_to_search = {
-    "hidden_layer_sizes" : [ [100, 100], [100, 100, 100] ],
+    "hidden_layer_sizes" : layers,
     "alpha" : alpha_vals,
     "learning_rate_init" : eta_vals
 }
@@ -68,4 +73,10 @@ print("R2 = ", r2)
 
 with open('datasets/cv_ffnn_results2.pickle','wb') as f:
     pickle.dump(search.cv_results_, f)
+
+
+# network = MLPRegressor(max_iter=1000, hidden_layer_sizes=[100, 100], alpha=31.622776601683793, learning_rate_init=0.0001)
+# network.fit(X_train, y_train)
+# with open('models/ffnn.pickle', 'wb') as f:
+#     pickle.dump(network, f)
 

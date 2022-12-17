@@ -14,7 +14,7 @@ class Layer:
 
         if self.initialization == "normalized":
             r = np.sqrt(6 / (n_in + n_out))
-            self.weights = np.random.uniform(low=-r, high=r, size=(n_in, n_out))
+            self.weights = np.random.uniform(low= -r, high=r, size=(n_in, n_out))
         elif self.initialization == "standard":
             self.weights = np.random.randn(n_in, n_out)
         else:

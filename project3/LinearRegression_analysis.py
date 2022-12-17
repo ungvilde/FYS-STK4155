@@ -2,12 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import Ridge
 
 from preprocessing import *
 from ResampleMethods import CrossValidation
-from linear_model import LinearRegression
+#from linear_model import LinearRegression
 
 with open('datasets/neural_data.pickle','rb') as f:
     neural_data, vels_binned = pickle.load(f)
@@ -26,20 +27,37 @@ y = y[(bins_before+1):]
 scaler = StandardScaler()
 scaler.fit(X)
 X_scaled = scaler.transform(X)
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3)
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3, random_state=123)
 
-linreg = LinearRegression(lmbda=0) #lmbda
-mse, r2 = CrossValidation(linreg, X_train, y_train)
-print("lambda = ", 0)
-print("mse = ", mse)
-print("r2 = ", r2)
+# linreg = Ridge() #lmbda
+# lambda_vals = np.logspace(-8, 1, 100)
+# lambda_vals = np.logspace(3, 5, 100)
 
-lambda_vals = np.logspace(-8, 1, 10)
+# lambda_vals = np.concatenate(([0], lambda_vals))
+# print(lambda_vals)
+# hyperparameters_to_search = {
+#     'alpha': lambda_vals,
+#     }
 
-for i, lmbda in enumerate(lambda_vals):
-    linreg = LinearRegression(lmbda=lmbda) #lmbda
-    mse, r2 = CrossValidation(linreg, X_train, y_train)
-    print("lambda = ", lmbda)
-    print("mse = ", mse)
-    print("r2 = ", r2)
+# regression = GridSearchCV(linreg, param_grid=hyperparameters_to_search, scoring='r2', cv=5, refit=True, verbose=3, n_jobs=-1)
 
+# print("Do the search (can take some time!)")
+# search = regression.fit(X_train, y_train)
+
+# print("Best parameters from gridsearch:")
+# print(search.best_params_)
+
+# print("Best CV R2 score from gridsearch:")
+# print(search.best_score_)
+
+# print("R2 score on test data:")
+# r2 = search.score(X_test, y_test)
+# print("R2 = ", r2)
+
+# with open('datasets/cv_linreg_results3.pickle','wb') as f:
+#     pickle.dump(search.cv_results_, f)
+
+linreg = Ridge(alpha=7390.722033525775)
+linreg.fit(X_train, y_train)
+with open('models/linreg.pickle', 'wb') as f:
+    pickle.dump(linreg, f)

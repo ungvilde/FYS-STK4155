@@ -154,7 +154,6 @@ def GridSearch_LogReg_Sklearn(
 
     return accuracy
 
-
 def GridSearch_LinReg(
     X,
     y, 
@@ -435,8 +434,6 @@ def GridSearch_LogReg_epochs_batchsize(
 
     return accuracy
 
-
-
 def GridSearch_FFNN_reg_architecture(
     X,
     y,
@@ -510,7 +507,6 @@ def GridSearch_FFNN_reg_architecture(
 
     return mse_values, r2_values
 
-
 def GridSearch_FFNN_classification_architecture(
     X,
     y,
@@ -564,3 +560,77 @@ def GridSearch_FFNN_classification_architecture(
         plt.savefig("figs/gridsearch_FFNN_classify_accuracy_architecture" + info + ".pdf")  
 
     return accuracy_scores
+
+def GridSearch_LinReg_eta_epoch(
+    X,
+    y, 
+    n_epochs, 
+    eta_values, 
+    solver="gd",
+    optimization=None,
+    plot_grid=True,
+    gamma=0.9,
+    batch_size=20,
+    lmbda=0,
+    k=5
+    ):
+    mse_values = np.zeros((len(eta_values), len(n_epochs)))
+    r2_values = np.zeros((len(eta_values), len(n_epochs)))
+
+    for i, eta in enumerate(eta_values):
+        for j, epochs in enumerate(n_epochs):
+            print(f"Computing eta = {eta} and epochs = {epochs}.")
+            linreg = LinearRegression(
+                solver=solver,
+                optimization=optimization,
+                batch_size=batch_size, 
+                eta0=eta, 
+                lmbda=lmbda, 
+                gamma=gamma, 
+                max_iter=epochs
+                )
+
+            mse, r2 = CrossValidation_regression(linreg, X, y, k=k)
+
+            mse_values[i][j] = mse
+            r2_values[i][j] = r2
+
+    if plot_grid:
+        fig, ax = plt.subplots(figsize = (13*cm, 12*cm))
+        sns.heatmap(
+            mse_values, 
+            annot=True, 
+            ax=ax, 
+            cmap="viridis", 
+            cbar_kws={'label': 'MSE'},
+            yticklabels=np.round(np.log10(eta_values), 2), 
+            xticklabels=n_epochs
+            )
+
+        ax.set_ylabel("$\log_{10}(\eta$)")
+        ax.set_xlabel("Epochs")
+        plt.tight_layout()
+        info = "_sol" + solver 
+
+        if solver != "analytic":
+            info += f"_opt{optimization}_mom{gamma}_batch{batch_size}_lmbda{lmbda}"
+
+        plt.savefig("figs/gridsearch_linreg_MSE_epoch_eta" + info + ".pdf")
+        
+        fig, ax = plt.subplots(figsize = (12*cm, 12*cm))
+        sns.heatmap(
+            r2_values, 
+            annot=True, 
+            ax=ax, 
+            cmap="viridis", 
+            cbar_kws={'label': '$R^2$'},
+            yticklabels=np.round(np.log10(eta_values), 2), 
+            xticklabels=n_epochs
+            )
+        #ax.set_title("$R^2$")
+        ax.set_ylabel("$\log_{10}(\eta$)")
+        ax.set_xlabel("Epochs")
+        plt.tight_layout()
+        plt.savefig("figs/gridsearch_linreg_R2_epoch_eta" + info + ".pdf")
+
+    return mse_values, r2_values
