@@ -13,5 +13,6 @@ In this project we apply Feedforward neural networks (FFNN), Support vector regr
 - **FFNN_analysis.py**: apply FFNN to data
 - **SVR_analysis.py**: apply SVR to data
 - **LinearRegression_analysis.py**: analyse using linear regression
+- **plot_velocity.py**: where predicted vs true velocities are plotted
 - **datasets/**: folder for storing data sets
 - **figs/**: folder for plots used in report
